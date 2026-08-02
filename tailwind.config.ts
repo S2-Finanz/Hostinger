@@ -29,7 +29,7 @@ const config: Config = {
         },
       },
       animation: {
-        "scroll-x": "scroll-x 30s linear infinite",
+        "scroll-x": "scroll-x 60s linear infinite",
       },
     },
   },
