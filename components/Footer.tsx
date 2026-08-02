@@ -10,9 +10,6 @@ export default function Footer() {
           </p>
           <p className="mt-3">Furthstraße 41/5</p>
           <p>73770 Denkendorf</p>
-          <p className="mt-4 text-xs uppercase tracking-wide text-nebel/70">
-            Silent Branding. Klare Beratung.
-          </p>
         </div>
 
         <nav className="flex flex-col gap-2">

@@ -1,3 +1,27 @@
+const TEAM = [
+  {
+    name: "Marcel Scheuermann",
+    facts: [
+      "19 Jahre Berufserfahrung in der Finanzbranche",
+      "Bankkaufmann IHK",
+      "Kaufmann f. Versicherungen und Finanzen IHK",
+      "Spezialist für private Krankenversicherung für Angestellte und Geschäftsführer",
+      "Beamtenversorgung",
+      "Experte für steueroptimierte Vorsorge",
+    ],
+  },
+  {
+    name: "Marcel Schäfer",
+    facts: [
+      "5 Jahre Berufserfahrung",
+      "Versicherungsfachmann DVA",
+      "Ex-Beamter",
+      "Spezialist für Beamtenversorgung",
+      "Experte für Arbeitskraftabsicherung und Altersvorsorge",
+    ],
+  },
+];
+
 export default function AboutTeaser() {
   return (
     <section id="ueber-uns" className="bg-graphit">
@@ -21,11 +45,39 @@ export default function AboutTeaser() {
           </a>
         </div>
 
-        <div
-          className="aspect-[4/5] w-full rounded-sm bg-onyx"
-          role="img"
-          aria-label="Portraitfoto Marcel Scheuermann und Marcel Schäfer"
-        />
+        <div className="grid grid-cols-2 gap-4">
+          {TEAM.map((person) => (
+            <div
+              key={person.name}
+              tabIndex={0}
+              className="group relative aspect-[3/4] w-full overflow-hidden rounded-sm bg-onyx outline-none"
+            >
+              {/* TODO: Portraitfoto ersetzen */}
+              <div
+                className="absolute inset-0 flex items-end p-4"
+                role="img"
+                aria-label={`Portraitfoto ${person.name}`}
+              >
+                <span className="font-display text-sm font-semibold text-white">
+                  {person.name}
+                </span>
+              </div>
+
+              <div className="absolute inset-0 flex flex-col justify-center gap-2 bg-onyx/95 p-5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus:opacity-100">
+                <p className="mb-1 font-display text-sm font-semibold text-gold">
+                  {person.name}
+                </p>
+                <ul className="space-y-1.5">
+                  {person.facts.map((fact) => (
+                    <li key={fact} className="text-xs leading-snug text-nebel">
+                      {fact}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

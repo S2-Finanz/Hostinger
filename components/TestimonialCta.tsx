@@ -1,21 +1,22 @@
 import Link from "next/link";
 import { CAL_LINK } from "@/lib/constants";
+import GoogleReviews from "@/components/GoogleReviews";
 
 export default function TestimonialCta() {
   return (
-    <section className="bg-onyx">
-      <div className="mx-auto grid max-w-content items-center gap-12 px-6 py-24 md:grid-cols-2">
-        <blockquote>
-          <p className="font-display text-2xl leading-snug md:text-3xl">
-            „Kompetent, verständlich und immer in unserem Interesse. So
-            sollte Beratung sein.&rdquo;
-          </p>
-          <footer className="mt-6 text-sm text-nebel">
-            — Mandantin, Lehrerin
-          </footer>
-        </blockquote>
+    <section className="bg-onyx py-24">
+      <div className="mx-auto max-w-content px-6">
+        <h2 className="font-display text-2xl font-bold md:text-3xl">
+          Was Mandanten sagen
+        </h2>
+      </div>
 
-        <div className="rounded-sm border border-gold/40 bg-graphit p-10">
+      <div className="mt-10">
+        <GoogleReviews />
+      </div>
+
+      <div className="mx-auto mt-14 max-w-content px-6">
+        <div className="mx-auto max-w-md rounded-sm border border-gold/40 bg-graphit p-10 text-center">
           <h3 className="font-display text-xl font-bold">
             Kostenloses Orientierungsgespräch
           </h3>

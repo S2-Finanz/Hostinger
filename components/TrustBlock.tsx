@@ -8,10 +8,6 @@ const POINTS = [
     text: "ohne Bindung an einen einzelnen Anbieter",
   },
   {
-    title: "Transparente Vergütung",
-    text: "klar offengelegt, keine versteckten Kosten",
-  },
-  {
     title: "Persönliche Betreuung",
     text: "ein fester Ansprechpartner, kein Callcenter",
   },
@@ -23,14 +19,19 @@ export default function TrustBlock() {
       <div className="mx-auto grid max-w-content gap-12 px-6 py-24 md:grid-cols-2">
         <div>
           <h2 className="font-display text-3xl font-bold md:text-4xl">
-            Zwei Experten. Ein klarer Fokus.
+            Zwei Experten.
+            <br />
+            Ein Fokus
           </h2>
           <p className="mt-6 text-nebel">
-            S² Finanz ist ein hochspezialisiertes Maklerhaus für private
-            Krankenversicherung, Beamtenversorgung und Absicherung der
-            Arbeitskraft. Wir beraten unabhängig, transparent und auf
-            Augenhöhe – für Menschen, die Verantwortung tragen: im
-            öffentlichen Dienst, als Angestellte oder als Unternehmer.
+            S² Finanz ist ein spezialisierter Digitalmakler für private
+            Krankenversicherung, Absicherung der Arbeitskraft sowie
+            individuelle Beamtenversorgung.
+          </p>
+          <p className="mt-4 text-nebel">
+            Wir beraten unabhängig, transparent und auf Augenhöhe – für
+            Menschen, die Verantwortung tragen: im öffentlichen Dienst, als
+            Angestellte oder als Unternehmer.
           </p>
         </div>
 

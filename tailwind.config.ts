@@ -22,6 +22,15 @@ const config: Config = {
       maxWidth: {
         content: "1200px",
       },
+      keyframes: {
+        "scroll-x": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-33.3333%)" },
+        },
+      },
+      animation: {
+        "scroll-x": "scroll-x 30s linear infinite",
+      },
     },
   },
   plugins: [],
