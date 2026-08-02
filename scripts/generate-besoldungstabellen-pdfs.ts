@@ -47,14 +47,20 @@ async function buildPdf(land: BesoldungstabelleLand): Promise<Uint8Array> {
   const fontRegular = await doc.embedFont(StandardFonts.Helvetica);
   const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  const maxStufe = Math.max(...land.gruppen.map((g) => g.stufen.length));
+  const minStufe = Math.min(
+    ...land.gruppen.map((g) => g.stufen[0]?.stufe ?? 1),
+  );
+  const maxStufe = Math.max(
+    ...land.gruppen.map((g) => g.stufen[g.stufen.length - 1]?.stufe ?? 1),
+  );
+  const stufenSpalten = maxStufe - minStufe + 1;
   const gruppen = land.gruppen;
 
   const HEADER_H = 96;
-  const FOOTER_H = 60;
+  const FOOTER_H = 72;
   const ROW_H = 17;
   const TABLE_HEAD_H = 20;
-  const STUFE_COL_W = (PAGE_W - MARGIN * 2 - 70) / maxStufe;
+  const STUFE_COL_W = (PAGE_W - MARGIN * 2 - 70) / stufenSpalten;
   const GRUPPE_COL_W = 70;
 
   const rowsPerPage = Math.floor(
@@ -150,8 +156,8 @@ async function buildPdf(land: BesoldungstabelleLand): Promise<Uint8Array> {
       font: fontBold,
       color: WHITE,
     });
-    for (let s = 1; s <= maxStufe; s++) {
-      const colX = MARGIN + GRUPPE_COL_W + (s - 1) * STUFE_COL_W;
+    for (let s = minStufe; s <= maxStufe; s++) {
+      const colX = MARGIN + GRUPPE_COL_W + (s - minStufe) * STUFE_COL_W;
       const label = `Stufe ${s}`;
       const w = fontBold.widthOfTextAtSize(label, 8);
       page.drawText(label, {
@@ -182,9 +188,9 @@ async function buildPdf(land: BesoldungstabelleLand): Promise<Uint8Array> {
         font: fontBold,
         color: BLACK,
       });
-      for (let s = 1; s <= maxStufe; s++) {
+      for (let s = minStufe; s <= maxStufe; s++) {
         const betrag = g.stufen.find((st) => st.stufe === s)?.betrag;
-        const colX = MARGIN + GRUPPE_COL_W + (s - 1) * STUFE_COL_W;
+        const colX = MARGIN + GRUPPE_COL_W + (s - minStufe) * STUFE_COL_W;
         const text = betrag !== undefined ? formatEUR(betrag) : "–";
         const w = fontRegular.widthOfTextAtSize(text, 8.5);
         page.drawText(text, {
@@ -224,6 +230,7 @@ async function buildPdf(land: BesoldungstabelleLand): Promise<Uint8Array> {
     const disclaimerLines = [
       "Datenquelle: dbb beamtenbund und tarifunion (www.dbb.de). Einzelne Tabellen sind noch nicht verkündete Referentenentwürfe bzw.",
       "Prognosen und können sich bis zum Inkrafttreten ändern. Angaben ohne Gewähr – Fehler und Irrtümer vorbehalten. Keine Rechtsberatung.",
+      "Beförderungsämter beginnen häufig erst ab einer höheren Mindest-Erfahrungsstufe – die Tabelle zeigt daher nicht für jede Besoldungsgruppe Stufe 1.",
     ];
     disclaimerLines.forEach((line, i) => {
       page.drawText(line, {
@@ -246,7 +253,169 @@ async function buildPdf(land: BesoldungstabelleLand): Promise<Uint8Array> {
     });
   });
 
+  if (land.familienzuschlag || land.anwaerter) {
+    drawZusatzSeite(doc, land, fontRegular, fontBold);
+  }
+
   return doc.save();
+}
+
+function drawZusatzSeite(
+  doc: PDFDocument,
+  land: BesoldungstabelleLand,
+  fontRegular: Awaited<ReturnType<PDFDocument["embedFont"]>>,
+  fontBold: Awaited<ReturnType<PDFDocument["embedFont"]>>,
+) {
+  const HEADER_H = 96;
+  const FOOTER_H = 72;
+  const ROW_H = 20;
+  const COL_W = (PAGE_W - MARGIN * 2 - 32) / 2;
+
+  const page = doc.addPage([PAGE_W, PAGE_H]);
+
+  page.drawRectangle({
+    x: 0,
+    y: PAGE_H - HEADER_H,
+    width: PAGE_W,
+    height: HEADER_H,
+    color: ONYX,
+  });
+  page.drawRectangle({
+    x: 0,
+    y: PAGE_H - HEADER_H,
+    width: PAGE_W,
+    height: 3,
+    color: GOLD,
+  });
+  page.drawText("S² FINANZ", {
+    x: MARGIN,
+    y: PAGE_H - 34,
+    size: 13,
+    font: fontBold,
+    color: GOLD,
+  });
+  page.drawText("Familienzuschlag & Anwärtergrundbetrag", {
+    x: MARGIN,
+    y: PAGE_H - 58,
+    size: 20,
+    font: fontBold,
+    color: WHITE,
+  });
+  page.drawText(land.name, {
+    x: MARGIN,
+    y: PAGE_H - 80,
+    size: 13,
+    font: fontRegular,
+    color: NEBEL,
+  });
+
+  const drawTabelle = (
+    title: string,
+    x: number,
+    zusatz: { gueltigAb?: string; posten: { label: string; betrag: number }[]; hinweis?: string } | undefined,
+  ) => {
+    let y = PAGE_H - HEADER_H - 28;
+    page.drawText(title, {
+      x,
+      y,
+      size: 12,
+      font: fontBold,
+      color: ONYX,
+    });
+    y -= 10;
+    if (zusatz?.gueltigAb) {
+      const label = `Gültig ab ${formatDatum(zusatz.gueltigAb)}`;
+      page.drawText(label, {
+        x,
+        y,
+        size: 8,
+        font: fontRegular,
+        color: GRAPHIT,
+      });
+    }
+    y -= 18;
+
+    if (!zusatz || zusatz.posten.length === 0) {
+      page.drawText(
+        zusatz?.hinweis ?? "Für dieses Bundesland liegen uns hierzu keine Angaben vor.",
+        { x, y, size: 8.5, font: fontRegular, color: GRAPHIT, maxWidth: COL_W, lineHeight: 12 },
+      );
+      return;
+    }
+
+    zusatz.posten.forEach((p, i) => {
+      if (i % 2 === 1) {
+        page.drawRectangle({ x, y: y - 5, width: COL_W, height: ROW_H, color: ROW_ALT });
+      }
+      page.drawText(p.label, {
+        x: x + 6,
+        y: y + 1,
+        size: 8.5,
+        font: fontRegular,
+        color: BLACK,
+        maxWidth: COL_W - 90,
+        lineHeight: 10,
+      });
+      const betragText = formatEUR(p.betrag);
+      const w = fontBold.widthOfTextAtSize(betragText, 9);
+      page.drawText(betragText, {
+        x: x + COL_W - w - 6,
+        y: y + 1,
+        size: 9,
+        font: fontBold,
+        color: BLACK,
+      });
+      y -= ROW_H;
+    });
+
+    if (zusatz.hinweis) {
+      y -= 8;
+      page.drawText(zusatz.hinweis, {
+        x,
+        y,
+        size: 7.5,
+        font: fontRegular,
+        color: GRAPHIT,
+        maxWidth: COL_W,
+        lineHeight: 10,
+      });
+    }
+  };
+
+  drawTabelle("Familienzuschlag (Monatsbeträge in Euro)", MARGIN, land.familienzuschlag);
+  drawTabelle(
+    "Anwärtergrundbetrag (Monatsbeträge in Euro)",
+    MARGIN + COL_W + 32,
+    land.anwaerter,
+  );
+
+  page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: FOOTER_H, color: ONYX });
+  page.drawRectangle({ x: 0, y: FOOTER_H - 2, width: PAGE_W, height: 2, color: GOLD });
+
+  const disclaimerLines = [
+    "Datenquelle: dbb beamtenbund und tarifunion (www.dbb.de). Einzelne Tabellen sind noch nicht verkündete Referentenentwürfe bzw.",
+    "Prognosen und können sich bis zum Inkrafttreten ändern. Angaben ohne Gewähr – Fehler und Irrtümer vorbehalten. Keine Rechtsberatung.",
+    "Familienzuschlag ohne regionale/gruppenspezifische Sonderstaffelungen (z. B. Mietenstufen). Anwärtergrundbetrag je Eingangsamt nach Laufbahn.",
+  ];
+  disclaimerLines.forEach((line, i) => {
+    page.drawText(line, {
+      x: MARGIN,
+      y: FOOTER_H - 22 - i * 12,
+      size: 7.5,
+      font: fontRegular,
+      color: NEBEL,
+    });
+  });
+
+  const brand = "S² Finanz";
+  const bw = fontBold.widthOfTextAtSize(brand, 9);
+  page.drawText(brand, {
+    x: PAGE_W - MARGIN - bw,
+    y: FOOTER_H - 22,
+    size: 9,
+    font: fontBold,
+    color: GOLD,
+  });
 }
 
 async function main() {

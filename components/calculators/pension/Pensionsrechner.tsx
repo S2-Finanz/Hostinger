@@ -18,6 +18,7 @@ import {
   findLand,
   gehaltFuerStufe,
   maxStufeFuerGruppe,
+  minStufeFuerGruppe,
 } from "@/lib/besoldung/tabellen";
 
 const MONATE = [
@@ -25,7 +26,15 @@ const MONATE = [
   "Juli", "August", "September", "Oktober", "November", "Dezember",
 ];
 
-function stufeNachJahren(dienstjahre: number, maxStufe: number): number {
+// Viele Länder weisen für höhere Besoldungsgruppen (Beförderungsämter) eine
+// höhere Mindest-Erfahrungsstufe aus, da niemand mit so wenig Dienstzeit
+// bereits befördert wäre. Die simulierte Stufe wird daher auf [minStufe, maxStufe]
+// begrenzt, statt bei Stufe 1 zu beginnen.
+function stufeNachJahren(
+  dienstjahre: number,
+  minStufe: number,
+  maxStufe: number,
+): number {
   let stufe = 1;
   let kumuliert = 0;
   for (const jahreBisNaechste of STUFEN_RHYTHMUS_JAHRE) {
@@ -34,7 +43,7 @@ function stufeNachJahren(dienstjahre: number, maxStufe: number): number {
     kumuliert += jahreBisNaechste;
     stufe += 1;
   }
-  return Math.min(stufe, maxStufe);
+  return Math.min(Math.max(stufe, minStufe), maxStufe);
 }
 
 export default function Pensionsrechner() {
@@ -61,6 +70,7 @@ export default function Pensionsrechner() {
     ? gruppe
     : (verfuegbareGruppen.find((g) => g === "A13") ?? verfuegbareGruppen[0]);
   const maxStufe = maxStufeFuerGruppe(land, aktuelleGruppe);
+  const minStufe = minStufeFuerGruppe(land, aktuelleGruppe);
 
   const result = useMemo(() => {
     const dienstbeginnJahrDezimal = dienstJahr + (dienstMonat - 1) / 12;
@@ -82,7 +92,7 @@ export default function Pensionsrechner() {
 
     // Stufe bei Pensionierung anhand der KALENDARISCHEN Dienstjahre
     // (Erfahrungsstufen laufen unabhängig vom Beschäftigungsumfang weiter)
-    const stufeBeiPension = stufeNachJahren(gesamtDienstjahre, maxStufe);
+    const stufeBeiPension = stufeNachJahren(gesamtDienstjahre, minStufe, maxStufe);
     const grundgehaltHeute = gehaltFuerStufe(land, aktuelleGruppe, stufeBeiPension);
 
     let endgehalt: number | null = null;
@@ -106,7 +116,10 @@ export default function Pensionsrechner() {
       betrag: number | null;
     }[] = [];
     let kumuliert = 0;
-    for (let s = 1; s <= maxStufe; s++) {
+    for (let s = 1; s < minStufe; s++) {
+      kumuliert += STUFEN_RHYTHMUS_JAHRE[s - 1] ?? 0;
+    }
+    for (let s = minStufe; s <= maxStufe; s++) {
       if (kumuliert > gesamtDienstjahre) break;
       const betragHeute = gehaltFuerStufe(land, aktuelleGruppe, s);
       const kalenderjahr = Math.round(dienstbeginnJahrDezimal + kumuliert);
@@ -150,6 +163,7 @@ export default function Pensionsrechner() {
     elternzeitPhasen,
     aktuelleGruppe,
     maxStufe,
+    minStufe,
     besoldungserhoehung,
     land,
     currentYear,

@@ -9,6 +9,17 @@ export type BesoldungsgruppeDaten = {
   stufen: ErfahrungsstufeBetrag[];
 };
 
+export type Kennzahl = {
+  label: string;
+  betrag: number;
+};
+
+export type ZusatzTabelle = {
+  gueltigAb?: string;
+  posten: Kennzahl[];
+  hinweis?: string;
+};
+
 export type BesoldungstabelleLand = {
   code: string;
   name: string;
@@ -16,6 +27,8 @@ export type BesoldungstabelleLand = {
   gueltigAb?: string;
   entwurf?: boolean;
   gruppen: BesoldungsgruppeDaten[];
+  familienzuschlag?: ZusatzTabelle;
+  anwaerter?: ZusatzTabelle;
 };
 
 export type TeilzeitPhase = {
