@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { NumberField, ResultRow, formatEUR } from "@/components/calculators/ui";
 import {
   einkommensteuer,
+  soli,
+  ertragsanteil,
   ABGELTUNGSTEUER,
-  TEILFREISTELLUNG_AKTIENFONDS,
   SPARERPAUSCHBETRAG,
 } from "@/lib/steuer";
 
@@ -19,6 +20,7 @@ const STARTBONUS = 200; // einmalig bei Abschluss unter 25 Jahren
 const STARTBONUS_ALTERSGRENZE = 25;
 const SA_ABZUG_MAX = 1800; // Sonderausgabenabzug: Beiträge bis 1.800 €/Jahr
 const MAX_EINZAHLUNG = 6840; // maximale Jahreseinzahlung ins Depot
+const AUSZAHLPLAN_ENDALTER = 85; // Auszahlplan des AVD läuft bis 85
 
 function grundzulage(jahresbeitrag: number): number {
   const stufe1 =
@@ -47,8 +49,13 @@ export default function Altersvorsorgedepot() {
   const [jahre, setJahre] = useState(30);
 
   const [vergleichOffen, setVergleichOffen] = useState(false);
-  const [ruhestandsEinkommen, setRuhestandsEinkommen] = useState(18000);
-  const [auszahlJahre, setAuszahlJahre] = useState(20);
+  const [auszahlAlter, setAuszahlAlter] = useState(67);
+  const [gesRente, setGesRente] = useState(2000);
+  const [bav, setBav] = useState(0);
+  const [basisrente, setBasisrente] = useState(0);
+  const [miete, setMiete] = useState(0);
+  const [privRente, setPrivRente] = useState(0);
+  const [kirchensteuer, setKirchensteuer] = useState(0);
   const [renditeAuszahlung, setRenditeAuszahlung] = useState(4);
 
   const result = useMemo(() => {
@@ -72,8 +79,6 @@ export default function Altersvorsorgedepot() {
     const i = rendite / 100 / 12;
     const kzJahre = Math.min(Math.max(kinderzulageJahre, 0), jahre);
     let kapitalAvd = startbonus;
-    let kapitalEtf = 0;
-    let basisEtf = 0;
     const eigenMonat = jahresbeitrag / 12;
 
     for (let m = 0; m < jahre * 12; m++) {
@@ -81,8 +86,6 @@ export default function Altersvorsorgedepot() {
       const zulageMonat =
         (zulageGrund + (jahrIndex < kzJahre ? kinderzulage : 0)) / 12;
       kapitalAvd = kapitalAvd * (1 + i) + eigenMonat + zulageMonat;
-      kapitalEtf = kapitalEtf * (1 + i) + eigenMonat;
-      basisEtf += eigenMonat;
     }
 
     // Zusätzliche Steuererstattungen (Günstigerprüfung) fließen an die Person, nicht ins Depot
@@ -104,81 +107,96 @@ export default function Altersvorsorgedepot() {
           ? ("abzug" as const)
           : ("zulage" as const),
       kapitalAvd,
-      kapitalEtf,
-      basisEtf,
       eingezahlt,
       zulagenGesamt,
       erstattungenGesamt,
       ertrag: kapitalAvd - eingezahlt - zulagenGesamt,
+      foerderTopf: zulagenGesamt + erstattungenGesamt,
     };
   }, [monatlich, alter, kinder, kinderzulageJahre, zvE, rendite, jahre]);
 
   const vergleich = useMemo(() => {
     if (!vergleichOffen) return null;
 
+    const startAlter = Math.min(Math.max(auszahlAlter, 55), 75);
+    const n = AUSZAHLPLAN_ENDALTER - startAlter;
     const iA = renditeAuszahlung / 100;
-    const n = Math.max(auszahlJahre, 1);
-    const wAvd = annuitaet(result.kapitalAvd, iA, n);
-    const wEtf = annuitaet(result.kapitalEtf, iA, n);
+    const w = annuitaet(result.kapitalAvd, iA, n); // Auszahlplan bis 85, beide Varianten gleiches Kapital
 
-    let kEtf = result.kapitalEtf;
-    let basis = result.basisEtf;
-    let nettoAvdGesamt = 0;
-    let nettoEtfGesamt = 0;
-    let steuerAvdGesamt = 0;
+    // Sonstige steuerpflichtige Einkünfte im Ruhestand (jährlich)
+    const ea = ertragsanteil(startAlter);
+    const sonstVoll = 12 * (gesRente + bav + basisrente + miete);
+    const sonstPrivRente = 12 * privRente * (ea / 100);
+    const sonst = sonstVoll + sonstPrivRente;
+
+    // Gesamtbelastung ESt + Soli + Kirchensteuer auf ein zu versteuerndes Einkommen
+    const belastung = (basis: number): number => {
+      const est = einkommensteuer(basis);
+      return est + soli(est) + est * (kirchensteuer / 100);
+    };
+
+    // AVD: Auszahlung voll steuerpflichtig on top der übrigen Einkünfte (konstant je Jahr)
+    const steuerAvdJahr = belastung(sonst + w) - belastung(sonst);
+    const grenzbelastung = w > 0 ? (steuerAvdJahr / w) * 100 : 0;
+
+    // ETF-Depot mit derselben Kapitalsumme: nur der Gewinnanteil der Entnahmen
+    // ist steuerpflichtig (25 % KapSt + Soli), Kostenbasis = eigene Einzahlungen
+    let kEtf = result.kapitalAvd;
+    let basis = Math.min(result.eingezahlt, kEtf);
     let steuerEtfGesamt = 0;
-    // Bereits erhaltene Steuererstattungen zählen als Start-Vorsprung des AVD
-    let kumDiff = result.erstattungenGesamt;
+    let steuerEtfJahr1 = 0;
+    let kumMehrsteuer = 0;
     let breakEvenJahr: number | null = null;
 
     for (let jahr = 1; jahr <= n; jahr++) {
-      // Altersvorsorgedepot: Auszahlung voll steuerpflichtig (nachgelagerte Besteuerung)
-      const steuerAvd =
-        einkommensteuer(ruhestandsEinkommen + wAvd) -
-        einkommensteuer(ruhestandsEinkommen);
-      const nettoAvd = wAvd - steuerAvd;
-
-      // ETF-Depot: nur der Gewinnanteil der Entnahme ist steuerpflichtig
-      const kEtfVorher = kEtf * (1 + iA);
-      const gewinnanteil =
-        kEtfVorher > 0 ? Math.max(1 - basis / kEtfVorher, 0) : 0;
+      const kVorher = kEtf * (1 + iA);
+      const gewinnanteil = kVorher > 0 ? Math.max(1 - basis / kVorher, 0) : 0;
       const steuerpflichtig = Math.max(
-        wEtf * gewinnanteil * (1 - TEILFREISTELLUNG_AKTIENFONDS) -
-          SPARERPAUSCHBETRAG,
+        w * gewinnanteil - SPARERPAUSCHBETRAG,
         0,
       );
       const steuerEtf = steuerpflichtig * ABGELTUNGSTEUER;
-      const nettoEtf = wEtf - steuerEtf;
-      basis -= kEtfVorher > 0 ? wEtf * (basis / kEtfVorher) : 0;
-      kEtf = kEtfVorher - wEtf;
+      basis -= kVorher > 0 ? w * (basis / kVorher) : 0;
+      kEtf = kVorher - w;
 
-      nettoAvdGesamt += nettoAvd;
-      nettoEtfGesamt += nettoEtf;
-      steuerAvdGesamt += steuerAvd;
+      if (jahr === 1) steuerEtfJahr1 = steuerEtf;
       steuerEtfGesamt += steuerEtf;
 
-      kumDiff += nettoAvd - nettoEtf;
-      if (breakEvenJahr === null && kumDiff < 0) breakEvenJahr = jahr;
+      kumMehrsteuer += steuerAvdJahr - steuerEtf;
+      if (breakEvenJahr === null && kumMehrsteuer > result.foerderTopf) {
+        breakEvenJahr = jahr;
+      }
     }
 
-    const gesamtvorteil =
-      nettoAvdGesamt + result.erstattungenGesamt - nettoEtfGesamt;
+    const steuerAvdGesamt = steuerAvdJahr * n;
+    const mehrsteuerGesamt = steuerAvdGesamt - steuerEtfGesamt;
 
     return {
-      wAvd,
-      wEtf,
-      nettoAvdGesamt,
-      nettoEtfGesamt,
+      n,
+      startAlter,
+      w,
+      wMonat: w / 12,
+      ea,
+      sonst,
+      steuerAvdJahr,
       steuerAvdGesamt,
+      steuerEtfJahr1,
       steuerEtfGesamt,
-      gesamtvorteil,
+      mehrsteuerGesamt,
+      grenzbelastung,
       breakEvenJahr,
+      restvorteil: result.foerderTopf - mehrsteuerGesamt,
     };
   }, [
     vergleichOffen,
     result,
-    ruhestandsEinkommen,
-    auszahlJahre,
+    auszahlAlter,
+    gesRente,
+    bav,
+    basisrente,
+    miete,
+    privRente,
+    kirchensteuer,
     renditeAuszahlung,
   ]);
 
@@ -327,36 +345,74 @@ export default function Altersvorsorgedepot() {
         >
           {vergleichOffen
             ? "Vergleich ausblenden"
-            : "Lohnt sich das? Vergleich mit privatem ETF-Sparplan berechnen"}
+            : "Steuervergleich in der Auszahlphase: AVD vs. ETF-Depot"}
         </button>
 
         {vergleichOffen && vergleich && (
           <div className="mt-8 flex flex-col gap-10">
             <p className="max-w-2xl text-sm text-nebel">
-              Der Vergleich übernimmt Ihre Eingaben von oben: identischer
-              Eigenbeitrag und identische Rendite – einmal im
-              Altersvorsorgedepot (mit Zulagen und steuerfreier Ansparphase,
-              aber voll steuerpflichtiger Auszahlung) und einmal im privaten
-              ETF-Depot (ohne Förderung, besteuert wird nur der Gewinnanteil
-              der Entnahmen mit Abgeltungsteuer und 30 % Teilfreistellung).
+              Beide Varianten starten mit demselben Kapital (
+              {formatEUR(result.kapitalAvd)}) und werden als Auszahlplan bis
+              zum Alter {AUSZAHLPLAN_ENDALTER} vollständig entnommen. Der
+              Unterschied liegt allein in der Besteuerung: Die Auszahlung des
+              Altersvorsorgedepots ist voll einkommensteuerpflichtig – on top
+              Ihrer übrigen Alterseinkünfte. Beim ETF-Depot werden nur die
+              Erträge mit 25 % Kapitalertragsteuer plus Soli belastet.
             </p>
 
             <div className="grid gap-10 md:grid-cols-2">
               <div className="flex flex-col gap-8">
                 <NumberField
-                  label="Sonstiges zu versteuerndes Einkommen im Ruhestand (z. B. Rente)"
-                  suffix="€/Jahr"
-                  value={ruhestandsEinkommen}
-                  onChange={setRuhestandsEinkommen}
-                  step={1000}
+                  label="Auszahlungsbeginn (Alter)"
+                  suffix="Jahre"
+                  value={auszahlAlter}
+                  onChange={setAuszahlAlter}
+                  step={1}
+                  min={55}
+                  max={75}
                 />
                 <NumberField
-                  label="Dauer des Auszahlplans"
-                  suffix="Jahre"
-                  value={auszahlJahre}
-                  onChange={setAuszahlJahre}
+                  label="Gesetzliche Rente (voll steuerpflichtig)"
+                  suffix="€/Monat"
+                  value={gesRente}
+                  onChange={setGesRente}
+                  step={100}
+                />
+                <NumberField
+                  label="Betriebliche Altersvorsorge"
+                  suffix="€/Monat"
+                  value={bav}
+                  onChange={setBav}
+                  step={100}
+                />
+                <NumberField
+                  label="Basisrente (Rürup)"
+                  suffix="€/Monat"
+                  value={basisrente}
+                  onChange={setBasisrente}
+                  step={100}
+                />
+                <NumberField
+                  label="Mieteinnahmen"
+                  suffix="€/Monat"
+                  value={miete}
+                  onChange={setMiete}
+                  step={100}
+                />
+                <NumberField
+                  label={`Private Rentenversicherung (Ertragsanteil ${vergleich.ea} %)`}
+                  suffix="€/Monat"
+                  value={privRente}
+                  onChange={setPrivRente}
+                  step={100}
+                />
+                <NumberField
+                  label="Kirchensteuer (0, 8 oder 9)"
+                  suffix="%"
+                  value={kirchensteuer}
+                  onChange={setKirchensteuer}
                   step={1}
-                  max={40}
+                  max={9}
                 />
                 <NumberField
                   label="Rendite in der Auszahlphase p. a."
@@ -371,47 +427,58 @@ export default function Altersvorsorgedepot() {
               <div className="flex flex-col gap-6">
                 <div className="rounded-sm bg-onyx p-8">
                   <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-                    Kapital zum Auszahlungsbeginn
+                    Ihr Auszahlplan bis {AUSZAHLPLAN_ENDALTER}
                   </p>
                   <ResultRow
-                    label="Altersvorsorgedepot"
-                    value={formatEUR(result.kapitalAvd)}
+                    label={`Dauer (Alter ${vergleich.startAlter} bis ${AUSZAHLPLAN_ENDALTER})`}
+                    value={`${vergleich.n} Jahre`}
                   />
                   <ResultRow
-                    label="Privates ETF-Depot"
-                    value={formatEUR(result.kapitalEtf)}
+                    label="Monatliche Brutto-Auszahlung"
+                    value={formatEUR(vergleich.wMonat)}
+                    emphasis
                   />
                   <ResultRow
-                    label="Brutto-Jahresauszahlung AVD / ETF"
-                    value={`${formatEUR(vergleich.wAvd)} / ${formatEUR(
-                      vergleich.wEtf,
-                    )}`}
+                    label="Übrige steuerpflichtige Einkünfte pro Jahr"
+                    value={formatEUR(vergleich.sonst)}
                   />
                 </div>
 
                 <div className="rounded-sm bg-onyx p-8">
                   <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-                    Steuern und Netto über die gesamte Auszahlphase
+                    Steuerbelastung der Auszahlungen
                   </p>
                   <ResultRow
-                    label="Steuern Altersvorsorgedepot"
-                    value={formatEUR(vergleich.steuerAvdGesamt)}
+                    label="Steuer auf AVD-Auszahlung pro Jahr"
+                    value={formatEUR(vergleich.steuerAvdJahr)}
                   />
                   <ResultRow
-                    label="Steuern ETF-Depot"
-                    value={formatEUR(vergleich.steuerEtfGesamt)}
+                    label="Steuerbelastung der AVD-Auszahlung"
+                    value={`${vergleich.grenzbelastung.toFixed(1)} %`}
                   />
                   <ResultRow
-                    label="Netto gesamt Altersvorsorgedepot"
-                    value={formatEUR(vergleich.nettoAvdGesamt)}
+                    label="Steuer ETF-Depot im 1. Jahr"
+                    value={formatEUR(vergleich.steuerEtfJahr1)}
                   />
                   <ResultRow
-                    label="Netto gesamt ETF-Depot"
-                    value={formatEUR(vergleich.nettoEtfGesamt)}
+                    label={`Steuern gesamt über ${vergleich.n} Jahre: AVD / ETF`}
+                    value={`${formatEUR(vergleich.steuerAvdGesamt)} / ${formatEUR(
+                      vergleich.steuerEtfGesamt,
+                    )}`}
                   />
                   <ResultRow
-                    label="Gesamtvorteil Altersvorsorgedepot"
-                    value={formatEUR(vergleich.gesamtvorteil)}
+                    label="Mehrsteuer des AVD gesamt"
+                    value={formatEUR(vergleich.mehrsteuerGesamt)}
+                  />
+                </div>
+
+                <div className="rounded-sm bg-onyx p-8">
+                  <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
+                    Fördertopf vs. Mehrsteuer
+                  </p>
+                  <ResultRow
+                    label="Gesamte Förderung aus der Einzahlphase (Zulagen + Steuererstattungen)"
+                    value={formatEUR(result.foerderTopf)}
                     emphasis
                   />
                 </div>
@@ -419,12 +486,22 @@ export default function Altersvorsorgedepot() {
                 <div className="rounded-sm border border-gold/40 bg-onyx p-6">
                   <p className="text-sm leading-relaxed text-white">
                     {vergleich.breakEvenJahr === null
-                      ? `Der Fördervorteil wird über die gesamte Auszahlphase nicht aufgebraucht: Das Altersvorsorgedepot bleibt unter diesen Annahmen um ${formatEUR(
-                          vergleich.gesamtvorteil,
-                        )} netto im Vorteil.`
-                      : `Ab Jahr ${vergleich.breakEvenJahr} der Auszahlphase ist der staatliche Fördervorteil rechnerisch aufgebraucht – ab dann überwiegt die volle Steuerpflicht der Auszahlungen. Über die gesamte Auszahlphase ergibt sich ${formatEUR(
-                          vergleich.gesamtvorteil,
-                        )} gegenüber dem ETF-Depot.`}
+                      ? `Die Förderung wird nicht aufgebraucht: Auch nach ${vergleich.n} Jahren Auszahlplan liegt die Mehrsteuer des Altersvorsorgedepots (${formatEUR(
+                          vergleich.mehrsteuerGesamt,
+                        )}) unter der erhaltenen Förderung von ${formatEUR(
+                          result.foerderTopf,
+                        )}. Es verbleibt ein Vorteil von ${formatEUR(
+                          vergleich.restvorteil,
+                        )}.`
+                      : `Nach ${vergleich.breakEvenJahr} ${
+                          vergleich.breakEvenJahr === 1 ? "Jahr" : "Jahren"
+                        } der Auszahlphase (Alter ${
+                          vergleich.startAlter + vergleich.breakEvenJahr
+                        }) ist die gesamte Förderung von ${formatEUR(
+                          result.foerderTopf,
+                        )} durch die höhere Steuerlast aufgebraucht. Ab dann zahlen Sie im Altersvorsorgedepot mehr Steuern, als Sie je an Zulagen und Steuerersparnis erhalten haben. Bis zum Alter ${AUSZAHLPLAN_ENDALTER} summiert sich die Mehrsteuer auf ${formatEUR(
+                          vergleich.mehrsteuerGesamt,
+                        )}.`}
                   </p>
                 </div>
               </div>
