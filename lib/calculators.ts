@@ -39,6 +39,11 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
     title: "Vermögen & Sparen",
     items: [
       {
+        title: "Altersvorsorgedepot-Rechner",
+        text: "Staatliche Zulage und Endkapital im neuen Altersvorsorgedepot (ab 2027).",
+        href: "/rechner/altersvorsorgedepot/",
+      },
+      {
         title: "Sparrechner",
         text: "Entwicklung von Startkapital und Sparrate über die Zeit.",
         href: "/rechner/sparrechner/",
@@ -47,6 +52,11 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
         title: "ETF-Sparplanrechner",
         text: "Sparplan-Entwicklung inklusive laufender Kosten.",
         href: "/rechner/etf-sparplanrechner/",
+      },
+      {
+        title: "Aktienrenditerechner",
+        text: "Durchschnittliche jährliche Rendite (CAGR) eines Investments.",
+        href: "/rechner/aktienrenditerechner/",
       },
       {
         title: "Tagesgeldrechner",
