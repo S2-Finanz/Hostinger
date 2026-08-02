@@ -14,6 +14,11 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
     title: "Vorsorge & Absicherung",
     items: [
       {
+        title: "Altersvorsorgedepot-Rechner",
+        text: "Zulagen, Startbonus und Steuervorteil der neuen staatlichen Förderung ab 2027 – inkl. ETF-Vergleich.",
+        href: "/rechner/altersvorsorgedepot/",
+      },
+      {
         title: "PKV Schnellrechner",
         text: "Erste Einordnung zu Ihrer privaten Krankenversicherung.",
         href: "/rechner/pkv-rechner/",
@@ -38,11 +43,6 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
   {
     title: "Vermögen & Sparen",
     items: [
-      {
-        title: "Altersvorsorgedepot-Rechner",
-        text: "Staatliche Zulage und Endkapital im neuen Altersvorsorgedepot (ab 2027).",
-        href: "/rechner/altersvorsorgedepot/",
-      },
       {
         title: "Sparrechner",
         text: "Entwicklung von Startkapital und Sparrate über die Zeit.",
