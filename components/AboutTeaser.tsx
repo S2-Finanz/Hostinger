@@ -38,33 +38,37 @@ export default function AboutTeaser() {
             Absicherungsfragen verdienen.
           </p>
           <a
-            href="/ueber-uns"
+            href="/ueber-uns/"
             className="mt-8 inline-block rounded-sm border border-gold px-7 py-3.5 text-sm font-semibold text-gold transition-colors hover:bg-gold/10"
           >
             Team kennenlernen
           </a>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {TEAM.map((person) => (
             <div
               key={person.name}
-              tabIndex={0}
-              className="group relative aspect-[3/4] w-full overflow-hidden rounded-sm bg-onyx outline-none"
+              className="flex flex-col overflow-hidden rounded-sm bg-onyx"
             >
               {/* TODO: Portraitfoto ersetzen */}
               <div
-                className="absolute inset-0 flex items-end p-4"
+                className="relative flex aspect-[3/4] w-full items-center justify-center border-b border-white/10 bg-graphit"
                 role="img"
                 aria-label={`Portraitfoto ${person.name}`}
               >
-                <span className="font-display text-sm font-semibold text-white">
-                  {person.name}
-                </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="h-16 w-16 text-white/25"
+                  aria-hidden
+                >
+                  <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-3.34 0-10 1.68-10 5v3h20v-3c0-3.32-6.66-5-10-5Z" />
+                </svg>
               </div>
 
-              <div className="absolute inset-0 flex flex-col justify-center gap-2 bg-onyx/95 p-5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus:opacity-100">
-                <p className="mb-1 font-display text-sm font-semibold text-gold">
+              <div className="flex flex-col gap-2 p-5">
+                <p className="font-display text-sm font-semibold text-gold">
                   {person.name}
                 </p>
                 <ul className="space-y-1.5">

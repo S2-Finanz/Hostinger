@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import EtfSparplanrechner from "@/components/calculators/EtfSparplanrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/etf-sparplanrechner/" },
   title: "ETF-Sparplanrechner – S² Finanz",
   description:
     "Berechnen Sie die Entwicklung eines ETF-Sparplans inklusive laufender Kosten.",

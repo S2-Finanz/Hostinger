@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Kreditrechner from "@/components/calculators/Kreditrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/kreditrechner/" },
   title: "Kreditrechner – S² Finanz",
   description: "Berechnen Sie die monatliche Rate und Zinskosten eines Kredits.",
 };

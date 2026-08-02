@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Sparrechner from "@/components/calculators/Sparrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/sparrechner/" },
   title: "Sparrechner – S² Finanz",
   description:
     "Berechnen Sie, wie sich Startkapital und monatliche Sparrate über die Zeit entwickeln.",

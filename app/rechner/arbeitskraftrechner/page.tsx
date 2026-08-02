@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Arbeitskraftrechner from "@/components/calculators/Arbeitskraftrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/arbeitskraftrechner/" },
   title: "Arbeitskraftrechner – S² Finanz",
   description:
     "Ermitteln Sie, wie hoch Ihre Arbeitskraftabsicherung sein sollte.",

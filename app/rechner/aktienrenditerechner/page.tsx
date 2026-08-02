@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Aktienrenditerechner from "@/components/calculators/Aktienrenditerechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/aktienrenditerechner/" },
   title: "Aktienrenditerechner – S² Finanz",
   description:
     "Berechnen Sie die durchschnittliche jährliche Rendite (CAGR) eines Investments.",

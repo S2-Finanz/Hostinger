@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Pensionsrechner from "@/components/calculators/pension/Pensionsrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/pensionsrechner/" },
   title: "Pensionsrechner – S² Finanz",
   description:
     "Berechnen Sie Ihre voraussichtliche Pension als Beamter inklusive Teilzeit, Elternzeit und Karriereverlauf.",

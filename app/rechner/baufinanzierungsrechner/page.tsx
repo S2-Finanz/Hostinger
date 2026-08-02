@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Baufinanzierungsrechner from "@/components/calculators/Baufinanzierungsrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/baufinanzierungsrechner/" },
   title: "Baufinanzierungsrechner – S² Finanz",
   description:
     "Berechnen Sie Monatsrate und Restschuld Ihrer Immobilienfinanzierung.",

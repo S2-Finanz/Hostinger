@@ -4,7 +4,7 @@ type Review = {
   text: string;
 };
 
-const REVIEWS: Review[] = [
+export const REVIEWS: Review[] = [
   {
     name: "Mandantin, Lehrerin",
     rating: 5,

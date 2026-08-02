@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { CALCULATOR_GROUPS } from "@/lib/calculators";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/" },
   title: "Rechner – S² Finanz",
   description:
     "Schnellrechner für Vorsorge, Absicherung und Vermögensaufbau – von PKV bis Baufinanzierung.",

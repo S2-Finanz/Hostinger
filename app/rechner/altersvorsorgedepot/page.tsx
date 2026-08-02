@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Altersvorsorgedepot from "@/components/calculators/Altersvorsorgedepot";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/altersvorsorgedepot/" },
   title: "Altersvorsorgedepot-Rechner – S² Finanz",
   description:
     "Zulagen, Kinderzulage, Startbonus und Steuervorteil des neuen Altersvorsorgedepots berechnen – inklusive Vergleich mit einem privaten ETF-Sparplan.",

@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import PkvCheck from "@/components/calculators/PkvCheck";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/pkv-rechner/" },
   title: "PKV Schnellrechner – S² Finanz",
   description:
     "Erste Einschätzung zu Ihrer privaten Krankenversicherung – der genaue Beitrag entsteht im persönlichen Gespräch.",

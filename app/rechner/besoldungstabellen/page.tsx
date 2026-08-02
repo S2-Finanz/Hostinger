@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import { BESOLDUNGSTABELLEN } from "@/lib/besoldung/tabellen";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/besoldungstabellen/" },
   title: "Besoldungstabellen – S² Finanz",
   description:
     "Besoldungstabellen für Bund und alle 16 Bundesländer als kostenloser PDF-Download – im S² Finanz Design.",

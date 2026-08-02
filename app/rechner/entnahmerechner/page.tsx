@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Entnahmerechner from "@/components/calculators/Entnahmerechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/entnahmerechner/" },
   title: "Entnahmerechner – S² Finanz",
   description:
     "Berechnen Sie, wie lange Ihr Kapital bei einer regelmäßigen Entnahme reicht.",

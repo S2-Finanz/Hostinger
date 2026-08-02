@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Inflationsrechner from "@/components/calculators/Inflationsrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/inflationsrechner/" },
   title: "Inflationsrechner – S² Finanz",
   description:
     "Berechnen Sie den Kaufkraftverlust Ihres Vermögens durch Inflation.",

@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Tagesgeldrechner from "@/components/calculators/Tagesgeldrechner";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/tagesgeldrechner/" },
   title: "Tagesgeldrechner – S² Finanz",
   description: "Berechnen Sie den Zinsertrag Ihres Tagesgeldkontos.",
 };

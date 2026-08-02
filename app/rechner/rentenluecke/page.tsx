@@ -3,6 +3,7 @@ import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import Rentenluecke from "@/components/calculators/Rentenluecke";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/rechner/rentenluecke/" },
   title: "Rentenlückenrechner – S² Finanz",
   description:
     "Berechnen Sie die Differenz zwischen Wunsch-Einkommen im Ruhestand und Ihrer erwarteten Rente.",
