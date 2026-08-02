@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /impressum/
+Disallow: /datenschutz/
+
+Sitemap: https://www.s2-finanz.de/sitemap.xml
