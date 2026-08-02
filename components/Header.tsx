@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CAL_LINK, NAV_LINKS } from "@/lib/constants";
+import { CALCULATOR_GROUPS } from "@/lib/calculators";
 import MobileNav from "@/components/MobileNav";
 
 export default function Header() {
@@ -11,15 +12,47 @@ export default function Header() {
         </span>
 
         <nav className="hidden gap-8 text-sm text-nebel md:flex">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="transition-colors hover:text-white"
-            >
-              {link.label}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) =>
+            link.label === "Rechner" ? (
+              <div key={link.href} className="group relative">
+                <a
+                  href={link.href}
+                  className="flex items-center gap-1 py-2 transition-colors hover:text-white"
+                >
+                  Rechner
+                </a>
+
+                <div className="invisible absolute left-1/2 top-full flex w-[560px] -translate-x-1/2 gap-8 rounded-sm border border-white/10 bg-graphit p-6 opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                  {CALCULATOR_GROUPS.map((group) => (
+                    <div key={group.title} className="flex-1">
+                      <p className="text-xs uppercase tracking-wide text-nebel/60">
+                        {group.title}
+                      </p>
+                      <div className="mt-3 flex flex-col gap-2">
+                        {group.items.map((calc) => (
+                          <a
+                            key={calc.href}
+                            href={calc.href}
+                            className="text-sm text-nebel transition-colors hover:text-white"
+                          >
+                            {calc.title}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                className="py-2 transition-colors hover:text-white"
+              >
+                {link.label}
+              </a>
+            ),
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
