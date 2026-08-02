@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { CAL_LINK, NAV_LINKS } from "@/lib/constants";
+import MobileNav from "@/components/MobileNav";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 bg-onyx/95 backdrop-blur border-b border-white/10">
-      <div className="mx-auto flex max-w-content items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-onyx/95 backdrop-blur">
+      <div className="relative mx-auto flex max-w-content items-center justify-between px-6 py-4">
         <span className="font-display text-lg font-bold tracking-wide">
           S² FINANZ
         </span>
@@ -21,14 +22,18 @@ export default function Header() {
           ))}
         </nav>
 
-        <Link
-          href={CAL_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-sm bg-gold px-5 py-2.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
-        >
-          Termin vereinbaren
-        </Link>
+        <div className="flex items-center gap-2">
+          <MobileNav />
+
+          <Link
+            href={CAL_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-sm bg-gold px-5 py-2.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
+          >
+            Termin vereinbaren
+          </Link>
+        </div>
       </div>
     </header>
   );

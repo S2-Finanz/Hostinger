@@ -6,21 +6,25 @@ const SERVICES = [
     title: "Private Krankenversicherung",
     text: "Optimaler Versicherungsschutz für Angestellte und Beamte – individuell kalkuliert, lebenslang tragfähig.",
     calculatorLabel: "PKV Schnellrechner",
+    calculatorHref: "/rechner/pkv-rechner/",
   },
   {
     title: "Beamtenversorgung",
     text: "Pension, Beihilfe und Dienstunfähigkeit im Zusammenspiel – speziell für den öffentlichen Dienst.",
     calculatorLabel: "Pensionsrechner",
+    calculatorHref: "/rechner/pensionsrechner/",
   },
   {
     title: "Arbeitskraftabsicherung",
     text: "Schutz Ihres Einkommens, wenn Sie es am dringendsten brauchen – für Angestellte und Geschäftsführer.",
     calculatorLabel: "Arbeitskraftrechner",
+    calculatorHref: "/rechner/arbeitskraftrechner/",
   },
   {
     title: "Altersvorsorge & Geldanlage",
     text: "Vermögen strukturiert aufbauen und Ihre Zukunft finanziell absichern.",
     calculatorLabel: "Sparrechner",
+    calculatorHref: "/rechner/sparrechner/",
   },
 ];
 
@@ -54,9 +58,7 @@ export default function ServicesGrid() {
                 Mehr erfahren →
               </a>
               <Link
-                href={CAL_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={service.calculatorHref}
                 className="mt-2 text-sm font-semibold text-nebel hover:text-gold"
               >
                 {service.calculatorLabel} →
