@@ -20,7 +20,7 @@ const STARTBONUS = 200; // einmalig bei Abschluss unter 25 Jahren
 const STARTBONUS_ALTERSGRENZE = 25;
 const SA_ABZUG_MAX = 1800; // Sonderausgabenabzug: Beiträge bis 1.800 €/Jahr
 const MAX_EINZAHLUNG = 6840; // maximale Jahreseinzahlung ins Depot
-const AUSZAHLPLAN_ENDALTER = 85; // Auszahlplan des AVD läuft bis 85
+const AUSZAHLPLAN_ENDALTER = 85; // Auszahlplan beider Varianten läuft bis 85
 
 function grundzulage(jahresbeitrag: number): number {
   const stufe1 =
@@ -37,6 +37,46 @@ function annuitaet(kapital: number, zins: number, jahre: number): number {
   if (jahre <= 0) return 0;
   if (zins === 0) return kapital / jahre;
   return (kapital * zins) / (1 - Math.pow(1 + zins, -jahre));
+}
+
+function PayoutBar({
+  label,
+  brutto,
+  steuer,
+  maxBrutto,
+}: {
+  label: string;
+  brutto: number;
+  steuer: number;
+  maxBrutto: number;
+}) {
+  const netto = brutto - steuer;
+  const breite = maxBrutto > 0 ? (brutto / maxBrutto) * 100 : 0;
+  const nettoAnteil = brutto > 0 ? (netto / brutto) * 100 : 0;
+
+  return (
+    <div>
+      <div className="flex items-baseline justify-between text-sm">
+        <span className="text-nebel">{label}</span>
+        <span className="text-white">
+          <span className="font-semibold text-gold">{formatEUR(netto)}</span>
+          <span className="text-nebel"> netto von {formatEUR(brutto)} brutto</span>
+        </span>
+      </div>
+      <div
+        className="mt-2 h-6 overflow-hidden rounded-sm bg-white/5"
+        style={{ width: `${Math.max(breite, 4)}%` }}
+      >
+        <div className="flex h-full w-full">
+          <div
+            className="h-full bg-gold"
+            style={{ width: `${nettoAnteil}%` }}
+          />
+          <div className="h-full flex-1 bg-white/20" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function Altersvorsorgedepot() {
@@ -75,10 +115,15 @@ export default function Altersvorsorgedepot() {
       0,
     );
 
-    // Ansparphase: monatliche Simulation, Zulagen anteilig monatlich, Startbonus zu Beginn
+    // Ansparphase: monatliche Simulation. Zusätzlich zum Depot wird parallel
+    // ein reines ETF-Szenario mit identischem Eigenbeitrag und identischer
+    // Rendite, aber OHNE jede staatliche Zulage durchgerechnet – das ist die
+    // realistische Vergleichsbasis, denn ein privater ETF-Sparplan bekommt
+    // keine Förderung.
     const i = rendite / 100 / 12;
     const kzJahre = Math.min(Math.max(kinderzulageJahre, 0), jahre);
     let kapitalAvd = startbonus;
+    let kapitalEtf = 0;
     const eigenMonat = jahresbeitrag / 12;
 
     for (let m = 0; m < jahre * 12; m++) {
@@ -86,6 +131,7 @@ export default function Altersvorsorgedepot() {
       const zulageMonat =
         (zulageGrund + (jahrIndex < kzJahre ? kinderzulage : 0)) / 12;
       kapitalAvd = kapitalAvd * (1 + i) + eigenMonat + zulageMonat;
+      kapitalEtf = kapitalEtf * (1 + i) + eigenMonat;
     }
 
     // Zusätzliche Steuererstattungen (Günstigerprüfung) fließen an die Person, nicht ins Depot
@@ -107,6 +153,7 @@ export default function Altersvorsorgedepot() {
           ? ("abzug" as const)
           : ("zulage" as const),
       kapitalAvd,
+      kapitalEtf,
       eingezahlt,
       zulagenGesamt,
       erstattungenGesamt,
@@ -121,7 +168,12 @@ export default function Altersvorsorgedepot() {
     const startAlter = Math.min(Math.max(auszahlAlter, 55), 75);
     const n = AUSZAHLPLAN_ENDALTER - startAlter;
     const iA = renditeAuszahlung / 100;
-    const w = annuitaet(result.kapitalAvd, iA, n); // Auszahlplan bis 85, beide Varianten gleiches Kapital
+
+    // Unterschiedliches Kapital → unterschiedlich hohe Auszahlung: Das AVD
+    // zahlt dank der Zulagen eine höhere Rente als das ETF-Depot mit
+    // demselben Eigenbeitrag.
+    const wAvd = annuitaet(result.kapitalAvd, iA, n);
+    const wEtf = annuitaet(result.kapitalEtf, iA, n);
 
     // Sonstige steuerpflichtige Einkünfte im Ruhestand (jährlich)
     const ea = ertragsanteil(startAlter);
@@ -135,76 +187,77 @@ export default function Altersvorsorgedepot() {
       return est + soli(est) + est * (kirchensteuer / 100);
     };
 
-    // Gesamtsteuer auf die "übrigen" Einkünfte allein (ohne AVD/ETF-Auszahlung) –
-    // fällt so oder so an und ist die gemeinsame Basis für beide Szenarien
     const steuerSonst = belastung(sonst);
 
-    // Szenario 1: Die Auszahlung kommt aus dem Altersvorsorgedepot – voll
-    // steuerpflichtig, addiert sich also zu den übrigen Einkünften und wird
-    // gemeinsam mit diesen nach dem progressiven Tarif versteuert
-    const gesamtsteuerAvdJahr = belastung(sonst + w);
+    // AVD: die (höhere) Auszahlung ist voll steuerpflichtig, addiert sich
+    // also zu den übrigen Einkünften und wird gemeinsam progressiv versteuert
+    const gesamtsteuerAvdJahr = belastung(sonst + wAvd);
     const steuerAvdJahr = gesamtsteuerAvdJahr - steuerSonst;
-    const grenzbelastung = w > 0 ? (steuerAvdJahr / w) * 100 : 0;
+    const nettoAvdJahr = wAvd - steuerAvdJahr;
+    const grenzbelastung = wAvd > 0 ? (steuerAvdJahr / wAvd) * 100 : 0;
 
-    // Szenario 2: Dieselbe Auszahlungssumme kommt stattdessen aus einem
-    // privaten ETF-Depot mit identischem Startkapital – nur der Gewinnanteil
-    // der Entnahme wird separat mit Abgeltungsteuer belastet, die übrigen
-    // Einkünfte werden unverändert nach dem progressiven Tarif versteuert
-    let kEtf = result.kapitalAvd;
+    // ETF-Depot mit dem separat (ohne Zulage) angesparten, kleineren Kapital:
+    // nur der Gewinnanteil der – ebenfalls kleineren – Entnahme ist mit
+    // Abgeltungsteuer steuerpflichtig, unabhängig von den übrigen Einkünften
+    let kEtf = result.kapitalEtf;
     let basis = Math.min(result.eingezahlt, kEtf);
     let steuerEtfGesamt = 0;
     let steuerEtfJahr1 = 0;
-    let gesamtsteuerEtfJahr1 = 0;
-    let kumMehrsteuer = 0;
+    let nettoEtfJahr1 = 0;
+    // Bereits realisierter Vorteil aus der Ansparphase: nur die zusätzliche
+    // Steuererstattung der Günstigerprüfung – der Zulagen-Effekt selbst
+    // steckt schon im höheren AVD-Kapital und damit in nettoAvdJahr
+    let kumVorteil = result.erstattungenGesamt;
     let breakEvenJahr: number | null = null;
 
     for (let jahr = 1; jahr <= n; jahr++) {
       const kVorher = kEtf * (1 + iA);
       const gewinnanteil = kVorher > 0 ? Math.max(1 - basis / kVorher, 0) : 0;
       const steuerpflichtig = Math.max(
-        w * gewinnanteil - SPARERPAUSCHBETRAG,
+        wEtf * gewinnanteil - SPARERPAUSCHBETRAG,
         0,
       );
       const steuerEtf = steuerpflichtig * ABGELTUNGSTEUER;
-      basis -= kVorher > 0 ? w * (basis / kVorher) : 0;
-      kEtf = kVorher - w;
+      basis -= kVorher > 0 ? wEtf * (basis / kVorher) : 0;
+      kEtf = kVorher - wEtf;
+      const nettoEtf = wEtf - steuerEtf;
 
       if (jahr === 1) {
         steuerEtfJahr1 = steuerEtf;
-        gesamtsteuerEtfJahr1 = steuerSonst + steuerEtf;
+        nettoEtfJahr1 = nettoEtf;
       }
       steuerEtfGesamt += steuerEtf;
 
-      // Differenz pro Jahr: Gesamtsteuer mit AVD-Auszahlung dazu
-      // minus Gesamtsteuer mit ETF-Auszahlung dazu (die gemeinsame
-      // Steuer auf die übrigen Einkünfte kürzt sich dabei heraus)
-      kumMehrsteuer += steuerAvdJahr - steuerEtf;
-      if (breakEvenJahr === null && kumMehrsteuer > result.foerderTopf) {
+      kumVorteil += nettoAvdJahr - nettoEtf;
+      if (breakEvenJahr === null && kumVorteil < 0) {
         breakEvenJahr = jahr;
       }
     }
 
     const steuerAvdGesamt = steuerAvdJahr * n;
-    const mehrsteuerGesamt = steuerAvdGesamt - steuerEtfGesamt;
+    const nettoAvdGesamt = nettoAvdJahr * n;
+    const nettoDifferenzJahr1 = nettoAvdJahr - nettoEtfJahr1;
 
     return {
       n,
       startAlter,
-      w,
-      wMonat: w / 12,
+      wAvd,
+      wEtf,
+      wAvdMonat: wAvd / 12,
+      wEtfMonat: wEtf / 12,
       ea,
       sonst,
-      steuerSonst,
-      gesamtsteuerAvdJahr,
-      gesamtsteuerEtfJahr1,
       steuerAvdJahr,
       steuerAvdGesamt,
       steuerEtfJahr1,
       steuerEtfGesamt,
-      mehrsteuerGesamt,
+      nettoAvdJahr,
+      nettoEtfJahr1,
+      nettoAvdGesamt,
+      nettoDifferenzJahr1,
       grenzbelastung,
       breakEvenJahr,
-      restvorteil: result.foerderTopf - mehrsteuerGesamt,
+      kumVorteilEnde: kumVorteil,
     };
   }, [
     vergleichOffen,
@@ -370,13 +423,15 @@ export default function Altersvorsorgedepot() {
         {vergleichOffen && vergleich && (
           <div className="mt-8 flex flex-col gap-10">
             <p className="max-w-2xl text-sm text-nebel">
-              Beide Varianten starten mit demselben Kapital (
-              {formatEUR(result.kapitalAvd)}) und werden als Auszahlplan bis
-              zum Alter {AUSZAHLPLAN_ENDALTER} vollständig entnommen. Der
-              Unterschied liegt allein in der Besteuerung: Die Auszahlung des
-              Altersvorsorgedepots ist voll einkommensteuerpflichtig – on top
-              Ihrer übrigen Alterseinkünfte. Beim ETF-Depot werden nur die
-              Erträge mit 25 % Kapitalertragsteuer plus Soli belastet.
+              Beide Varianten sparen denselben Eigenbeitrag zur selben
+              Rendite an – das ETF-Depot aber ohne jede Zulage. Dadurch ist
+              das AVD-Kapital ({formatEUR(result.kapitalAvd)}) größer als das
+              ETF-Kapital ({formatEUR(result.kapitalEtf)}), und aus dem
+              Auszahlplan bis Alter {AUSZAHLPLAN_ENDALTER} zahlt das AVD eine
+              höhere Rente aus. Zugleich ist diese Auszahlung voll
+              steuerpflichtig, während beim ETF-Depot nur die Erträge mit
+              Abgeltungsteuer belastet werden – am Ende zählt, was nach
+              Steuern netto übrig bleibt.
             </p>
 
             <div className="grid gap-10 md:grid-cols-2">
@@ -445,68 +500,57 @@ export default function Altersvorsorgedepot() {
 
               <div className="flex flex-col gap-6">
                 <div className="rounded-sm bg-onyx p-8">
-                  <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-                    Ihr Auszahlplan bis {AUSZAHLPLAN_ENDALTER}
+                  <p className="mb-4 text-xs uppercase tracking-wide text-nebel/60">
+                    Auszahlung im 1. Jahr: brutto → netto
                   </p>
-                  <ResultRow
-                    label={`Dauer (Alter ${vergleich.startAlter} bis ${AUSZAHLPLAN_ENDALTER})`}
-                    value={`${vergleich.n} Jahre`}
-                  />
-                  <ResultRow
-                    label="Monatliche Brutto-Auszahlung"
-                    value={formatEUR(vergleich.wMonat)}
-                    emphasis
-                  />
-                  <ResultRow
-                    label="Übrige steuerpflichtige Einkünfte pro Jahr"
-                    value={formatEUR(vergleich.sonst)}
-                  />
+                  <div className="flex flex-col gap-6">
+                    <PayoutBar
+                      label="Altersvorsorgedepot"
+                      brutto={vergleich.wAvd}
+                      steuer={vergleich.steuerAvdJahr}
+                      maxBrutto={vergleich.wAvd}
+                    />
+                    <PayoutBar
+                      label="ETF-Depot (kein Zulagenkapital)"
+                      brutto={vergleich.wEtf}
+                      steuer={vergleich.steuerEtfJahr1}
+                      maxBrutto={vergleich.wAvd}
+                    />
+                  </div>
+                  <div className="mt-5 flex items-center gap-4 text-xs text-nebel">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-sm bg-gold" /> netto
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-sm bg-white/20" />{" "}
+                      Steuer
+                    </span>
+                  </div>
                 </div>
 
                 <div className="rounded-sm bg-onyx p-8">
                   <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-                    Gesamtsteuer im Ruhestand (alle Einkünfte zusammen)
-                  </p>
-                  <p className="mt-2 text-xs leading-relaxed text-nebel">
-                    Übrige Einkünfte ({formatEUR(vergleich.sonst)}/Jahr) plus{" "}
-                    {formatEUR(vergleich.wMonat * 12)}/Jahr, je nachdem ob
-                    diese Auszahlung aus dem Altersvorsorgedepot oder aus
-                    einem ETF-Depot kommt:
+                    Monatlich netto in der Tasche
                   </p>
                   <ResultRow
-                    label="① … wenn die Auszahlung aus dem AVD kommt (Jahr 1)"
-                    value={formatEUR(vergleich.gesamtsteuerAvdJahr)}
+                    label="Altersvorsorgedepot"
+                    value={formatEUR(vergleich.nettoAvdJahr / 12)}
                     emphasis
                   />
                   <ResultRow
-                    label="② … wenn dieselbe Summe aus dem ETF-Depot kommt (Jahr 1)"
-                    value={formatEUR(vergleich.gesamtsteuerEtfJahr1)}
-                    emphasis
+                    label="ETF-Depot"
+                    value={formatEUR(vergleich.nettoEtfJahr1 / 12)}
                   />
                   <ResultRow
-                    label="Differenz ① − ②: Mehrsteuer durch das AVD, Jahr 1"
-                    value={formatEUR(vergleich.steuerAvdJahr - vergleich.steuerEtfJahr1)}
+                    label="Netto-Mehrbetrag des AVD pro Monat"
+                    value={formatEUR(vergleich.nettoDifferenzJahr1 / 12)}
                   />
                   <p className="mt-4 text-xs leading-relaxed text-nebel">
-                    Effektive Steuerbelastung der letzten{" "}
-                    {formatEUR(vergleich.wMonat * 12)} Ihres Einkommens, wenn
-                    diese aus dem AVD stammen: {vergleich.grenzbelastung.toFixed(1)} %.
+                    Effektive Steuerbelastung der AVD-Auszahlung:{" "}
+                    {vergleich.grenzbelastung.toFixed(1)} % – trotzdem bleibt
+                    dank des höheren Kapitals mehr netto übrig als beim
+                    kleineren, ungeförderten ETF-Depot (Jahr 1).
                   </p>
-                </div>
-
-                <div className="rounded-sm bg-onyx p-8">
-                  <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-                    Summiert über die gesamte Auszahlphase
-                  </p>
-                  <ResultRow
-                    label={`Mehrsteuer AVD ggü. ETF über ${vergleich.n} Jahre`}
-                    value={formatEUR(vergleich.mehrsteuerGesamt)}
-                    emphasis
-                  />
-                  <ResultRow
-                    label="Gesamte Förderung aus der Einzahlphase (Zulagen + Steuererstattungen)"
-                    value={formatEUR(result.foerderTopf)}
-                  />
                 </div>
               </div>
             </div>
@@ -514,8 +558,8 @@ export default function Altersvorsorgedepot() {
             <div className="rounded-sm border border-gold bg-graphit px-8 py-10 text-center">
               <p className="text-xs uppercase tracking-wide text-nebel/70">
                 {vergleich.breakEvenJahr === null
-                  ? "Förderung reicht über die gesamte Auszahlphase"
-                  : "Fördervorteil aufgebraucht ab Auszahlungsjahr"}
+                  ? "Das AVD bleibt netto im Vorteil bis Auszahlungsjahr"
+                  : "Netto-Vorteil des AVD kippt ins Minus ab Auszahlungsjahr"}
               </p>
               <p className="mt-3 font-display text-6xl font-bold text-gold md:text-7xl">
                 {vergleich.breakEvenJahr === null
@@ -525,15 +569,13 @@ export default function Altersvorsorgedepot() {
               <p className="mt-2 text-sm text-nebel">
                 {vergleich.breakEvenJahr === null
                   ? `Jahre – auch am Ende des Auszahlplans (Alter ${AUSZAHLPLAN_ENDALTER}) liegt das AVD unter diesen Annahmen noch mit ${formatEUR(
-                      vergleich.restvorteil,
-                    )} netto vorn.`
+                      vergleich.kumVorteilEnde,
+                    )} kumuliert netto vorn (inklusive der zusätzlichen Steuererstattung aus der Ansparphase).`
                   : `${
                       vergleich.breakEvenJahr === 1 ? "Jahr" : "Jahre"
                     } nach Auszahlungsbeginn – ab Alter ${
                       vergleich.startAlter + vergleich.breakEvenJahr
-                    } zahlen Sie im Altersvorsorgedepot kumuliert mehr Steuern, als Sie an Zulagen und Steuerersparnis je erhalten haben (bis Alter ${AUSZAHLPLAN_ENDALTER} insgesamt ${formatEUR(
-                      vergleich.mehrsteuerGesamt,
-                    )} Mehrsteuer).`}
+                    } hat das monatlich höhere Netto des AVD den anfänglichen Vorteil aus Zulagen und Steuererstattung aufgezehrt. Ab dann steht das ETF-Depot kumuliert netto besser da.`}
               </p>
             </div>
           </div>
