@@ -22,7 +22,7 @@ export default function Header() {
                   Rechner
                 </a>
 
-                <div className="invisible absolute left-1/2 top-full flex w-[560px] -translate-x-1/2 gap-8 rounded-sm border border-white/10 bg-graphit p-6 opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <div className="invisible absolute left-1/2 top-full flex w-[720px] -translate-x-1/2 gap-8 rounded-sm border border-white/10 bg-graphit p-6 opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                   {CALCULATOR_GROUPS.map((group) => (
                     <div key={group.title} className="flex-1">
                       <p className="text-xs uppercase tracking-wide text-nebel/60">

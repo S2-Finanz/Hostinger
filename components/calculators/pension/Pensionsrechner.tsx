@@ -17,33 +17,24 @@ import {
   STUFEN_RHYTHMUS_JAHRE,
   findLand,
   gehaltFuerStufe,
+  maxStufeFuerGruppe,
 } from "@/lib/besoldung/tabellen";
-
-const BESOLDUNGSGRUPPEN = [
-  "A9",
-  "A10",
-  "A11",
-  "A12",
-  "A13",
-  "A14",
-  "A15",
-  "A16",
-];
 
 const MONATE = [
   "Januar", "Februar", "März", "April", "Mai", "Juni",
   "Juli", "August", "September", "Oktober", "November", "Dezember",
 ];
 
-function stufeNachJahren(dienstjahre: number): number {
+function stufeNachJahren(dienstjahre: number, maxStufe: number): number {
   let stufe = 1;
   let kumuliert = 0;
   for (const jahreBisNaechste of STUFEN_RHYTHMUS_JAHRE) {
+    if (stufe >= maxStufe) break;
     if (dienstjahre < kumuliert + jahreBisNaechste) break;
     kumuliert += jahreBisNaechste;
     stufe += 1;
   }
-  return Math.min(stufe, STUFEN_RHYTHMUS_JAHRE.length + 1);
+  return Math.min(stufe, maxStufe);
 }
 
 export default function Pensionsrechner() {
@@ -65,6 +56,11 @@ export default function Pensionsrechner() {
   const [pensionsalter, setPensionsalter] = useState(defaultRAG.jahre);
 
   const land = findLand(landCode) ?? BESOLDUNGSTABELLEN[0];
+  const verfuegbareGruppen = land.gruppen.map((g) => g.gruppe);
+  const aktuelleGruppe = verfuegbareGruppen.includes(gruppe)
+    ? gruppe
+    : (verfuegbareGruppen.find((g) => g === "A13") ?? verfuegbareGruppen[0]);
+  const maxStufe = maxStufeFuerGruppe(land, aktuelleGruppe);
 
   const result = useMemo(() => {
     const dienstbeginnJahrDezimal = dienstJahr + (dienstMonat - 1) / 12;
@@ -86,8 +82,8 @@ export default function Pensionsrechner() {
 
     // Stufe bei Pensionierung anhand der KALENDARISCHEN Dienstjahre
     // (Erfahrungsstufen laufen unabhängig vom Beschäftigungsumfang weiter)
-    const stufeBeiPension = stufeNachJahren(gesamtDienstjahre);
-    const grundgehaltHeute = gehaltFuerStufe(land, gruppe, stufeBeiPension);
+    const stufeBeiPension = stufeNachJahren(gesamtDienstjahre, maxStufe);
+    const grundgehaltHeute = gehaltFuerStufe(land, aktuelleGruppe, stufeBeiPension);
 
     let endgehalt: number | null = null;
     if (grundgehaltHeute !== null) {
@@ -110,9 +106,9 @@ export default function Pensionsrechner() {
       betrag: number | null;
     }[] = [];
     let kumuliert = 0;
-    for (let s = 1; s <= STUFEN_RHYTHMUS_JAHRE.length + 1; s++) {
+    for (let s = 1; s <= maxStufe; s++) {
       if (kumuliert > gesamtDienstjahre) break;
-      const betragHeute = gehaltFuerStufe(land, gruppe, s);
+      const betragHeute = gehaltFuerStufe(land, aktuelleGruppe, s);
       const kalenderjahr = Math.round(dienstbeginnJahrDezimal + kumuliert);
       verlauf.push({
         stufe: s,
@@ -152,7 +148,8 @@ export default function Pensionsrechner() {
     pensionsalter,
     teilzeitPhasen,
     elternzeitPhasen,
-    gruppe,
+    aktuelleGruppe,
+    maxStufe,
     besoldungserhoehung,
     land,
     currentYear,
@@ -230,18 +227,24 @@ export default function Pensionsrechner() {
                 </option>
               ))}
             </select>
+            {land.gueltigAb && (
+              <span className="mt-2 block text-xs text-nebel/70">
+                Stand: {land.gueltigAb}
+                {land.entwurf ? " (Entwurf/Prognose, noch nicht verkündet)" : ""}
+              </span>
+            )}
           </label>
 
           <label className="block">
             <span className="text-sm text-nebel">Besoldungsgruppe</span>
             <select
-              value={gruppe}
+              value={aktuelleGruppe}
               onChange={(e) => setGruppe(e.target.value)}
               className="mt-2 w-full border-b border-white/20 bg-transparent py-2 text-white outline-none focus:border-gold"
             >
-              {BESOLDUNGSGRUPPEN.map((g) => (
-                <option key={g} value={g} className="bg-graphit">
-                  {g}
+              {land.gruppen.map((g) => (
+                <option key={g.gruppe} value={g.gruppe} className="bg-graphit">
+                  {g.label}
                 </option>
               ))}
             </select>

@@ -90,4 +90,14 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
       },
     ],
   },
+  {
+    title: "Beamte",
+    items: [
+      {
+        title: "Besoldungstabellen",
+        text: "Besoldungstabellen für Bund und alle Bundesländer als PDF-Download.",
+        href: "/rechner/besoldungstabellen/",
+      },
+    ],
+  },
 ];

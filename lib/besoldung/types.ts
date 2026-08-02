@@ -14,6 +14,7 @@ export type BesoldungstabelleLand = {
   name: string;
   verfuegbar: boolean;
   gueltigAb?: string;
+  entwurf?: boolean;
   gruppen: BesoldungsgruppeDaten[];
 };
 
