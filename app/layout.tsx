@@ -40,12 +40,14 @@ const organizationJsonLd = {
   url: SITE_URL,
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Furthstraße 41/5",
+    streetAddress: "Furtstr. 41/5",
     postalCode: "73770",
     addressLocality: "Denkendorf",
     addressRegion: "Baden-Württemberg",
     addressCountry: "DE",
   },
+  telephone: "+49 174 1865960",
+  email: "info@s2-finanz.de",
   founder: [
     { "@type": "Person", name: "Marcel Scheuermann" },
     { "@type": "Person", name: "Marcel Schäfer" },

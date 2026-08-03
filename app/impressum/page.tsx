@@ -30,13 +30,13 @@ export default function ImpressumPage() {
                   Angaben gemäß § 5 TMG
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: Rechtsform und vollständigen Firmennamen eintragen, z. B. „S² Finanz GmbH“ oder „S² Finanz – Scheuermann & Schäfer GbR“ */}
-                  S² Finanz
-                  <br />
-                  {/* TODO: vertretungsberechtigte Person(en) eintragen */}
+                  {/* TODO: Rechtsform bitte bestätigen – als gemeinsam auftretende Einzelunternehmer bzw. GbR sollten hier beide Namen stehen; ggf. Zusatz „S² Finanz“ als genutzte Geschäftsbezeichnung. */}
                   Marcel Scheuermann, Marcel Schäfer
                   <br />
-                  Furthstraße 41/5
+                  handelnd unter „S² Finanz“
+                  <br />
+                  {/* TODO: Adresse mit dem Vermittlerregister-Eintrag abgleichen – dort steht „Furtstr. 41/5“, an anderer Stelle „Furthstraße 41/5“. Bitte korrekte Schreibweise bestätigen. */}
+                  Furtstr. 41/5
                   <br />
                   73770 Denkendorf
                 </p>
@@ -47,11 +47,9 @@ export default function ImpressumPage() {
                   Kontakt
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: Telefonnummer eintragen */}
-                  Telefon: [TODO]
+                  Telefon: 0174 1865960
                   <br />
-                  {/* TODO: E-Mail-Adresse eintragen */}
-                  E-Mail: [TODO]
+                  E-Mail: info@s2-finanz.de
                 </p>
               </div>
 
@@ -60,18 +58,18 @@ export default function ImpressumPage() {
                   Registereintrag
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: Falls im Handelsregister eingetragen: Registergericht und Registernummer. Falls Einzelunternehmen/Gewerbe: zuständige Gewerbebehörde/IHK. */}
-                  [TODO: Handelsregister / Gewerbeanmeldung]
+                  Als Einzelunternehmer nicht im Handelsregister eingetragen.
                 </p>
               </div>
 
               <div>
                 <h2 className="font-display text-lg font-semibold text-white">
-                  Umsatzsteuer-Identifikationsnummer
+                  Umsatzsteuer
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: USt-IdNr. gemäß § 27 a Umsatzsteuergesetz eintragen, falls vorhanden */}
-                  [TODO: USt-IdNr.]
+                  {/* TODO: USt-IdNr. (falls vom Bundeszentralamt für Steuern erteilt) oder Steuernummer ergänzen. */}
+                  Umsatzsteuerpflichtig – keine Anwendung der
+                  Kleinunternehmerregelung nach § 19 UStG.
                 </p>
               </div>
 
@@ -80,15 +78,36 @@ export default function ImpressumPage() {
                   Angaben nach § 11 VersVermV (Versicherungsvermittlung)
                 </h2>
                 <p className="mt-3">
-                  {/*
-                    TODO: Als Versicherungsmakler gesetzlich verpflichtende Angaben ergänzen:
-                    - Erlaubnis nach § 34d Abs. 1 GewO, erteilt durch die zuständige IHK
-                    - Vermittlerregisternummer (Eintrag im Register unter www.vermittlerregister.info)
-                    - Zuständige Register-/Aufsichtsbehörde (i. d. R. die zuständige IHK)
-                    - Angaben zur Berufshaftpflichtversicherung (Versicherer, geografischer Geltungsbereich)
-                  */}
-                  [TODO: Erlaubnis nach § 34d Abs. 1 GewO, Vermittlerregisternummer,
-                  zuständige IHK, Berufshaftpflichtversicherung]
+                  Tätigkeitsart: Versicherungsmakler mit Erlaubnis nach § 34d
+                  Abs. 1 GewO
+                  <br />
+                  Erlaubnisinhaber: Marcel Scheuermann
+                  <br />
+                  Registrierungsnummer: D-R9IE-52AR4-59
+                  <br />
+                  Registerprüfung:{" "}
+                  <a
+                    href="https://www.vermittlerregister.info"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gold hover:opacity-80"
+                  >
+                    www.vermittlerregister.info
+                  </a>
+                  <br />
+                  <br />
+                  Erlaubnis- und Registerbehörde:
+                  <br />
+                  Industrie- und Handelskammer Region Stuttgart
+                  <br />
+                  Jägerstraße 30, 70174 Stuttgart
+                  <br />
+                  Baden-Württemberg, Deutschland
+                </p>
+                <p className="mt-3">
+                  {/* TODO: Berufshaftpflichtversicherung ergänzen – Name des Versicherers und geografischer Geltungsbereich (gesetzlich vorgeschrieben nach § 11 VersVermV). */}
+                  Berufshaftpflichtversicherung: [TODO – Versicherer und
+                  geografischer Geltungsbereich]
                 </p>
               </div>
 
@@ -97,8 +116,9 @@ export default function ImpressumPage() {
                   Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: Verantwortliche Person mit ladungsfähiger Anschrift eintragen */}
-                  [TODO]
+                  Marcel Scheuermann, Marcel Schäfer
+                  <br />
+                  Furtstr. 41/5, 73770 Denkendorf
                 </p>
               </div>
 

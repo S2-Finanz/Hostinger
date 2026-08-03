@@ -8,8 +8,19 @@ export default function Footer() {
           <p className="font-display text-base font-bold text-white">
             S² FINANZ
           </p>
-          <p className="mt-3">Furthstraße 41/5</p>
+          {/* TODO: Schreibweise "Furtstr." vs. "Furthstraße" mit dem Vermittlerregister-Eintrag abgleichen */}
+          <p className="mt-3">Furtstr. 41/5</p>
           <p>73770 Denkendorf</p>
+          <p className="mt-3">
+            <a href="tel:+491741865960" className="hover:text-white">
+              0174 1865960
+            </a>
+          </p>
+          <p>
+            <a href="mailto:info@s2-finanz.de" className="hover:text-white">
+              info@s2-finanz.de
+            </a>
+          </p>
         </div>
 
         <nav className="flex flex-col gap-2">
@@ -21,10 +32,10 @@ export default function Footer() {
         </nav>
 
         <nav className="flex flex-col gap-2">
-          <a href="/impressum" className="hover:text-white">
+          <a href="/impressum/" className="hover:text-white">
             Impressum
           </a>
-          <a href="/datenschutz" className="hover:text-white">
+          <a href="/datenschutz/" className="hover:text-white">
             Datenschutz
           </a>
         </nav>

@@ -39,14 +39,17 @@ export default function DatenschutzPage() {
                   1. Verantwortlicher
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: mit Angaben aus dem Impressum synchron halten */}
-                  S² Finanz
+                  Marcel Scheuermann, Marcel Schäfer
                   <br />
-                  Furthstraße 41/5
+                  handelnd unter „S² Finanz“
+                  <br />
+                  Furtstr. 41/5
                   <br />
                   73770 Denkendorf
                   <br />
-                  E-Mail: [TODO]
+                  Telefon: 0174 1865960
+                  <br />
+                  E-Mail: info@s2-finanz.de
                 </p>
               </div>
 
