@@ -1,3 +1,3 @@
-:HL["/_next/static/chunks/3oy32l6sjn7o_.css","style"]
+:HL["/_next/static/chunks/1_a170f51_6zc.css","style"]
 :HL["/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"rechner","param":null,"prefetchHints":0,"slots":{"children":{"name":"krankenkassenvergleich","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}},"staleTime":300,"buildId":"y6h_W0LLtimJqwWpHYKHc"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"rechner","param":null,"prefetchHints":0,"slots":{"children":{"name":"krankenkassenvergleich","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}},"staleTime":300,"buildId":"zyygH1Lh-o4ABv-DP_cah"}
