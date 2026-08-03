@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CAL_LINK } from "@/lib/constants";
 
@@ -10,11 +11,20 @@ const STATS = [
 export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-onyx">
+      <Image
+        src="/images/hero-skyline.jpg"
+        alt=""
+        fill
+        priority
+        className="object-cover object-right opacity-30"
+        aria-hidden
+      />
       <div
-        className="absolute inset-0 opacity-60"
+        className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 80% 20%, rgba(200,162,101,0.10), transparent 45%), linear-gradient(180deg, #0E1211 0%, #171b1a 60%, #0E1211 100%)",
+            "radial-gradient(circle at 80% 20%, rgba(200,162,101,0.12), transparent 45%), linear-gradient(90deg, #0E1211 0%, rgba(14,18,17,0.9) 32%, rgba(14,18,17,0.4) 100%), linear-gradient(180deg, #0E1211 0%, rgba(23,27,26,0.9) 60%, #0E1211 100%)",
+          opacity: 0.85,
         }}
         aria-hidden
       />
