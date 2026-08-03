@@ -20,18 +20,9 @@ import {
   PKV_ALTER_MAX,
   PKV_ALTER_MIN,
   PKV_KIND_BEITRAG,
-  PKV_MARKTANPASSUNG_AUFSCHLAG,
-  PKV_PFLEGEVERSICHERUNG_AUFSCHLAG,
   berechnePkvArbeitgeberzuschuss,
   pkvEigenanteil,
 } from "@/lib/pkv";
-
-const PKV_GESAMTAUFSCHLAG_PROZENT = Math.round(
-  ((1 + PKV_PFLEGEVERSICHERUNG_AUFSCHLAG) *
-    (1 + PKV_MARKTANPASSUNG_AUFSCHLAG) -
-    1) *
-    100,
-);
 
 const MARKTDURCHSCHNITT_ZUSATZBEITRAG =
   KRANKENKASSEN.reduce((summe, k) => summe + k.zusatzbeitrag, 0) /
@@ -374,20 +365,13 @@ export default function PkvCheck() {
             </p>
             <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-nebel">
               <li>
-                Die PKV-Beitragsspannen (günstig/typisch/hoch) basieren auf
-                Marktrichtwerten für Angestellte im Standardtarif 2026 und
-                sind rein altersabhängig modelliert – der tatsächliche
-                Beitrag hängt von Gesundheitsprüfung, Risikozuschlägen und
-                gewünschtem Leistungsumfang ab und kann davon abweichen.
+                Die PKV-Beitragsspannen basieren auf Marktrichtwerten für
+                Angestellte 2026 und sind rein altersabhängig modelliert.
               </li>
               <li>
-                Die Richtwerte enthalten einen Aufschlag von insgesamt rund{" "}
-                {PKV_GESAMTAUFSCHLAG_PROZENT} % gegenüber den ursprünglichen
-                Marktdaten: {Math.round(PKV_PFLEGEVERSICHERUNG_AUFSCHLAG * 100)}
-                {" "}% für die gesetzlich vorgeschriebene private
-                Pflegepflichtversicherung (in den Rohdaten nicht enthalten)
-                sowie eine zusätzliche Marktanpassung von{" "}
-                {Math.round(PKV_MARKTANPASSUNG_AUFSCHLAG * 100)} %.
+                Der tatsächliche Beitrag hängt von Gesundheitsprüfung,
+                Risikozuschlägen und gewünschtem Leistungsumfang ab und kann
+                davon abweichen.
               </li>
               <li>
                 Für mitversicherte Kinder rechnen wir pauschal mit{" "}
@@ -402,9 +386,9 @@ export default function PkvCheck() {
                 Arbeitgeber maximal in die GKV einzahlen würde (§ 257 SGB V).
               </li>
               <li>
-                Der GKV-Beitrag wird exakt aus Ihren Angaben berechnet
+                Der GKV-Beitrag wird auf Basis Ihrer Angaben berechnet
                 (Gehalt, Alter, Kinder, Zusatzbeitrag) inkl.
-                Beitragsbemessungsgrenze – nicht als grober Richtwert.
+                Beitragsbemessungsgrenze.
               </li>
               <li>
                 Ein Wechsel in die PKV ist nur oberhalb der
@@ -413,14 +397,9 @@ export default function PkvCheck() {
                 Fall eines künftig höheren Einkommens.
               </li>
               <li>
-                Richtwerte liegen für Eintrittsalter {PKV_ALTER_MIN} bis{" "}
+                Richtwerte liegen nur für Eintrittsalter {PKV_ALTER_MIN} bis{" "}
                 {PKV_ALTER_MAX} Jahre vor; außerhalb dieser Spanne ist eine
                 individuelle Prüfung besonders wichtig.
-              </li>
-              <li>
-                Als Jahresgehalt wird das 12-fache des monatlichen
-                Bruttogehalts angenommen; Sonderzahlungen sind nicht
-                berücksichtigt.
               </li>
             </ul>
           </div>
