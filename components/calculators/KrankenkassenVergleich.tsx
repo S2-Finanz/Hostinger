@@ -103,14 +103,16 @@ export default function KrankenkassenVergleich() {
     [brutto, alter, zusatzbeitragB, hatKinder],
   );
 
-  const differenzMonatlich = Math.round(
-    Math.abs(resultA.anGesamt - resultB.anGesamt),
-  );
+  // Negativ: Alternativ-Krankenkasse ist günstiger. Positiv: sie ist teurer.
+  const differenzSigniert = Math.round(resultB.anGesamt - resultA.anGesamt);
+  const differenzMonatlich = Math.abs(differenzSigniert);
   const differenzJaehrlich = differenzMonatlich * 12;
   const jahreBisRente = Math.max(ANGENOMMENES_RENTENALTER - alter, 0);
   const differenzBerufsleben = differenzJaehrlich * jahreBisRente;
+  const istGuenstiger = differenzSigniert < 0;
 
   const alternativKasse = findKasse(kasseB);
+  const alternativKasseName = alternativKasse?.name ?? "die Alternativ-Krankenkasse";
 
   return (
     <div className="flex flex-col gap-10">
@@ -221,7 +223,7 @@ export default function KrankenkassenVergleich() {
           <p className="mt-3 font-display text-xl font-bold text-white">
             Beide Kassen kosten Sie monatlich gleich viel.
           </p>
-        ) : (
+        ) : istGuenstiger ? (
           <>
             <p className="mt-3 font-display text-xl font-bold text-gold">
               Mit einem Wechsel könnten Sie {formatEUR(differenzMonatlich)}{" "}
@@ -237,6 +239,20 @@ export default function KrankenkassenVergleich() {
                 </>
               )}
               .
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mt-3 font-display text-xl font-bold text-white">
+              Der Beitrag bei {alternativKasseName} wäre{" "}
+              {formatEUR(differenzMonatlich)} monatlich höher.
+            </p>
+            <p className="mt-3 text-nebel">
+              Das sind {formatEUR(differenzJaehrlich)} pro Jahr mehr. Die
+              Leistungen können dennoch interessant sein
+              {alternativKasse?.highlightblattUrl
+                ? " – werfen Sie einen Blick ins Highlightblatt weiter unten."
+                : "."}
             </p>
           </>
         )}
