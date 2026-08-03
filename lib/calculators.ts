@@ -24,6 +24,11 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
         href: "/rechner/pkv-rechner/",
       },
       {
+        title: "Krankenkassen-Vergleich",
+        text: "Zwei gesetzliche Krankenkassen im direkten Beitragsvergleich.",
+        href: "/rechner/krankenkassenvergleich/",
+      },
+      {
         title: "Pensionsrechner",
         text: "Ruhegehaltssatz und voraussichtliche Pension als Beamter.",
         href: "/rechner/pensionsrechner/",

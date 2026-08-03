@@ -11,6 +11,7 @@ const ROUTES = [
   "/rechner/besoldungstabellen/",
   "/rechner/altersvorsorgedepot/",
   "/rechner/pkv-rechner/",
+  "/rechner/krankenkassenvergleich/",
   "/rechner/rentenluecke/",
   "/rechner/arbeitskraftrechner/",
   "/rechner/sparrechner/",
