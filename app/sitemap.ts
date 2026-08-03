@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/constants";
+import { SITE_INDEXABLE, SITE_URL } from "@/lib/constants";
 
 export const dynamic = "force-static";
 
@@ -24,6 +24,8 @@ const ROUTES = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  if (!SITE_INDEXABLE) return [];
+
   return ROUTES.map((route) => ({
     url: `${SITE_URL}${route}`,
     changeFrequency: route === "/" ? "weekly" : "monthly",

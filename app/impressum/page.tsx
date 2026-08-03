@@ -30,7 +30,9 @@ export default function ImpressumPage() {
                   Angaben gemäß § 5 TMG
                 </h2>
                 <p className="mt-3">
-                  S² Finanz GbR
+                  {/* TODO: "i.Gr." entfernen, sobald die GbR-Gründung formal abgeschlossen ist */}
+                  S² Finanz GbR i.Gr. (Gesellschaft bürgerlichen Rechts in
+                  Gründung)
                   <br />
                   vertreten durch die Gesellschafter Marcel Scheuermann und
                   Marcel Schäfer
@@ -57,8 +59,8 @@ export default function ImpressumPage() {
                   Registereintrag
                 </h2>
                 <p className="mt-3">
-                  Gesellschaft bürgerlichen Rechts (GbR), nicht im
-                  Handelsregister eingetragen.
+                  Gesellschaft bürgerlichen Rechts in Gründung (GbR i.Gr.),
+                  nicht im Handelsregister eingetragen.
                 </p>
               </div>
 

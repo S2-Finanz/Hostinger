@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SITE_URL } from "@/lib/constants";
+import { SITE_INDEXABLE, SITE_URL } from "@/lib/constants";
 import { REVIEWS } from "@/components/GoogleReviews";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: TITLE,
   description: DESCRIPTION,
+  robots: SITE_INDEXABLE
+    ? { index: true, follow: true }
+    : { index: false, follow: false, nocache: true },
   openGraph: {
     type: "website",
     locale: "de_DE",
@@ -36,7 +39,7 @@ const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "InsuranceAgency",
   name: "S² Finanz",
-  legalName: "S² Finanz GbR",
+  legalName: "S² Finanz GbR i.Gr.",
   description: DESCRIPTION,
   url: SITE_URL,
   address: {
