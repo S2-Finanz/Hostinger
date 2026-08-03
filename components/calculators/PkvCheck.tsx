@@ -19,10 +19,19 @@ import {
 import {
   PKV_ALTER_MAX,
   PKV_ALTER_MIN,
+  PKV_KIND_BEITRAG,
+  PKV_MARKTANPASSUNG_AUFSCHLAG,
   PKV_PFLEGEVERSICHERUNG_AUFSCHLAG,
   berechnePkvArbeitgeberzuschuss,
   pkvEigenanteil,
 } from "@/lib/pkv";
+
+const PKV_GESAMTAUFSCHLAG_PROZENT = Math.round(
+  ((1 + PKV_PFLEGEVERSICHERUNG_AUFSCHLAG) *
+    (1 + PKV_MARKTANPASSUNG_AUFSCHLAG) -
+    1) *
+    100,
+);
 
 const MARKTDURCHSCHNITT_ZUSATZBEITRAG =
   KRANKENKASSEN.reduce((summe, k) => summe + k.zusatzbeitrag, 0) /
@@ -34,6 +43,7 @@ export default function PkvCheck() {
   const [krankenkasse, setKrankenkasse] = useState("");
   const [zusatzbeitrag, setZusatzbeitrag] = useState(2.9);
   const [hatKinder, setHatKinder] = useState(true);
+  const [anzahlKinder, setAnzahlKinder] = useState(1);
 
   const brutto = jahresgehalt / 12;
 
@@ -43,6 +53,13 @@ export default function PkvCheck() {
   );
   const pkv = useMemo(() => pkvEigenanteil(alter), [alter]);
 
+  const kinderAnzahl = hatKinder ? anzahlKinder : 0;
+  const kinderKostenGesamt = kinderAnzahl * PKV_KIND_BEITRAG;
+  const pkvGesamtVon = pkv.von + kinderKostenGesamt;
+  const pkvGesamtBis = pkv.bis + kinderKostenGesamt;
+
+  // Der Arbeitgeberzuschuss bezieht sich gesetzlich nur auf den eigenen
+  // Vertrag der angestellten Person, nicht auf mitversicherte Kinder.
   const pkvAgZuschussVon = berechnePkvArbeitgeberzuschuss(
     pkv.von,
     gkv.agGesamt,
@@ -51,8 +68,8 @@ export default function PkvCheck() {
     pkv.bis,
     gkv.agGesamt,
   );
-  const pkvAnteilVon = pkv.von - pkvAgZuschussVon;
-  const pkvAnteilBis = pkv.bis - pkvAgZuschussBis;
+  const pkvAnteilVon = pkvGesamtVon - pkvAgZuschussVon;
+  const pkvAnteilBis = pkvGesamtBis - pkvAgZuschussBis;
 
   // Positiv = Ersparnis ggü. GKV, negativ = teurer als GKV.
   const sparenBeiGuenstigstemTarif = gkv.anGesamt - pkvAnteilVon;
@@ -111,6 +128,17 @@ export default function PkvCheck() {
               ))}
             </div>
           </label>
+
+          {hatKinder && (
+            <NumberField
+              label="Anzahl Kinder in der PKV"
+              value={anzahlKinder}
+              onChange={(v) => setAnzahlKinder(Math.max(1, Math.round(v)))}
+              min={1}
+              max={10}
+              step={1}
+            />
+          )}
 
           <label className="block">
             <span className="text-sm text-nebel">
@@ -172,12 +200,20 @@ export default function PkvCheck() {
                 PKV (Beitrag zum privaten Vertrag)
               </p>
               <p className="mt-2 font-display text-2xl font-bold text-white">
-                {formatEUR(pkv.von)} – {formatEUR(pkv.bis)}
+                {formatEUR(pkvGesamtVon)} – {formatEUR(pkvGesamtBis)}
               </p>
               <p className="mt-2 text-sm text-nebel">
                 Ihr Anteil nach Arbeitgeberzuschuss: {formatEUR(pkvAnteilVon)}{" "}
                 – {formatEUR(pkvAnteilBis)} / Monat
               </p>
+              {kinderAnzahl > 0 && (
+                <p className="mt-2 text-xs text-nebel">
+                  Enthält {kinderAnzahl} Kind
+                  {kinderAnzahl > 1 ? "er" : ""} à{" "}
+                  {formatEUR(PKV_KIND_BEITRAG)} ={" "}
+                  {formatEUR(kinderKostenGesamt)}
+                </p>
+              )}
             </div>
           </div>
 
@@ -185,13 +221,7 @@ export default function PkvCheck() {
             <p className="text-xs uppercase tracking-wide text-nebel/60">
               Ergebnis
             </p>
-            {!gkv.ueberJaeg ? (
-              <p className="mt-3 font-display text-xl font-bold text-white">
-                Ein Wechsel ist für Sie aktuell nicht möglich – die
-                Zahlen unten dienen nur der Orientierung (siehe
-                Wechsel-Einschätzung).
-              </p>
-            ) : alleTarifeGuenstiger ? (
+            {alleTarifeGuenstiger ? (
               <p className="mt-3 font-display text-xl font-bold text-gold">
                 Mit einem Wechsel könnten Sie je nach Tarif zwischen{" "}
                 {formatEUR(sparenBeiTeuerstemTarif)} und{" "}
@@ -214,9 +244,17 @@ export default function PkvCheck() {
                 als in der GKV.
               </p>
             )}
-            <p className="mx-auto mt-3 max-w-md text-xs italic leading-relaxed text-nebel">
-              Richtwert-Einschätzung für Ihr Alter ({alter} Jahre):{" "}
-              {pkv.bewertung}
+            {!gkv.ueberJaeg && (
+              <p className="mx-auto mt-3 max-w-md text-sm font-semibold leading-relaxed text-white">
+                Hinweis: Bei diesem Gehalt liegt Ihr Einkommen unter der
+                Jahresarbeitsentgeltgrenze – ein Wechsel in die PKV ist
+                aktuell nicht möglich (siehe Wechsel-Einschätzung unten).
+              </p>
+            )}
+            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-nebel">
+              Nur eine individuelle Berechnung kann Ihnen Sicherheit geben.
+              In der PKV ist insbesondere Ihr Gesundheitszustand
+              ausschlaggebend für den tatsächlichen Beitrag.
             </p>
             {pkv.ausserhalbDatengrundlage && (
               <p className="mx-auto mt-4 max-w-md text-xs leading-relaxed text-nebel">
@@ -243,17 +281,20 @@ export default function PkvCheck() {
               <tbody className="divide-y divide-white/10">
                 <tr>
                   <td className="py-3 pr-4 text-nebel">
-                    Beitrag insgesamt (Kranken- + Pflegeversicherung)
+                    Beitrag insgesamt (Kranken- + Pflegeversicherung
+                    {kinderAnzahl > 0 ? " + Kinder" : ""})
                   </td>
                   <td className="py-3 pr-4 text-right text-white">
                     {formatEUR(gkv.gesamt)}
                   </td>
                   <td className="py-3 text-right text-white">
-                    {formatEUR(pkv.von)} – {formatEUR(pkv.bis)}
+                    {formatEUR(pkvGesamtVon)} – {formatEUR(pkvGesamtBis)}
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-3 pr-4 text-nebel">Arbeitgeberanteil</td>
+                  <td className="py-3 pr-4 text-nebel">
+                    Arbeitgeberanteil
+                  </td>
                   <td className="py-3 pr-4 text-right text-white">
                     – {formatEUR(gkv.agGesamt)}
                   </td>
@@ -340,21 +381,36 @@ export default function PkvCheck() {
                 gewünschtem Leistungsumfang ab und kann davon abweichen.
               </li>
               <li>
-                Die Richtwerte enthalten einen pauschalen Aufschlag von{" "}
-                {Math.round(PKV_PFLEGEVERSICHERUNG_AUFSCHLAG * 100)} % für die
-                gesetzlich vorgeschriebene private Pflegepflichtversicherung,
-                da diese in den zugrunde liegenden Marktdaten nicht enthalten
-                war.
+                Die Richtwerte enthalten einen Aufschlag von insgesamt rund{" "}
+                {PKV_GESAMTAUFSCHLAG_PROZENT} % gegenüber den ursprünglichen
+                Marktdaten: {Math.round(PKV_PFLEGEVERSICHERUNG_AUFSCHLAG * 100)}
+                {" "}% für die gesetzlich vorgeschriebene private
+                Pflegepflichtversicherung (in den Rohdaten nicht enthalten)
+                sowie eine zusätzliche Marktanpassung von{" "}
+                {Math.round(PKV_MARKTANPASSUNG_AUFSCHLAG * 100)} %.
+              </li>
+              <li>
+                Für mitversicherte Kinder rechnen wir pauschal mit{" "}
+                {formatEUR(PKV_KIND_BEITRAG)} Gesamtbeitrag pro Kind (eigener
+                Kindertarif in der PKV), ohne Arbeitgeberzuschuss – dieser
+                bezieht sich gesetzlich nur auf den Vertrag der angestellten
+                Person selbst.
               </li>
               <li>
                 Der Arbeitgeberzuschuss zur PKV wird mit der Hälfte des
-                Beitrags berechnet, gedeckelt auf den Betrag, den der
+                eigenen Beitrags berechnet, gedeckelt auf den Betrag, den der
                 Arbeitgeber maximal in die GKV einzahlen würde (§ 257 SGB V).
               </li>
               <li>
                 Der GKV-Beitrag wird exakt aus Ihren Angaben berechnet
                 (Gehalt, Alter, Kinder, Zusatzbeitrag) inkl.
                 Beitragsbemessungsgrenze – nicht als grober Richtwert.
+              </li>
+              <li>
+                Ein Wechsel in die PKV ist nur oberhalb der
+                Jahresarbeitsentgeltgrenze möglich. Liegt Ihr Gehalt darunter,
+                dienen die angezeigten Zahlen nur der Orientierung für den
+                Fall eines künftig höheren Einkommens.
               </li>
               <li>
                 Richtwerte liegen für Eintrittsalter {PKV_ALTER_MIN} bis{" "}

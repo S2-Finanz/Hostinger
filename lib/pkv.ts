@@ -60,6 +60,17 @@ export type PkvEigenanteil = {
 // marktüblichen Pflege-Beitragsanteilen orientiert.
 export const PKV_PFLEGEVERSICHERUNG_AUFSCHLAG = 0.2;
 
+// Zusätzliche Marktanpassung: Ein Abgleich mit realen Tarifbeispielen zeigte,
+// dass die Rohdaten auch nach dem Pflegeversicherungs-Aufschlag noch spürbar
+// unter marktüblichen Beiträgen lagen. Dieser Aufschlag gleicht das aus.
+export const PKV_MARKTANPASSUNG_AUFSCHLAG = 0.2;
+
+// Pauschaler Gesamtbeitrag pro mitversichertem Kind in der PKV (eigener
+// Kindertarif, da es in der PKV – anders als in der GKV – keine beitragsfreie
+// Familienversicherung gibt). Kein Arbeitgeberzuschuss, da sich dieser
+// gesetzlich nur auf den Vertrag der angestellten Person selbst bezieht.
+export const PKV_KIND_BEITRAG = 200;
+
 export function pkvEigenanteil(alter: number): PkvEigenanteil {
   const geklammert = Math.min(Math.max(alter, PKV_ALTER_MIN), PKV_ALTER_MAX);
   const band =
@@ -67,7 +78,9 @@ export function pkvEigenanteil(alter: number): PkvEigenanteil {
       (b) => geklammert >= b.alterVon && geklammert <= b.alterBis,
     ) ?? PKV_ALTERSBAENDER[PKV_ALTERSBAENDER.length - 1];
 
-  const faktor = 1 + PKV_PFLEGEVERSICHERUNG_AUFSCHLAG;
+  const faktor =
+    (1 + PKV_PFLEGEVERSICHERUNG_AUFSCHLAG) *
+    (1 + PKV_MARKTANPASSUNG_AUFSCHLAG);
 
   return {
     von: Math.round(band.von * faktor),
