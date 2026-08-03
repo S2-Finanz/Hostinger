@@ -8,7 +8,6 @@ export default function Footer() {
           <p className="font-display text-base font-bold text-white">
             S² FINANZ
           </p>
-          {/* TODO: Schreibweise "Furtstr." vs. "Furthstraße" mit dem Vermittlerregister-Eintrag abgleichen */}
           <p className="mt-3">Furtstr. 41/5</p>
           <p>73770 Denkendorf</p>
           <p className="mt-3">

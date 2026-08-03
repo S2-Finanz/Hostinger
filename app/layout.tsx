@@ -36,6 +36,7 @@ const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "InsuranceAgency",
   name: "S² Finanz",
+  legalName: "S² Finanz GbR",
   description: DESCRIPTION,
   url: SITE_URL,
   address: {

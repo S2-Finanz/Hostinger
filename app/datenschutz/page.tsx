@@ -39,9 +39,10 @@ export default function DatenschutzPage() {
                   1. Verantwortlicher
                 </h2>
                 <p className="mt-3">
-                  Marcel Scheuermann, Marcel Schäfer
+                  S² Finanz GbR
                   <br />
-                  handelnd unter „S² Finanz“
+                  vertreten durch die Gesellschafter Marcel Scheuermann und
+                  Marcel Schäfer
                   <br />
                   Furtstr. 41/5
                   <br />

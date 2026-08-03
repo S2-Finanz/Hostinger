@@ -30,12 +30,11 @@ export default function ImpressumPage() {
                   Angaben gemäß § 5 TMG
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: Rechtsform bitte bestätigen – als gemeinsam auftretende Einzelunternehmer bzw. GbR sollten hier beide Namen stehen; ggf. Zusatz „S² Finanz“ als genutzte Geschäftsbezeichnung. */}
-                  Marcel Scheuermann, Marcel Schäfer
+                  S² Finanz GbR
                   <br />
-                  handelnd unter „S² Finanz“
+                  vertreten durch die Gesellschafter Marcel Scheuermann und
+                  Marcel Schäfer
                   <br />
-                  {/* TODO: Adresse mit dem Vermittlerregister-Eintrag abgleichen – dort steht „Furtstr. 41/5“, an anderer Stelle „Furthstraße 41/5“. Bitte korrekte Schreibweise bestätigen. */}
                   Furtstr. 41/5
                   <br />
                   73770 Denkendorf
@@ -58,7 +57,8 @@ export default function ImpressumPage() {
                   Registereintrag
                 </h2>
                 <p className="mt-3">
-                  Als Einzelunternehmer nicht im Handelsregister eingetragen.
+                  Gesellschaft bürgerlichen Rechts (GbR), nicht im
+                  Handelsregister eingetragen.
                 </p>
               </div>
 
@@ -67,9 +67,12 @@ export default function ImpressumPage() {
                   Umsatzsteuer
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: USt-IdNr. (falls vom Bundeszentralamt für Steuern erteilt) oder Steuernummer ergänzen. */}
-                  Umsatzsteuerpflichtig – keine Anwendung der
-                  Kleinunternehmerregelung nach § 19 UStG.
+                  Umsatzsteuerbefreit gemäß § 4 Nr. 11 UStG (Vermittlung von
+                  Versicherungsverträgen); daher keine
+                  Umsatzsteuer-Identifikationsnummer.
+                  <br />
+                  Zuständiges Finanzamt: Finanzamt Esslingen,
+                  Entengrabenstraße, Esslingen am Neckar.
                 </p>
               </div>
 
@@ -84,6 +87,11 @@ export default function ImpressumPage() {
                   Erlaubnisinhaber: Marcel Scheuermann
                   <br />
                   Registrierungsnummer: D-R9IE-52AR4-59
+                  <br />
+                  {/* TODO: Registrierungsnummer von Marcel Schäfer ergänzen, sobald im Vermittlerregister online sichtbar (Eintragung bei der IHK bereits erfolgt). */}
+                  Erlaubnisinhaber: Marcel Schäfer (Eintragung bei der IHK
+                  erfolgt, Registrierungsnummer im Online-Register noch nicht
+                  sichtbar)
                   <br />
                   Registerprüfung:{" "}
                   <a
@@ -105,9 +113,18 @@ export default function ImpressumPage() {
                   Baden-Württemberg, Deutschland
                 </p>
                 <p className="mt-3">
-                  {/* TODO: Berufshaftpflichtversicherung ergänzen – Name des Versicherers und geografischer Geltungsbereich (gesetzlich vorgeschrieben nach § 11 VersVermV). */}
-                  Berufshaftpflichtversicherung: [TODO – Versicherer und
-                  geografischer Geltungsbereich]
+                  Berufshaftpflichtversicherung (Vermögensschaden-Haftpflicht
+                  für Versicherungsvermittlung gem. § 34d GewO):
+                  <br />
+                  Liberty Specialty Markets Europe S.à.r.l., Zweigniederlassung
+                  Deutschland, namens und in Vollmacht für Liberty Mutual
+                  Insurance Europe SE
+                  <br />
+                  Im Klapperhof 7-23, 50670 Köln
+                  <br />
+                  Versicherungssumme: 1.600.000 EUR
+                  <br />
+                  Geltungsbereich: Europäische Union
                 </p>
               </div>
 
