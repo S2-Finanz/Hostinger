@@ -16,4 +16,5 @@ export const NAV_LINKS = [
   { label: "Über uns", href: "/ueber-uns/" },
   { label: "Wissen", href: "/#wissen" },
   { label: "Kontakt", href: "/#kontakt" },
+  { label: "Kunden Login", href: "/kunden-login/" },
 ];
