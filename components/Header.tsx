@@ -7,9 +7,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-onyx/95 backdrop-blur">
       <div className="relative mx-auto flex max-w-content items-center justify-between px-6 py-4">
-        <span className="font-display text-lg font-bold tracking-wide">
+        <Link
+          href="/"
+          className="font-display text-lg font-bold tracking-wide"
+        >
           S² FINANZ
-        </span>
+        </Link>
 
         <nav className="hidden gap-8 text-sm text-nebel md:flex">
           {NAV_LINKS.map((link) =>
