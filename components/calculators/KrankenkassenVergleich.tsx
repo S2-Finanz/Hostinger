@@ -12,6 +12,11 @@ import {
   berechneGkvBeitrag,
 } from "@/lib/gkv";
 
+// Vereinfachte Annahme für die Hochrechnung "über das Berufsleben": feste
+// Regelaltersgrenze von 67 Jahren, unabhängig vom Geburtsjahr. Für eine exakte,
+// gestaffelte Regelaltersgrenze siehe Pensionsrechner.
+const ANGENOMMENES_RENTENALTER = 67;
+
 function KassenAuswahl({
   label,
   krankenkasse,
@@ -98,12 +103,8 @@ export default function KrankenkassenVergleich() {
     Math.abs(resultA.anGesamt - resultB.anGesamt),
   );
   const differenzJaehrlich = differenzMonatlich * 12;
-  const guenstigereKasse =
-    resultA.anGesamt === resultB.anGesamt
-      ? null
-      : resultA.anGesamt < resultB.anGesamt
-        ? kasseA || "Kasse A"
-        : kasseB || "Kasse B";
+  const jahreBisRente = Math.max(ANGENOMMENES_RENTENALTER - alter, 0);
+  const differenzBerufsleben = differenzJaehrlich * jahreBisRente;
 
   return (
     <div className="flex flex-col gap-10">
@@ -217,11 +218,19 @@ export default function KrankenkassenVergleich() {
         ) : (
           <>
             <p className="mt-3 font-display text-xl font-bold text-gold">
-              {guenstigereKasse} ist günstiger.
+              Mit einem Wechsel könnten Sie {formatEUR(differenzMonatlich)}{" "}
+              monatlich sparen.
             </p>
             <p className="mt-3 text-nebel">
-              Ersparnis: {formatEUR(differenzMonatlich)}/Monat ·{" "}
-              {formatEUR(differenzJaehrlich)}/Jahr
+              Das sind {formatEUR(differenzJaehrlich)} pro Jahr
+              {jahreBisRente > 0 && (
+                <>
+                  {" "}
+                  oder {formatEUR(differenzBerufsleben)} über Ihr
+                  Berufsleben (bis {ANGENOMMENES_RENTENALTER} Jahre)
+                </>
+              )}
+              .
             </p>
           </>
         )}
