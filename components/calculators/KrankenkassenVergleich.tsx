@@ -12,6 +12,10 @@ import {
   berechneGkvBeitrag,
 } from "@/lib/gkv";
 
+function findKasse(name: string) {
+  return KRANKENKASSEN.find((k) => k.name === name);
+}
+
 // Vereinfachte Annahme für die Hochrechnung "über das Berufsleben": feste
 // Regelaltersgrenze von 67 Jahren, unabhängig vom Geburtsjahr. Für eine exakte,
 // gestaffelte Regelaltersgrenze siehe Pensionsrechner.
@@ -106,6 +110,8 @@ export default function KrankenkassenVergleich() {
   const jahreBisRente = Math.max(ANGENOMMENES_RENTENALTER - alter, 0);
   const differenzBerufsleben = differenzJaehrlich * jahreBisRente;
 
+  const alternativKasse = findKasse(kasseB);
+
   return (
     <div className="flex flex-col gap-10">
       <div className="grid gap-6 rounded-sm bg-onyx p-8 sm:grid-cols-3">
@@ -158,7 +164,7 @@ export default function KrankenkassenVergleich() {
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="rounded-sm bg-graphit p-8">
           <KassenAuswahl
-            label="Krankenkasse A"
+            label="Aktuelle Krankenkasse"
             krankenkasse={kasseA}
             onSelect={(name, zb) => {
               setKasseA(name);
@@ -183,7 +189,7 @@ export default function KrankenkassenVergleich() {
 
         <div className="rounded-sm bg-graphit p-8">
           <KassenAuswahl
-            label="Krankenkasse B"
+            label="Alternativ Krankenkasse"
             krankenkasse={kasseB}
             onSelect={(name, zb) => {
               setKasseB(name);
@@ -242,14 +248,48 @@ export default function KrankenkassenVergleich() {
           </p>
         )}
 
-        <Link
-          href={CAL_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 inline-block rounded-sm bg-gold px-7 py-3.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
-        >
-          Kassenwechsel besprechen
-        </Link>
+        {alternativKasse?.antragUrl ? (
+          <>
+            <Link
+              href={alternativKasse.antragUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-block rounded-sm bg-gold px-7 py-3.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
+            >
+              Online-Antrag bei {alternativKasse.name} stellen
+            </Link>
+            {alternativKasse.antragHinweis && (
+              <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-nebel">
+                Hinweis: {alternativKasse.antragHinweis} – der Antrag muss
+                ausgedruckt, unterschrieben und postalisch eingereicht werden.
+              </p>
+            )}
+          </>
+        ) : (
+          <Link
+            href={CAL_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 inline-block rounded-sm bg-gold px-7 py-3.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
+          >
+            {alternativKasse
+              ? `Wechsel zu ${alternativKasse.name} besprechen`
+              : "Kassenwechsel besprechen"}
+          </Link>
+        )}
+
+        {alternativKasse?.highlightblattUrl && (
+          <div>
+            <a
+              href={alternativKasse.highlightblattUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-block text-sm text-gold underline underline-offset-4 hover:opacity-80"
+            >
+              Highlightblatt zu {alternativKasse.name} herunterladen
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
