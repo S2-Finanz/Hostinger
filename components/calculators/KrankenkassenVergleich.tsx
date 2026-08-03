@@ -7,7 +7,6 @@ import { NumberField, formatEUR } from "@/components/calculators/ui";
 import {
   ANDERE_KASSE,
   BBG_KV_MONATLICH,
-  JAEG_JAHR,
   KINDERLOSENZUSCHLAG_AB_ALTER,
   KRANKENKASSEN,
   berechneGkvBeitrag,
@@ -265,6 +264,24 @@ export default function KrankenkassenVergleich() {
           </p>
         )}
 
+        {resultA.ueberJaeg && (
+          <div className="mx-auto mt-6 max-w-md rounded-sm border border-gold bg-gold/10 p-6">
+            <p className="font-display text-lg font-bold text-white">
+              {istGuenstiger && differenzMonatlich > 0
+                ? `Sie sparen bereits ${formatEUR(differenzMonatlich)} monatlich – könnten aber voraussichtlich durch einen Wechsel in die private Krankenversicherung (PKV) noch mehr sparen.`
+                : differenzMonatlich === 0
+                  ? "Ein Kassenwechsel bringt hier keine Ersparnis – ein Wechsel in die private Krankenversicherung (PKV) könnte für Sie deutlich mehr sparen."
+                  : "Auch wenn diese Kasse teurer wäre: Ein Wechsel in die private Krankenversicherung (PKV) könnte für Sie insgesamt die größere Ersparnis bringen."}
+            </p>
+            <Link
+              href="/rechner/pkv-rechner/"
+              className="mt-4 inline-block rounded-sm bg-gold px-7 py-3.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
+            >
+              Jetzt PKV-Ersparnis berechnen
+            </Link>
+          </div>
+        )}
+
         {alternativKasse?.antragUrl ? (
           <>
             <Link
@@ -308,30 +325,6 @@ export default function KrankenkassenVergleich() {
           </div>
         )}
       </div>
-
-      {resultA.ueberJaeg && (
-        <div className="rounded-sm border border-gold/30 bg-graphit p-6 text-sm leading-relaxed text-nebel">
-          <p>
-            Ihr Jahresgehalt von {formatEUR(resultA.jahresgehalt)} liegt über
-            der Jahresarbeitsentgeltgrenze (Versicherungspflichtgrenze) von{" "}
-            {formatEUR(JAEG_JAHR)} (2026) – ein Wechsel in die private
-            Krankenversicherung (PKV) kann für Sie daher grundsätzlich
-            infrage kommen
-            {alter >= 49
-              ? ", sollte mit steigendem Eintrittsalter aber besonders sorgfältig geprüft werden"
-              : ""}
-            . Eine pauschale Aussage allein über den GKV-Beitrag wäre nicht
-            seriös – nutzen Sie unseren{" "}
-            <Link
-              href="/rechner/pkv-rechner/"
-              className="text-gold underline underline-offset-4 hover:opacity-80"
-            >
-              PKV-Rechner
-            </Link>{" "}
-            für eine erste Einordnung oder besprechen Sie es direkt mit uns.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

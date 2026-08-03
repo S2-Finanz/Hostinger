@@ -19,6 +19,7 @@ import {
 import {
   PKV_ALTER_MAX,
   PKV_ALTER_MIN,
+  PKV_PFLEGEVERSICHERUNG_AUFSCHLAG,
   berechnePkvArbeitgeberzuschuss,
   pkvEigenanteil,
 } from "@/lib/pkv";
@@ -337,6 +338,13 @@ export default function PkvCheck() {
                 sind rein altersabhängig modelliert – der tatsächliche
                 Beitrag hängt von Gesundheitsprüfung, Risikozuschlägen und
                 gewünschtem Leistungsumfang ab und kann davon abweichen.
+              </li>
+              <li>
+                Die Richtwerte enthalten einen pauschalen Aufschlag von{" "}
+                {Math.round(PKV_PFLEGEVERSICHERUNG_AUFSCHLAG * 100)} % für die
+                gesetzlich vorgeschriebene private Pflegepflichtversicherung,
+                da diese in den zugrunde liegenden Marktdaten nicht enthalten
+                war.
               </li>
               <li>
                 Der Arbeitgeberzuschuss zur PKV wird mit der Hälfte des

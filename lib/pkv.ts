@@ -53,6 +53,13 @@ export type PkvEigenanteil = {
   ausserhalbDatengrundlage: boolean;
 };
 
+// Die Rohdaten oben bilden ausschließlich den Beitrag zur privaten
+// Krankenversicherung ab, nicht die zusätzlich gesetzlich vorgeschriebene
+// private Pflegepflichtversicherung (§ 23 SGB XI). Da hierfür keine eigene
+// Alterstabelle vorliegt, wird ein pauschaler Aufschlag angesetzt, der sich an
+// marktüblichen Pflege-Beitragsanteilen orientiert.
+export const PKV_PFLEGEVERSICHERUNG_AUFSCHLAG = 0.2;
+
 export function pkvEigenanteil(alter: number): PkvEigenanteil {
   const geklammert = Math.min(Math.max(alter, PKV_ALTER_MIN), PKV_ALTER_MAX);
   const band =
@@ -60,10 +67,12 @@ export function pkvEigenanteil(alter: number): PkvEigenanteil {
       (b) => geklammert >= b.alterVon && geklammert <= b.alterBis,
     ) ?? PKV_ALTERSBAENDER[PKV_ALTERSBAENDER.length - 1];
 
+  const faktor = 1 + PKV_PFLEGEVERSICHERUNG_AUFSCHLAG;
+
   return {
-    von: band.von,
-    bis: band.bis,
-    schnitt: band.schnitt,
+    von: Math.round(band.von * faktor),
+    bis: Math.round(band.bis * faktor),
+    schnitt: Math.round(band.schnitt * faktor),
     bewertung: band.bewertung,
     ausserhalbDatengrundlage: alter < PKV_ALTER_MIN || alter > PKV_ALTER_MAX,
   };
