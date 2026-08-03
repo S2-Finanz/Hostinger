@@ -13,6 +13,29 @@ const KINDERLOSENZUSCHLAG_AB_ALTER = 23;
 const BBG_KV_MONATLICH = 5812.5; // Beitragsbemessungsgrenze KV/PV 2026
 const JAEG_JAHR = 77400; // allgemeine Jahresarbeitsentgeltgrenze (Versicherungspflichtgrenze) 2026
 
+// Zusatzbeitragssätze 2026 der größten gesetzlichen Krankenkassen (Stand: Januar 2026,
+// Quelle: jeweilige Kassen / GKV-Spitzenverband). Da sich Zusatzbeiträge unterjährig
+// ändern können, bleibt das Feld nach der Auswahl weiterhin manuell editierbar –
+// diese Liste ist eine Ausgangs-Schätzung, keine Live-Abfrage.
+const KRANKENKASSEN: { name: string; zusatzbeitrag: number }[] = [
+  { name: "AOK Baden-Württemberg", zusatzbeitrag: 2.99 },
+  { name: "AOK Bayern", zusatzbeitrag: 2.69 },
+  { name: "AOK Nordost", zusatzbeitrag: 3.5 },
+  { name: "AOK PLUS", zusatzbeitrag: 3.1 },
+  { name: "AOK Rheinland/Hamburg", zusatzbeitrag: 3.29 },
+  { name: "Barmer", zusatzbeitrag: 3.29 },
+  { name: "BIG direkt gesund", zusatzbeitrag: 3.69 },
+  { name: "DAK-Gesundheit", zusatzbeitrag: 3.2 },
+  { name: "Debeka BKK", zusatzbeitrag: 3.25 },
+  { name: "hkk", zusatzbeitrag: 2.59 },
+  { name: "IKK classic", zusatzbeitrag: 3.85 },
+  { name: "KKH", zusatzbeitrag: 3.78 },
+  { name: "Knappschaft", zusatzbeitrag: 4.3 },
+  { name: "SBK", zusatzbeitrag: 3.8 },
+  { name: "Techniker Krankenkasse (TK)", zusatzbeitrag: 2.69 },
+];
+const ANDERE_KASSE = "Andere Krankenkasse";
+
 function formatProzent(value: number): string {
   return value.toLocaleString("de-DE", {
     minimumFractionDigits: 1,
@@ -91,17 +114,34 @@ export default function PkvCheck() {
 
         <label className="block">
           <span className="text-sm text-nebel">
-            Gesetzliche Krankenversicherung (optional)
+            Gesetzliche Krankenversicherung
           </span>
-          <div className="mt-2 border-b border-white/20 pb-2 focus-within:border-gold">
-            <input
-              type="text"
-              value={krankenkasse}
-              onChange={(e) => setKrankenkasse(e.target.value)}
-              placeholder="z. B. Techniker Krankenkasse"
-              className="w-full bg-transparent text-lg text-white outline-none placeholder:text-nebel/50"
-            />
-          </div>
+          <select
+            value={krankenkasse}
+            onChange={(e) => {
+              const name = e.target.value;
+              setKrankenkasse(name);
+              const kasse = KRANKENKASSEN.find((k) => k.name === name);
+              if (kasse) setZusatzbeitrag(kasse.zusatzbeitrag);
+            }}
+            className="mt-2 w-full border-b border-white/20 bg-transparent py-2 text-lg text-white outline-none focus:border-gold"
+          >
+            <option value="" className="bg-graphit">
+              Bitte auswählen …
+            </option>
+            {KRANKENKASSEN.map((k) => (
+              <option key={k.name} value={k.name} className="bg-graphit">
+                {k.name}
+              </option>
+            ))}
+            <option value={ANDERE_KASSE} className="bg-graphit">
+              {ANDERE_KASSE}
+            </option>
+          </select>
+          <p className="mt-2 text-xs text-nebel">
+            Zusatzbeitrag wird automatisch befüllt (Stand: Januar 2026) –
+            unten bei Bedarf anpassen.
+          </p>
         </label>
 
         <NumberField
@@ -146,7 +186,10 @@ export default function PkvCheck() {
       <div className="flex flex-col gap-6">
         <div className="rounded-sm bg-onyx p-8">
           <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-            Ihr GKV-Beitrag{krankenkasse ? ` bei der ${krankenkasse}` : ""}
+            Ihr GKV-Beitrag
+            {krankenkasse && krankenkasse !== ANDERE_KASSE
+              ? ` bei der ${krankenkasse}`
+              : ""}
           </p>
           <ResultRow
             label="Monatlicher Beitrag (Ihr Anteil)"
