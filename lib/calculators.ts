@@ -19,8 +19,8 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
         href: "/rechner/altersvorsorgedepot/",
       },
       {
-        title: "PKV Schnellrechner",
-        text: "Erste Einordnung zu Ihrer privaten Krankenversicherung.",
+        title: "GKV-PKV-Vergleichsrechner",
+        text: "GKV-Beitrag vs. marktübliche PKV-Richtwerte für Ihr Alter.",
         href: "/rechner/pkv-rechner/",
       },
       {

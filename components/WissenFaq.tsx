@@ -9,7 +9,7 @@ const FAQ = [
     antwort:
       "Das hängt von Einkommen, Familienplanung, Gesundheitszustand und Berufsstatus ab. Für Beamte ist die PKV wegen der Beihilfe in aller Regel deutlich günstiger als die GKV. Für Angestellte und Geschäftsführer lohnt sich ein individueller Vergleich der laufenden Beiträge und Leistungen.",
     href: "/rechner/pkv-rechner/",
-    hrefLabel: "PKV Schnellrechner öffnen",
+    hrefLabel: "GKV-PKV-Vergleichsrechner öffnen",
   },
   {
     frage: "Wie wird meine Pension als Beamter berechnet?",

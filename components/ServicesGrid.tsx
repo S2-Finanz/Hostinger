@@ -5,7 +5,7 @@ const SERVICES = [
   {
     title: "Private Krankenversicherung",
     text: "Optimaler Versicherungsschutz für Angestellte und Beamte – individuell kalkuliert, lebenslang tragfähig.",
-    calculatorLabel: "PKV Schnellrechner",
+    calculatorLabel: "GKV-PKV-Vergleichsrechner",
     calculatorHref: "/rechner/pkv-rechner/",
   },
   {

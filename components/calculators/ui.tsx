@@ -35,6 +35,44 @@ export function NumberField({
   );
 }
 
+export function SliderField({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  formatValue,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  formatValue: (value: number) => string;
+}) {
+  return (
+    <label className="block">
+      <div className="flex items-baseline justify-between">
+        <span className="text-sm text-nebel">{label}</span>
+        <span className="text-sm font-semibold text-gold">
+          {formatValue(value)}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-gold"
+      />
+    </label>
+  );
+}
+
 export function ResultRow({
   label,
   value,

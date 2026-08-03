@@ -3,226 +3,380 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CAL_LINK } from "@/lib/constants";
-import { NumberField, ResultRow, formatEUR } from "@/components/calculators/ui";
+import {
+  NumberField,
+  SliderField,
+  formatEUR,
+} from "@/components/calculators/ui";
 import {
   ANDERE_KASSE,
-  BBG_KV_MONATLICH,
   JAEG_JAHR,
   KINDERLOSENZUSCHLAG_AB_ALTER,
   KRANKENKASSEN,
-  PV_KINDERLOSENZUSCHLAG_PROZENT,
   berechneGkvBeitrag,
   formatProzent,
 } from "@/lib/gkv";
+import {
+  PKV_ALTER_MAX,
+  PKV_ALTER_MIN,
+  berechnePkvArbeitgeberzuschuss,
+  pkvEigenanteil,
+} from "@/lib/pkv";
+
+const MARKTDURCHSCHNITT_ZUSATZBEITRAG =
+  KRANKENKASSEN.reduce((summe, k) => summe + k.zusatzbeitrag, 0) /
+  KRANKENKASSEN.length;
 
 export default function PkvCheck() {
-  const [brutto, setBrutto] = useState(3800);
-  const [alter, setAlter] = useState(30);
+  const [alter, setAlter] = useState(32);
+  const [jahresgehalt, setJahresgehalt] = useState(80000);
   const [krankenkasse, setKrankenkasse] = useState("");
   const [zusatzbeitrag, setZusatzbeitrag] = useState(2.9);
   const [hatKinder, setHatKinder] = useState(true);
 
-  const result = useMemo(
+  const brutto = jahresgehalt / 12;
+
+  const gkv = useMemo(
     () => berechneGkvBeitrag({ brutto, alter, zusatzbeitrag, hatKinder }),
     [brutto, alter, zusatzbeitrag, hatKinder],
   );
+  const pkv = useMemo(() => pkvEigenanteil(alter), [alter]);
+
+  const pkvAgZuschussVon = berechnePkvArbeitgeberzuschuss(
+    pkv.von,
+    gkv.agGesamt,
+  );
+  const pkvAgZuschussBis = berechnePkvArbeitgeberzuschuss(
+    pkv.bis,
+    gkv.agGesamt,
+  );
+  const pkvAnteilVon = pkv.von - pkvAgZuschussVon;
+  const pkvAnteilBis = pkv.bis - pkvAgZuschussBis;
+
+  // Positiv = Ersparnis ggü. GKV, negativ = teurer als GKV.
+  const sparenBeiGuenstigstemTarif = gkv.anGesamt - pkvAnteilVon;
+  const sparenBeiTeuerstemTarif = gkv.anGesamt - pkvAnteilBis;
+  const alleTarifeGuenstiger = sparenBeiTeuerstemTarif > 0;
+  const alleTarifeTeurer = sparenBeiGuenstigstemTarif <= 0;
 
   return (
-    <div className="grid gap-10 md:grid-cols-2">
-      <div className="flex flex-col gap-8">
-        <NumberField
-          label="Bruttogehalt (pro Monat)"
-          suffix="€"
-          value={brutto}
-          onChange={setBrutto}
-          step={100}
-        />
-        <NumberField
-          label="Alter"
-          suffix="Jahre"
-          value={alter}
-          onChange={setAlter}
-          min={16}
-          max={75}
-        />
+    <div className="flex flex-col gap-10">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,340px)_1fr]">
+        <div className="flex flex-col gap-7 rounded-sm bg-onyx p-8">
+          <h2 className="font-display text-lg font-semibold text-white">
+            Ihre Angaben
+          </h2>
 
-        <label className="block">
-          <span className="text-sm text-nebel">
-            Gesetzliche Krankenversicherung
-          </span>
-          <select
-            value={krankenkasse}
-            onChange={(e) => {
-              const name = e.target.value;
-              setKrankenkasse(name);
-              const kasse = KRANKENKASSEN.find((k) => k.name === name);
-              if (kasse) setZusatzbeitrag(kasse.zusatzbeitrag);
-            }}
-            className="mt-2 w-full border-b border-white/20 bg-transparent py-2 text-lg text-white outline-none focus:border-gold"
-          >
-            <option value="" className="bg-graphit">
-              Bitte auswählen …
-            </option>
-            {KRANKENKASSEN.map((k) => (
-              <option key={k.name} value={k.name} className="bg-graphit">
-                {k.name}
+          <SliderField
+            label="Alter"
+            value={alter}
+            onChange={setAlter}
+            min={18}
+            max={65}
+            formatValue={(v) => `${v} Jahre`}
+          />
+
+          <SliderField
+            label="Bruttojahreseinkommen"
+            value={jahresgehalt}
+            onChange={setJahresgehalt}
+            min={20000}
+            max={150000}
+            step={1000}
+            formatValue={(v) => formatEUR(v)}
+          />
+
+          <label className="block">
+            <span className="text-sm text-nebel">
+              Haben Sie (berücksichtigungsfähige) Kinder?
+            </span>
+            <div className="mt-3 flex gap-2">
+              {[
+                { label: "Ja", value: true },
+                { label: "Nein", value: false },
+              ].map((option) => (
+                <button
+                  key={option.label}
+                  type="button"
+                  onClick={() => setHatKinder(option.value)}
+                  className={`flex-1 rounded-sm border px-4 py-2.5 text-sm transition-colors ${
+                    hatKinder === option.value
+                      ? "border-gold bg-gold/10 text-white"
+                      : "border-white/15 text-nebel hover:border-white/30"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-sm text-nebel">
+              Gesetzliche Krankenversicherung
+            </span>
+            <select
+              value={krankenkasse}
+              onChange={(e) => {
+                const name = e.target.value;
+                setKrankenkasse(name);
+                const kasse = KRANKENKASSEN.find((k) => k.name === name);
+                if (kasse) setZusatzbeitrag(kasse.zusatzbeitrag);
+              }}
+              className="mt-2 w-full border-b border-white/20 bg-transparent py-2 text-base text-white outline-none focus:border-gold"
+            >
+              <option value="" className="bg-graphit">
+                Bitte auswählen …
               </option>
-            ))}
-            <option value={ANDERE_KASSE} className="bg-graphit">
-              {ANDERE_KASSE}
-            </option>
-          </select>
-          <p className="mt-2 text-xs text-nebel">
-            Zusatzbeitrag wird automatisch befüllt (Stand: Januar 2026) –
-            unten bei Bedarf anpassen.
+              {KRANKENKASSEN.map((k) => (
+                <option key={k.name} value={k.name} className="bg-graphit">
+                  {k.name}
+                </option>
+              ))}
+              <option value={ANDERE_KASSE} className="bg-graphit">
+                {ANDERE_KASSE}
+              </option>
+            </select>
+          </label>
+
+          <NumberField
+            label="Zusatzbeitragssatz der Krankenkasse"
+            suffix="%"
+            value={zusatzbeitrag}
+            onChange={setZusatzbeitrag}
+            step={0.1}
+            max={5}
+          />
+          <p className="-mt-4 text-xs text-nebel">
+            Marktdurchschnitt zum 01.01.2026:{" "}
+            {formatProzent(MARKTDURCHSCHNITT_ZUSATZBEITRAG)} %
           </p>
-        </label>
+        </div>
 
-        <NumberField
-          label="Zusatzbeitrag Ihrer Krankenkasse"
-          suffix="%"
-          value={zusatzbeitrag}
-          onChange={setZusatzbeitrag}
-          step={0.1}
-          max={5}
-        />
+        <div className="flex flex-col gap-6">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="rounded-sm bg-graphit p-6">
+              <p className="text-xs uppercase tracking-wide text-nebel/60">
+                GKV (Gesamtbeitrag)
+              </p>
+              <p className="mt-2 font-display text-2xl font-bold text-white">
+                {formatEUR(gkv.gesamt)}
+              </p>
+              <p className="mt-2 text-sm text-nebel">
+                Ihr Anteil: {formatEUR(gkv.anGesamt)} / Monat
+              </p>
+            </div>
+            <div className="rounded-sm border border-gold/40 bg-graphit p-6">
+              <p className="text-xs uppercase tracking-wide text-nebel/60">
+                PKV (Beitrag zum privaten Vertrag)
+              </p>
+              <p className="mt-2 font-display text-2xl font-bold text-white">
+                {formatEUR(pkv.von)} – {formatEUR(pkv.bis)}
+              </p>
+              <p className="mt-2 text-sm text-nebel">
+                Ihr Anteil nach Arbeitgeberzuschuss: {formatEUR(pkvAnteilVon)}{" "}
+                – {formatEUR(pkvAnteilBis)} / Monat
+              </p>
+            </div>
+          </div>
 
-        <label className="block">
-          <span className="text-sm text-nebel">
-            Haben Sie (berücksichtigungsfähige) Kinder?
-          </span>
-          <div className="mt-3 flex gap-2">
-            {[
-              { label: "Ja", value: true },
-              { label: "Nein", value: false },
-            ].map((option) => (
-              <button
-                key={option.label}
-                type="button"
-                onClick={() => setHatKinder(option.value)}
-                className={`flex-1 rounded-sm border px-4 py-3 text-sm transition-colors ${
-                  hatKinder === option.value
-                    ? "border-gold bg-gold/10 text-white"
-                    : "border-white/15 text-nebel hover:border-white/30"
+          <div className="rounded-sm border border-gold/40 bg-onyx p-8 text-center">
+            <p className="text-xs uppercase tracking-wide text-nebel/60">
+              Ergebnis
+            </p>
+            {!gkv.ueberJaeg ? (
+              <p className="mt-3 font-display text-xl font-bold text-white">
+                Ein Wechsel ist für Sie aktuell nicht möglich – die
+                Zahlen unten dienen nur der Orientierung (siehe
+                Wechsel-Einschätzung).
+              </p>
+            ) : alleTarifeGuenstiger ? (
+              <p className="mt-3 font-display text-xl font-bold text-gold">
+                Mit einem Wechsel könnten Sie je nach Tarif zwischen{" "}
+                {formatEUR(sparenBeiTeuerstemTarif)} und{" "}
+                {formatEUR(sparenBeiGuenstigstemTarif)} monatlich sparen.
+              </p>
+            ) : alleTarifeTeurer ? (
+              <p className="mt-3 font-display text-xl font-bold text-white">
+                Der PKV-Beitrag läge in Ihrem Alter voraussichtlich über
+                Ihrem GKV-Anteil – je nach Tarif zwischen{" "}
+                {formatEUR(Math.abs(sparenBeiGuenstigstemTarif))} und{" "}
+                {formatEUR(Math.abs(sparenBeiTeuerstemTarif))} mehr pro
+                Monat. Die Leistungen können dennoch deutlich umfangreicher
+                sein.
+              </p>
+            ) : (
+              <p className="mt-3 font-display text-xl font-bold text-white">
+                Je nach gewähltem Tarif könnten Sie bis zu{" "}
+                {formatEUR(sparenBeiGuenstigstemTarif)} monatlich sparen –
+                bei umfangreicheren Tarifen kann es aber auch teurer werden
+                als in der GKV.
+              </p>
+            )}
+            <p className="mx-auto mt-3 max-w-md text-xs italic leading-relaxed text-nebel">
+              Richtwert-Einschätzung für Ihr Alter ({alter} Jahre):{" "}
+              {pkv.bewertung}
+            </p>
+            {pkv.ausserhalbDatengrundlage && (
+              <p className="mx-auto mt-4 max-w-md text-xs leading-relaxed text-nebel">
+                Für Ihr Eintrittsalter liegen keine spezifischen
+                PKV-Richtwerte vor – die Berechnung nutzt den Randwert für{" "}
+                {alter < PKV_ALTER_MIN ? PKV_ALTER_MIN : PKV_ALTER_MAX} Jahre
+                als Orientierung. Lassen Sie sich in diesem Fall unbedingt
+                individuell beraten.
+              </p>
+            )}
+          </div>
+
+          <div className="overflow-x-auto rounded-sm bg-graphit p-6">
+            <table className="w-full min-w-[420px] text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-nebel/60">
+                  <th className="py-3 pr-4 font-normal">Posten</th>
+                  <th className="py-3 pr-4 text-right font-normal">GKV</th>
+                  <th className="py-3 text-right font-normal">
+                    PKV (Bandbreite)
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10">
+                <tr>
+                  <td className="py-3 pr-4 text-nebel">
+                    Beitrag insgesamt (Kranken- + Pflegeversicherung)
+                  </td>
+                  <td className="py-3 pr-4 text-right text-white">
+                    {formatEUR(gkv.gesamt)}
+                  </td>
+                  <td className="py-3 text-right text-white">
+                    {formatEUR(pkv.von)} – {formatEUR(pkv.bis)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-3 pr-4 text-nebel">Arbeitgeberanteil</td>
+                  <td className="py-3 pr-4 text-right text-white">
+                    – {formatEUR(gkv.agGesamt)}
+                  </td>
+                  <td className="py-3 text-right text-white">
+                    – {formatEUR(pkvAgZuschussVon)} bis –{" "}
+                    {formatEUR(pkvAgZuschussBis)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-3 pr-4 font-semibold text-white">
+                    Ihr Anteil gesamt
+                  </td>
+                  <td className="py-3 pr-4 text-right font-semibold text-gold">
+                    {formatEUR(gkv.anGesamt)}
+                  </td>
+                  <td className="py-3 text-right font-semibold text-gold">
+                    {formatEUR(pkvAnteilVon)} – {formatEUR(pkvAnteilBis)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="rounded-sm bg-onyx p-8">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs uppercase tracking-wide text-nebel/60">
+                Wechsel-Einschätzung (2026)
+              </p>
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                  !gkv.ueberJaeg
+                    ? "border-white/20 text-nebel"
+                    : "border-gold/40 bg-gold/10 text-gold"
                 }`}
               >
-                {option.label}
-              </button>
-            ))}
+                {!gkv.ueberJaeg
+                  ? "Aktuell nicht möglich"
+                  : "Wechsel grundsätzlich möglich"}
+              </span>
+            </div>
+
+            {!gkv.ueberJaeg ? (
+              <p className="mt-4 text-sm leading-relaxed text-nebel">
+                Ihr Jahresgehalt von {formatEUR(gkv.jahresgehalt)} liegt
+                unter der Jahresarbeitsentgeltgrenze (Versicherungspflicht-
+                grenze) von {formatEUR(JAEG_JAHR)} (2026). Als angestellte
+                Person bleiben Sie bis zum Überschreiten dieser Grenze
+                gesetzlich versicherungspflichtig.
+              </p>
+            ) : (
+              <>
+                <p className="mt-4 text-sm leading-relaxed text-nebel">
+                  Ihr Jahresgehalt liegt über der Versicherungspflichtgrenze
+                  – ein Wechsel in die PKV kann für Sie daher grundsätzlich
+                  infrage kommen
+                  {alter >= 49
+                    ? ", sollte mit steigendem Eintrittsalter aber besonders sorgfältig geprüft werden"
+                    : ""}
+                  . Ob es sich tatsächlich lohnt, hängt von Gesundheits-
+                  zustand, gewünschtem Leistungsumfang und Lebensplanung ab –
+                  eine pauschale Aussage allein über den Beitrag wäre nicht
+                  seriös.
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-nebel">
+                  Wichtig: Bei Angestellten endet die Versicherungspflicht
+                  regulär erst zum Jahresende, und auch nur, wenn das
+                  Einkommen auch im Folgejahr über der dann geltenden Grenze
+                  liegt.
+                </p>
+              </>
+            )}
           </div>
-          <p className="mt-2 text-xs text-nebel">
-            Ohne Kinder erhöht sich Ihr Anteil an der Pflegeversicherung ab{" "}
-            {KINDERLOSENZUSCHLAG_AB_ALTER} Jahren um den Kinderlosenzuschlag.
-          </p>
-        </label>
+
+          <div className="rounded-sm bg-onyx p-8">
+            <p className="text-xs uppercase tracking-wide text-nebel/60">
+              Verwendete Annahmen
+            </p>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-nebel">
+              <li>
+                Die PKV-Beitragsspannen (günstig/typisch/hoch) basieren auf
+                Marktrichtwerten für Angestellte im Standardtarif 2026 und
+                sind rein altersabhängig modelliert – der tatsächliche
+                Beitrag hängt von Gesundheitsprüfung, Risikozuschlägen und
+                gewünschtem Leistungsumfang ab und kann davon abweichen.
+              </li>
+              <li>
+                Der Arbeitgeberzuschuss zur PKV wird mit der Hälfte des
+                Beitrags berechnet, gedeckelt auf den Betrag, den der
+                Arbeitgeber maximal in die GKV einzahlen würde (§ 257 SGB V).
+              </li>
+              <li>
+                Der GKV-Beitrag wird exakt aus Ihren Angaben berechnet
+                (Gehalt, Alter, Kinder, Zusatzbeitrag) inkl.
+                Beitragsbemessungsgrenze – nicht als grober Richtwert.
+              </li>
+              <li>
+                Richtwerte liegen für Eintrittsalter {PKV_ALTER_MIN} bis{" "}
+                {PKV_ALTER_MAX} Jahre vor; außerhalb dieser Spanne ist eine
+                individuelle Prüfung besonders wichtig.
+              </li>
+              <li>
+                Als Jahresgehalt wird das 12-fache des monatlichen
+                Bruttogehalts angenommen; Sonderzahlungen sind nicht
+                berücksichtigt.
+              </li>
+            </ul>
+          </div>
+
+          <Link
+            href={CAL_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block rounded-sm bg-gold px-7 py-3.5 text-center text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
+          >
+            Individuelle PKV-Analyse anfordern
+          </Link>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-6">
-        <div className="rounded-sm bg-onyx p-8">
-          <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-            Ihr GKV-Beitrag
-            {krankenkasse && krankenkasse !== ANDERE_KASSE
-              ? ` bei der ${krankenkasse}`
-              : ""}
-          </p>
-          <ResultRow
-            label="Monatlicher Beitrag (Ihr Anteil)"
-            value={formatEUR(result.anGesamt)}
-            emphasis
-          />
-          <ResultRow
-            label="davon Krankenversicherung"
-            value={formatEUR(result.anGkv)}
-          />
-          <ResultRow
-            label="davon Pflegeversicherung"
-            value={formatEUR(result.anPv)}
-          />
-          <ResultRow
-            label="Arbeitgeberanteil (zusätzlich)"
-            value={formatEUR(result.agGesamt)}
-          />
-          <ResultRow
-            label="Gesamtbeitrag (AN + AG)"
-            value={formatEUR(result.gesamt)}
-          />
-
-          {result.amBbgGedeckelt && (
-            <p className="mt-4 text-xs leading-relaxed text-nebel">
-              Ihr Gehalt liegt über der Beitragsbemessungsgrenze von{" "}
-              {formatEUR(BBG_KV_MONATLICH)}/Monat – die Berechnung erfolgt
-              daher auf Basis der Bemessungsgrenze, nicht Ihres vollen
-              Gehalts.
-            </p>
-          )}
-          {result.kinderlosenzuschlagPflichtig && (
-            <p className="mt-2 text-xs leading-relaxed text-nebel">
-              Enthalten: Kinderlosenzuschlag von{" "}
-              {formatProzent(PV_KINDERLOSENZUSCHLAG_PROZENT)} % zur
-              Pflegeversicherung.
-            </p>
-          )}
-        </div>
-
-        <div className="rounded-sm bg-onyx p-8">
-          <p className="mb-3 text-xs uppercase tracking-wide text-nebel/60">
-            Ist ein Wechsel in die PKV möglich?
-          </p>
-
-          {!result.ueberJaeg ? (
-            <>
-              <p className="font-display text-lg font-semibold text-white">
-                Aktuell nicht.
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-nebel">
-                Ihr Jahresgehalt von {formatEUR(result.jahresgehalt)} liegt
-                unter der Jahresarbeitsentgeltgrenze (Versicherungspflichtgrenze)
-                von {formatEUR(JAEG_JAHR)} (2026). Als angestellte Person
-                bleiben Sie bis zum Überschreiten dieser Grenze gesetzlich
-                versicherungspflichtig.
-              </p>
-            </>
-          ) : alter <= 48 ? (
-            <>
-              <p className="font-display text-lg font-semibold text-gold">
-                Grundsätzlich möglich.
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-nebel">
-                Ihr Jahresgehalt liegt über der Versicherungspflichtgrenze –
-                ein Wechsel in die PKV kann für Sie sinnvoll sein. Ob es sich
-                tatsächlich lohnt, hängt von Gesundheitszustand, gewünschtem
-                Leistungsumfang und Lebensplanung ab. Eine pauschale Aussage
-                allein über den Beitrag wäre nicht seriös – das prüfen wir
-                gerne konkret mit Ihnen.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="font-display text-lg font-semibold text-white">
-                Grundsätzlich möglich – Prüfung besonders wichtig.
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-nebel">
-                Ihr Jahresgehalt liegt über der Versicherungspflichtgrenze,
-                ein Wechsel wäre formal möglich. In Ihrem Alter steigt der
-                PKV-Beitrag durch das höhere Eintrittsalter jedoch spürbar,
-                und bereits investierte Zeit in die gesetzlichen
-                Altersrückstellungen ginge verloren. Wir raten hier
-                ausdrücklich von einer pauschalen Einschätzung ab und prüfen
-                das nur individuell mit Ihnen.
-              </p>
-            </>
-          )}
-        </div>
-
-        <Link
-          href={CAL_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block rounded-sm bg-gold px-7 py-3.5 text-center text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
-        >
-          Persönlichen Vergleich besprechen
-        </Link>
-      </div>
+      <p className="text-xs text-nebel">
+        Ohne Kinder erhöht sich Ihr Anteil an der Pflegeversicherung ab{" "}
+        {KINDERLOSENZUSCHLAG_AB_ALTER} Jahren um den Kinderlosenzuschlag –
+        bereits in der GKV-Berechnung oben berücksichtigt.
+      </p>
     </div>
   );
 }
