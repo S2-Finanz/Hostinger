@@ -49,7 +49,11 @@ function istBeantwortet(frage: FragebogenFrage, antworten: FragebogenAntworten):
 
 function istSichtbar(frage: FragebogenFrage, antworten: FragebogenAntworten): boolean {
   if (!frage.zeigenWenn) return true;
-  return antworten[frage.zeigenWenn.frageId] === frage.zeigenWenn.wert;
+  return frage.zeigenWenn.some((bedingung) => {
+    const wert = antworten[bedingung.frageId];
+    if (bedingung.typ === "ja") return wert === "ja";
+    return typeof wert === "number" && wert > 0;
+  });
 }
 
 export default function FormularApp() {

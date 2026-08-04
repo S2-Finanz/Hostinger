@@ -1,3 +1,7 @@
+export type FragebogenBedingung =
+  | { frageId: string; typ: "ja" }
+  | { frageId: string; typ: "positiv" };
+
 export type FragebogenFrage =
   | {
       id: string;
@@ -6,14 +10,14 @@ export type FragebogenFrage =
       einheit?: string;
       min: number;
       max: number;
-      zeigenWenn?: { frageId: string; wert: "ja" };
+      zeigenWenn?: FragebogenBedingung[];
     }
-  | { id: string; typ: "text"; frage: string; zeigenWenn?: { frageId: string; wert: "ja" } }
+  | { id: string; typ: "text"; frage: string; zeigenWenn?: FragebogenBedingung[] }
   | {
       id: string;
       typ: "jaNein";
       frage: string;
-      zeigenWenn?: { frageId: string; wert: "ja" };
+      zeigenWenn?: FragebogenBedingung[];
       beschreibung: { label: string; icdHinweis: boolean };
     };
 
@@ -290,7 +294,7 @@ export const FRAGEBOGEN_ABSCHNITTE: FragebogenAbschnitt[] = [
         id: "22a",
         typ: "jaNein",
         frage: "Ist eine Behandlung laufend oder angeraten?",
-        zeigenWenn: { frageId: "22", wert: "ja" },
+        zeigenWenn: [{ frageId: "22", typ: "ja" }],
         beschreibung: { label: "Bitte kurz beschreiben, welche Behandlung.", icdHinweis: false },
       },
       {
@@ -316,6 +320,11 @@ export const FRAGEBOGEN_ABSCHNITTE: FragebogenAbschnitt[] = [
         einheit: "Jahre",
         min: 0,
         max: 80,
+        zeigenWenn: [
+          { frageId: "23", typ: "positiv" },
+          { frageId: "24", typ: "positiv" },
+          { frageId: "25", typ: "positiv" },
+        ],
       },
       { id: "27", typ: "text", frage: "Wann fand die letzte zahnärztliche Untersuchung statt?" },
       {
@@ -328,7 +337,7 @@ export const FRAGEBOGEN_ABSCHNITTE: FragebogenAbschnitt[] = [
         id: "28a",
         typ: "text",
         frage: "Welcher Befund wurde gestellt bzw. welche Maßnahmen sind angeraten oder beabsichtigt?",
-        zeigenWenn: { frageId: "28", wert: "ja" },
+        zeigenWenn: [{ frageId: "28", typ: "ja" }],
       },
     ],
   },
@@ -347,7 +356,7 @@ export const FRAGEBOGEN_ABSCHNITTE: FragebogenAbschnitt[] = [
         typ: "text",
         frage:
           "Bitte teilen Sie uns weitere Details zu den Gefahren im Beruf mit (z.B. mit welchen Chemikalien bzw. radioaktiven Stoffen haben Sie Umgang, in welchen Krisengebieten werden Sie eingesetzt etc.), damit das Risiko besser eingeschätzt werden kann.",
-        zeigenWenn: { frageId: "29", wert: "ja" },
+        zeigenWenn: [{ frageId: "29", typ: "ja" }],
       },
       {
         id: "30",
@@ -360,7 +369,7 @@ export const FRAGEBOGEN_ABSCHNITTE: FragebogenAbschnitt[] = [
         typ: "text",
         frage:
           "Bitte machen Sie nähere sachdienliche Angaben zu Fremdmaterialien/Implantaten in Ihrem Körper (Art, seit wann, Entfernung geplant etc.).",
-        zeigenWenn: { frageId: "30", wert: "ja" },
+        zeigenWenn: [{ frageId: "30", typ: "ja" }],
       },
       {
         id: "31",
@@ -374,7 +383,7 @@ export const FRAGEBOGEN_ABSCHNITTE: FragebogenAbschnitt[] = [
         typ: "text",
         frage:
           "Bitte teilen Sie uns weitere Details zu den Gefahren bei Sport oder Hobby mit (z.B. welche Sportart, seit wann, Teilnahme an offiziellen Wettbewerben, wird der Sport mit Vollkörperkontakt ausgeführt etc.), damit das Risiko besser eingeschätzt werden kann.",
-        zeigenWenn: { frageId: "31", wert: "ja" },
+        zeigenWenn: [{ frageId: "31", typ: "ja" }],
       },
       {
         id: "32",
@@ -403,7 +412,7 @@ export const FRAGEBOGEN_ABSCHNITTE: FragebogenAbschnitt[] = [
         typ: "jaNein",
         frage:
           "Werden Sie sich ausschließlich in der Schweiz, Norwegen, Großbritannien (mit Nordirland), in Kanada oder den USA aufhalten?",
-        zeigenWenn: { frageId: "33", wert: "ja" },
+        zeigenWenn: [{ frageId: "33", typ: "ja" }],
         beschreibung: { label: "", icdHinweis: false },
       },
     ],
