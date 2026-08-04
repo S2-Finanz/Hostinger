@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import FormularApp from "@/components/formular/FormularApp";
 
 export const metadata: Metadata = {
@@ -11,8 +12,8 @@ export default function FormularPage() {
   return (
     <main className="min-h-screen bg-onyx px-6 py-16">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-8 text-center">
-          <p className="font-display text-2xl font-bold text-white">S² FINANZ</p>
+        <div className="mb-8 flex justify-center">
+          <Image src="/images/logo.png" alt="S² Finanz" width={924} height={928} className="h-16 w-auto" />
         </div>
         <FormularApp />
       </div>

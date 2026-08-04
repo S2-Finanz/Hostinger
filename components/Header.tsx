@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CAL_LINK, NAV_LINKS } from "@/lib/constants";
 import { CALCULATOR_GROUPS } from "@/lib/calculators";
@@ -6,12 +7,16 @@ import MobileNav from "@/components/MobileNav";
 export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-onyx/95 backdrop-blur">
-      <div className="relative mx-auto flex max-w-content items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="font-display text-lg font-bold tracking-wide"
-        >
-          S² FINANZ
+      <div className="relative mx-auto flex max-w-content items-center justify-between px-6 py-2">
+        <Link href="/" className="shrink-0">
+          <Image
+            src="/images/logo.png"
+            alt="S² Finanz"
+            width={924}
+            height={928}
+            priority
+            className="h-20 w-auto"
+          />
         </Link>
 
         <nav className="hidden gap-8 text-sm text-nebel md:flex">

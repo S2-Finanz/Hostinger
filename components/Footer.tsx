@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { NAV_LINKS } from "@/lib/constants";
 
 export default function Footer() {
@@ -5,9 +6,13 @@ export default function Footer() {
     <footer className="bg-onyx">
       <div className="mx-auto grid max-w-content gap-10 px-6 py-16 text-sm text-nebel md:grid-cols-3">
         <div>
-          <p className="font-display text-base font-bold text-white">
-            S² FINANZ
-          </p>
+          <Image
+            src="/images/logo.png"
+            alt="S² Finanz"
+            width={924}
+            height={928}
+            className="h-16 w-auto"
+          />
           <p className="mt-3">Furtstr. 41/5</p>
           <p>73770 Denkendorf</p>
           <p className="mt-3">
