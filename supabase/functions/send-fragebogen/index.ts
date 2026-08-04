@@ -25,14 +25,24 @@ const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD")!;
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://www.s2-finanz.de";
 const ERLAUBTE_DOMAIN = "s2-finanz.de";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
   });
 }
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: CORS_HEADERS });
+  }
+
   if (req.method !== "POST") {
     return json({ error: "method_not_allowed" }, 405);
   }
