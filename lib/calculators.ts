@@ -78,6 +78,11 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
         text: "Kaufkraftverlust Ihres Vermögens durch Inflation.",
         href: "/rechner/inflationsrechner/",
       },
+      {
+        title: "Was-wäre-wenn-Rechner",
+        text: "Historische Index-Rendite: Was wäre aus einer Geldanlage seit Ihrer Geburt geworden?",
+        href: "/rechner/was-waere-wenn-rechner/",
+      },
     ],
   },
   {

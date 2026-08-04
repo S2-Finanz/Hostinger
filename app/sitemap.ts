@@ -20,6 +20,7 @@ const ROUTES = [
   "/rechner/tagesgeldrechner/",
   "/rechner/entnahmerechner/",
   "/rechner/inflationsrechner/",
+  "/rechner/was-waere-wenn-rechner/",
   "/rechner/kreditrechner/",
   "/rechner/baufinanzierungsrechner/",
 ];
