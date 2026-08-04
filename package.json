@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.0",
+    "gray-matter": "^4.0.3",
     "next": "16.2.12",
+    "next-mdx-remote": "^6.0.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "reading-time": "^1.5.0"
   },
   "devDependencies": {
     "@types/node": "20.14.9",
