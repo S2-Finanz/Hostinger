@@ -32,13 +32,13 @@ const TEAM: {
 
 export default function AboutTeaser() {
   return (
-    <section id="ueber-uns" className="bg-graphit">
+    <section id="ueber-uns" className="bg-creme">
       <div className="mx-auto grid max-w-content items-center gap-12 px-6 py-24 md:grid-cols-2">
         <div>
-          <h2 className="font-display text-3xl font-bold md:text-4xl">
+          <h2 className="font-display text-3xl font-bold text-onyx md:text-4xl">
             16 Jahre Erfahrung. Zwei klare Spezialisierungen.
           </h2>
-          <p className="mt-6 text-nebel">
+          <p className="mt-6 text-steingrau">
             Marcel Scheuermann ist Experte für private Krankenversicherung
             und Beamtenversorgung. Marcel Schäfer ist spezialisiert auf
             Arbeitskraftabsicherung, Altersvorsorge, Geldanlage und
@@ -47,7 +47,7 @@ export default function AboutTeaser() {
           </p>
           <a
             href="/ueber-uns/"
-            className="mt-8 inline-block rounded-sm border border-gold px-7 py-3.5 text-sm font-semibold text-gold transition-colors hover:bg-gold/10"
+            className="mt-8 inline-block rounded-sm bg-gold px-7 py-3.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
           >
             Team kennenlernen
           </a>

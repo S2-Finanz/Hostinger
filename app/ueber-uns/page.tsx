@@ -82,7 +82,7 @@ export default function UeberUnsPage() {
           </div>
         </section>
 
-        <section className="bg-graphit">
+        <section className="bg-creme">
           <div className="mx-auto max-w-content px-6 py-16">
             <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
               {TEAM.map((person) => (

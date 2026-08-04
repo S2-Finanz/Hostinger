@@ -9,6 +9,8 @@ const config: Config = {
         graphit: "#232A29",
         nebel: "#8E9997",
         gold: "#C8A265",
+        creme: "#FAF8F5",
+        steingrau: "#5B6462",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Arial", "sans-serif"],
