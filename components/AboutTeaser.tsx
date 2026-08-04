@@ -19,7 +19,7 @@ const TEAM: {
   },
   {
     name: "Marcel Schäfer",
-    photo: null,
+    photo: "/images/team/marcel-schaefer.jpg",
     facts: [
       "5 Jahre Berufserfahrung",
       "Versicherungsfachmann DVA",
