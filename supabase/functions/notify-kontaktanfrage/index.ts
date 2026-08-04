@@ -7,24 +7,27 @@
 //
 // Einrichtung:
 // 1. Diese Function unter dem Namen "notify-kontaktanfrage" deployen.
-// 2. Secret CONTACT_WEBHOOK_SECRET setzen (beliebiger langer Zufallswert).
+// 2. Secrets setzen (eigene Namen, da Supabase-Secrets projektweit gelten
+//    und sonst mit SMTP_USER/SMTP_PASSWORD von send-fragebogen kollidieren
+//    würden):
+//    - KONTAKT_SMTP_USER      z. B. hi@s2-finanz.de
+//    - KONTAKT_SMTP_PASSWORD  Passwort des hi@s2-finanz.de-Postfachs
+//    - CONTACT_WEBHOOK_SECRET beliebiger langer Zufallswert
 // 3. Unter Database -> Webhooks einen neuen Webhook anlegen:
 //    - Table: kontaktanfragen, Event: INSERT
 //    - Type: Supabase Edge Function -> notify-kontaktanfrage
 //    - HTTP Header hinzufügen: "x-webhook-secret" mit demselben Wert wie
 //      CONTACT_WEBHOOK_SECRET
-// Wiederverwendet dieselben SMTP_USER/SMTP_PASSWORD Secrets wie
-// send-fragebogen.
 
 import nodemailer from "npm:nodemailer@6";
 
-const SMTP_HOST = Deno.env.get("SMTP_HOST") ?? "smtp.hostinger.com";
-const SMTP_PORT = Number(Deno.env.get("SMTP_PORT") ?? "465");
-const SMTP_USER = Deno.env.get("SMTP_USER")!;
-const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD")!;
+const SMTP_HOST = Deno.env.get("KONTAKT_SMTP_HOST") ?? "smtp.hostinger.com";
+const SMTP_PORT = Number(Deno.env.get("KONTAKT_SMTP_PORT") ?? "465");
+const SMTP_USER = Deno.env.get("KONTAKT_SMTP_USER")!;
+const SMTP_PASSWORD = Deno.env.get("KONTAKT_SMTP_PASSWORD")!;
 
 const CONTACT_WEBHOOK_SECRET = Deno.env.get("CONTACT_WEBHOOK_SECRET")!;
-const BENACHRICHTIGUNGS_EMAIL = Deno.env.get("CONTACT_NOTIFICATION_EMAIL") ?? "info@s2-finanz.de";
+const BENACHRICHTIGUNGS_EMAIL = Deno.env.get("CONTACT_NOTIFICATION_EMAIL") ?? "hi@s2-finanz.de";
 
 const THEMA_LABEL: Record<string, string> = {
   pkv: "Private Krankenversicherung",
