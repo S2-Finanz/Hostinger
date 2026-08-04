@@ -6,6 +6,15 @@ import { KONTAKT_THEMEN, sendeKontaktanfrage, type KontaktThema } from "@/lib/ko
 const eingabeKlasse =
   "mt-1.5 block w-full rounded-sm border border-white/15 bg-onyx px-4 py-2.5 text-sm text-white placeholder:text-nebel/50 focus:border-gold focus:outline-none";
 
+function fehlermeldungVon(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "object" && e !== null && "message" in e) {
+    const message = (e as { message: unknown }).message;
+    if (typeof message === "string" && message) return message;
+  }
+  return "Die Nachricht konnte nicht gesendet werden.";
+}
+
 export default function KontaktFormular() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -32,9 +41,7 @@ export default function KontaktFormular() {
       await sendeKontaktanfrage({ name, email, telefon, thema, nachricht, webseite });
       setGesendet(true);
     } catch (e) {
-      setFehler(
-        e instanceof Error ? e.message : "Die Nachricht konnte nicht gesendet werden.",
-      );
+      setFehler(fehlermeldungVon(e));
     } finally {
       setWirdGesendet(false);
     }
