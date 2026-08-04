@@ -9,6 +9,7 @@ import {
   type FragebogenEintrag,
   type Kunde,
 } from "@/lib/backoffice";
+import FragebogenAnsicht from "@/components/backoffice/FragebogenAnsicht";
 
 const eingabeKlasse =
   "mt-1.5 block w-full rounded-sm border border-white/15 bg-onyx px-4 py-2.5 text-sm text-white placeholder:text-nebel/50 focus:border-gold focus:outline-none";
@@ -208,6 +209,7 @@ function KundeZeile({ kunde }: { kunde: Kunde }) {
   const [wirdVersendet, setWirdVersendet] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const [erfolg, setErfolg] = useState<string | null>(null);
+  const [angezeigterFragebogenId, setAngezeigterFragebogenId] = useState<string | null>(null);
 
   async function verlaufLaden() {
     try {
@@ -298,17 +300,39 @@ function KundeZeile({ kunde }: { kunde: Kunde }) {
           {fragebogen?.length === 0 && (
             <p className="text-sm text-nebel">Noch kein Fragebogen versendet.</p>
           )}
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-3">
             {fragebogen?.map((eintrag) => (
-              <li key={eintrag.id} className="flex flex-wrap items-center gap-3 text-sm text-nebel">
-                <span
-                  className={`rounded-sm border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${STATUS_FARBE[eintrag.status]}`}
-                >
-                  {STATUS_LABEL[eintrag.status]}
-                </span>
-                <span>Erstellt: {formatDatum(eintrag.erstellt_am)}</span>
-                <span>Versendet: {formatDatum(eintrag.versendet_am)}</span>
-                <span>Ausgefüllt: {formatDatum(eintrag.ausgefuellt_am)}</span>
+              <li key={eintrag.id}>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-nebel">
+                  <span
+                    className={`rounded-sm border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${STATUS_FARBE[eintrag.status]}`}
+                  >
+                    {STATUS_LABEL[eintrag.status]}
+                  </span>
+                  <span>Erstellt: {formatDatum(eintrag.erstellt_am)}</span>
+                  <span>Versendet: {formatDatum(eintrag.versendet_am)}</span>
+                  <span>Ausgefüllt: {formatDatum(eintrag.ausgefuellt_am)}</span>
+                  {eintrag.status === "ausgefuellt" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAngezeigterFragebogenId(
+                          angezeigterFragebogenId === eintrag.id ? null : eintrag.id,
+                        )
+                      }
+                      className="text-gold underline-offset-2 hover:underline"
+                    >
+                      {angezeigterFragebogenId === eintrag.id
+                        ? "Antworten ausblenden"
+                        : "Antworten ansehen"}
+                    </button>
+                  )}
+                </div>
+                {angezeigterFragebogenId === eintrag.id && (
+                  <div className="mt-3 rounded-sm border border-white/10 bg-onyx p-4">
+                    <FragebogenAnsicht fragebogenId={eintrag.id} />
+                  </div>
+                )}
               </li>
             ))}
           </ul>

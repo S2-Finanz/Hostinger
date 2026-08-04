@@ -66,6 +66,27 @@ export async function ladeFragebogenFuerKunde(kundeId: string): Promise<Fragebog
   return data as FragebogenEintrag[];
 }
 
+export type FragebogenDetail = FragebogenEintrag & {
+  antworten: Record<string, string | number> | null;
+  unterschrift_bild: string | null;
+  unterschrift_ip: string | null;
+  bestaetigungstext: string | null;
+  einwilligungstext: string | null;
+};
+
+export async function ladeFragebogenDetail(fragebogenId: string): Promise<FragebogenDetail> {
+  const { data, error } = await supabase
+    .from("fragebogen")
+    .select(
+      "id, kunde_id, token, status, erstellt_am, versendet_am, ausgefuellt_am, antworten, unterschrift_bild, unterschrift_ip, bestaetigungstext, einwilligungstext",
+    )
+    .eq("id", fragebogenId)
+    .single();
+
+  if (error) throw error;
+  return data as FragebogenDetail;
+}
+
 export async function erstelleUndVersendeFragebogen(kundeId: string): Promise<void> {
   const { data: fragebogen, error: insertError } = await supabase
     .from("fragebogen")
