@@ -84,8 +84,10 @@ export default function KontaktFormular() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm text-nebel">Telefon (optional)</span>
+          <span className="text-sm text-nebel">Telefon</span>
           <input
+            required
+            type="tel"
             value={telefon}
             onChange={(e) => setTelefon(e.target.value)}
             className={eingabeKlasse}
