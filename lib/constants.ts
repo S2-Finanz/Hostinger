@@ -15,6 +15,6 @@ export const NAV_LINKS = [
   { label: "Rechner", href: "/rechner/" },
   { label: "Über uns", href: "/ueber-uns/" },
   { label: "Wissen", href: "/#wissen" },
-  { label: "Kontakt", href: "/#kontakt" },
+  { label: "Kontakt", href: "/kontakt/" },
   { label: "Kunden Login", href: "/kunden-login/" },
 ];

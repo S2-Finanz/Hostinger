@@ -6,6 +6,7 @@ export const dynamic = "force-static";
 const ROUTES = [
   "/",
   "/ueber-uns/",
+  "/kontakt/",
   "/rechner/",
   "/rechner/pensionsrechner/",
   "/rechner/besoldungstabellen/",

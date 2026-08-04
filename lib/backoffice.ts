@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { KontaktThema } from "@/lib/kontakt";
 
 export type Kunde = {
   id: string;
@@ -85,6 +86,32 @@ export async function ladeFragebogenDetail(fragebogenId: string): Promise<Frageb
 
   if (error) throw error;
   return data as FragebogenDetail;
+}
+
+export type Kontaktanfrage = {
+  id: string;
+  name: string;
+  email: string;
+  telefon: string | null;
+  thema: KontaktThema;
+  nachricht: string;
+  erstellt_am: string;
+  gelesen: boolean;
+};
+
+export async function ladeKontaktanfragen(): Promise<Kontaktanfrage[]> {
+  const { data, error } = await supabase
+    .from("kontaktanfragen")
+    .select("*")
+    .order("erstellt_am", { ascending: false });
+
+  if (error) throw error;
+  return data as Kontaktanfrage[];
+}
+
+export async function markiereKontaktanfrageGelesen(id: string, gelesen: boolean): Promise<void> {
+  const { error } = await supabase.from("kontaktanfragen").update({ gelesen }).eq("id", id);
+  if (error) throw error;
 }
 
 export async function erstelleUndVersendeFragebogen(kundeId: string): Promise<void> {
