@@ -3,7 +3,7 @@ import nextPlugin from "eslint-config-next";
 const config = [
   ...nextPlugin,
   {
-    ignores: [".next/**", "node_modules/**"],
+    ignores: [".next/**", "node_modules/**", "supabase/functions/**"],
   },
 ];
 

@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { ERLAUBTE_EMAIL_DOMAIN, istErlaubteEmail, supabase } from "@/lib/supabase";
+import Kundenverwaltung from "@/components/backoffice/Kundenverwaltung";
 
 type Modus = "login" | "signup";
 
@@ -28,7 +29,7 @@ export default function BackofficeApp() {
 
   if (ladeStatus === "pruefe") {
     return (
-      <div className="rounded-sm border border-white/10 bg-graphit p-8 text-center text-sm text-nebel">
+      <div className="mx-auto max-w-md rounded-sm border border-white/10 bg-graphit p-8 text-center text-sm text-nebel">
         Wird geladen …
       </div>
     );
@@ -38,7 +39,11 @@ export default function BackofficeApp() {
     return <AuthenticatedView session={session} />;
   }
 
-  return <AuthForm />;
+  return (
+    <div className="mx-auto max-w-md">
+      <AuthForm />
+    </div>
+  );
 }
 
 function AuthenticatedView({ session }: { session: Session }) {
@@ -51,23 +56,22 @@ function AuthenticatedView({ session }: { session: Session }) {
   }
 
   return (
-    <div className="rounded-sm border border-white/10 bg-graphit p-8">
-      <p className="text-sm text-nebel">Angemeldet als</p>
-      <p className="mt-1 font-semibold text-white">{session.user.email}</p>
-
-      <div className="mt-6 rounded-sm border border-gold/30 bg-onyx p-5 text-sm text-nebel">
-        Der Backoffice-Bereich wird aktuell aufgebaut. Weitere Funktionen
-        folgen in Kürze.
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-white/10 bg-graphit p-5">
+        <p className="text-sm text-nebel">
+          Angemeldet als <span className="font-semibold text-white">{session.user.email}</span>
+        </p>
+        <button
+          type="button"
+          onClick={abmelden}
+          disabled={wirdAbgemeldet}
+          className="rounded-sm border border-white/15 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-50"
+        >
+          {wirdAbgemeldet ? "Wird abgemeldet …" : "Abmelden"}
+        </button>
       </div>
 
-      <button
-        type="button"
-        onClick={abmelden}
-        disabled={wirdAbgemeldet}
-        className="mt-6 w-full rounded-sm border border-white/15 px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-50"
-      >
-        {wirdAbgemeldet ? "Wird abgemeldet …" : "Abmelden"}
-      </button>
+      <Kundenverwaltung />
     </div>
   );
 }

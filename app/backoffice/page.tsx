@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function BackofficePage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-onyx px-6 py-16">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen bg-onyx px-6 py-16">
+      <div className="mx-auto w-full max-w-4xl">
         <div className="mb-8 text-center">
           <p className="font-display text-2xl font-bold text-white">S² FINANZ</p>
           <p className="mt-1 text-sm text-nebel">Mitarbeiter-Backoffice</p>
