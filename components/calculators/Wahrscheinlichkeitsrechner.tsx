@@ -9,7 +9,7 @@ import {
   findIndex,
   rollierendeSparplanFenster,
 } from "@/lib/indexrendite";
-import { findeVergleich } from "@/lib/kuriositaeten";
+import { findeVergleich, formatNenner } from "@/lib/kuriositaeten";
 
 const INDEX_ID = "msci-world" as const;
 const LAUFZEIT_MIN = 5;
@@ -75,27 +75,7 @@ export default function Wahrscheinlichkeitsrechner() {
         <>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="rounded-sm bg-graphit p-8">
-              <p className="text-xs uppercase tracking-wide text-nebel/60">
-                Historische Verlustwahrscheinlichkeit
-              </p>
-              <p className="mt-2 text-sm text-nebel">
-                {formatEUR(sparrate)}/Monat über {laufzeit} Jahre –
-                Anteil der historischen Zeiträume mit weniger Endkapital als
-                eingezahlt
-              </p>
-              <p className="mt-6 font-display text-4xl font-bold text-gold">
-                {formatPercent(ergebnis.wahrscheinlichkeitVerlust, 10)}
-              </p>
-              <p className="mt-2 text-sm text-nebel">
-                {ergebnis.anzahlVerlust} von {ergebnis.anzahlFenster}{" "}
-                untersuchten Zeiträumen ({ersterStartJahr}–
-                {ersterStartJahr !== undefined ? ersterStartJahr + laufzeit - 1 : ""}{" "}
-                bis {letzterStartJahr}–{LETZTES_VOLLSTAENDIGES_JAHR})
-              </p>
-            </div>
-
-            <div className="rounded-sm bg-graphit p-8">
-              <p className="text-xs uppercase tracking-wide text-nebel/60">
+              <p className="font-display text-base font-bold uppercase tracking-wide text-white">
                 Chance auf ein positives Ergebnis
               </p>
               <p className="mt-2 text-sm text-nebel">
@@ -113,14 +93,34 @@ export default function Wahrscheinlichkeitsrechner() {
                 </p>
               )}
             </div>
+
+            <div className="rounded-sm bg-graphit p-8">
+              <p className="font-display text-base font-bold uppercase tracking-wide text-gold">
+                Historische Verlustwahrscheinlichkeit
+              </p>
+              <p className="mt-2 text-sm text-nebel">
+                {formatEUR(sparrate)}/Monat über {laufzeit} Jahre –
+                Anteil der historischen Zeiträume mit weniger Endkapital als
+                eingezahlt
+              </p>
+              <p className="mt-6 font-display text-4xl font-bold text-gold">
+                {formatPercent(ergebnis.wahrscheinlichkeitVerlust, 10)}
+              </p>
+              <p className="mt-2 text-sm text-nebel">
+                {ergebnis.anzahlVerlust} von {ergebnis.anzahlFenster}{" "}
+                untersuchten Zeiträumen ({ersterStartJahr}–
+                {ersterStartJahr !== undefined ? ersterStartJahr + laufzeit - 1 : ""}{" "}
+                bis {letzterStartJahr}–{LETZTES_VOLLSTAENDIGES_JAHR})
+              </p>
+            </div>
           </div>
 
           <div className="rounded-sm border border-gold/30 bg-gold/5 px-6 py-5">
             <p className="text-sm leading-relaxed text-nebel">
-              Zum Vergleich: Größenordnungsmäßig am nächsten kommt Ihrer
-              historischen Verlustwahrscheinlichkeit die Chance,{" "}
-              <span className="text-white">{vergleich.text}</span> (ungefähr{" "}
-              {vergleich.anzeige}).
+              Zum Vergleich: Das statistische Risiko „
+              <span className="text-white">{vergleich.name}</span>" liegt bei
+              etwa {formatNenner(vergleich.nenner)} – eine ähnliche
+              Größenordnung wie Ihre historische Verlustwahrscheinlichkeit.
             </p>
             <p className="mt-3 text-xs text-nebel/60">
               Alle Vergleichswerte sind grobe, kursierende Schätzungen zur
