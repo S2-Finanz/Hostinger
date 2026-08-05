@@ -22,7 +22,7 @@ export function exportSparplanPdf(
   eingabe: SparplanEingabe,
   ergebnis: SparplanErgebnis,
 ) {
-  const doc = new jsPDF();
+  const doc = new jsPDF({ orientation: "landscape" });
 
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
@@ -35,7 +35,8 @@ export function exportSparplanPdf(
     startY: 34,
     theme: "plain",
     styles: { fontSize: 9, cellPadding: 1.2 },
-    columnStyles: { 0: { cellWidth: 70 }, 1: { halign: "right" } },
+    tableWidth: 130,
+    columnStyles: { 0: { cellWidth: 78 }, 1: { halign: "right" } },
     head: [["Kenndaten", ""]],
     body: [
       ["Einmalbetrag", euro(eingabe.einmalbetrag)],
@@ -45,17 +46,31 @@ export function exportSparplanPdf(
       ["Ausgabeaufschlag", prozent(eingabe.ausgabeaufschlag)],
       ["Verwaltungsgebühr", `${prozent(eingabe.verwaltungsgebuehr)} p. a.`],
       ["Laufzeit", `${eingabe.jahre} Jahre`],
+      ...(eingabe.vorabpauschale
+        ? [
+            ["Basiszins (Vorabpauschale)", `${prozent(eingabe.vorabpauschale.basiszins)} p. a.`],
+            ["Teilfreistellung", prozent(eingabe.vorabpauschale.teilfreistellung)],
+            [
+              "Sparerpauschbetrag",
+              `${euro(eingabe.vorabpauschale.sparerpauschbetrag)} p. a.`,
+            ],
+            ["Steuersatz (inkl. Soli)", prozent(eingabe.vorabpauschale.steuersatz, 3)],
+          ]
+        : []),
     ],
   });
 
-  const nachKenndaten = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
+  const finalYKenndaten = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
     .finalY;
 
   autoTable(doc, {
-    startY: nachKenndaten + 6,
+    startY: 34,
     theme: "plain",
     styles: { fontSize: 9, cellPadding: 1.2 },
-    columnStyles: { 0: { cellWidth: 70 }, 1: { halign: "right" } },
+    tableWidth: 130,
+    margin: { left: 150 },
+    columnStyles: { 0: { cellWidth: 78 }, 1: { halign: "right" } },
+    head: [["Ergebnis", ""]],
     body: [
       ["Endwert", euro(ergebnis.endwert)],
       ["Gewinn nach Gebühren", euro(ergebnis.gewinnNachGebuehren)],
@@ -64,11 +79,21 @@ export function exportSparplanPdf(
       ["Verwaltungsgebühr gesamt", `-${euro(ergebnis.verwaltungsgebuehrGesamt)}`],
       ["Gebühren gesamt", `-${euro(ergebnis.gebuehrenGesamt)}`],
       ["Effektive Rendite (IRR)", `${prozent(ergebnis.effektiveRendite, 3)} p. a.`],
+      ...(eingabe.vorabpauschale
+        ? [
+            ["Vorabpauschale-Steuer gesamt", `-${euro(ergebnis.vorabpauschaleGesamt)}`],
+            [
+              "Minderung durch Vorabpauschale",
+              `-${euro(ergebnis.minderungDurchVorabpauschale)}`,
+            ],
+          ]
+        : []),
     ],
   });
 
-  const nachErgebnis = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
+  const finalYErgebnis = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
     .finalY;
+  const nachErgebnis = Math.max(finalYKenndaten, finalYErgebnis);
 
   autoTable(doc, {
     startY: nachErgebnis + 8,
@@ -83,6 +108,7 @@ export function exportSparplanPdf(
         "Ausgabeaufschlag",
         "Wertzuwachs",
         "Verw.-gebühr",
+        ...(eingabe.vorabpauschale ? ["Vorabpauschale-Steuer"] : []),
         "Wert Jahresende",
         "Gewinn kumuliert",
       ],
@@ -94,6 +120,7 @@ export function exportSparplanPdf(
       `-${euro(zeile.ausgabeaufschlag)}`,
       euro(zeile.wertzuwachs),
       `-${euro(zeile.verwaltungsgebuehr)}`,
+      ...(eingabe.vorabpauschale ? [`-${euro(zeile.vorabpauschaleSteuer)}`] : []),
       euro(zeile.wertJahresende),
       euro(zeile.gewinnKumuliert),
     ]),

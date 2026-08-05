@@ -1,3 +1,10 @@
+export type VorabpauschaleEingabe = {
+  basiszins: number;
+  teilfreistellung: number;
+  sparerpauschbetrag: number;
+  steuersatz: number;
+};
+
 export type SparplanEingabe = {
   einmalbetrag: number;
   sparrate: number;
@@ -6,6 +13,7 @@ export type SparplanEingabe = {
   ausgabeaufschlag: number;
   verwaltungsgebuehr: number;
   jahre: number;
+  vorabpauschale?: VorabpauschaleEingabe;
 };
 
 export type SparplanJahr = {
@@ -15,6 +23,7 @@ export type SparplanJahr = {
   ausgabeaufschlag: number;
   wertzuwachs: number;
   verwaltungsgebuehr: number;
+  vorabpauschaleSteuer: number;
   wertJahresende: number;
   gewinnKumuliert: number;
 };
@@ -28,6 +37,8 @@ export type SparplanErgebnis = {
   gebuehrenGesamt: number;
   gewinnNachGebuehren: number;
   effektiveRendite: number;
+  vorabpauschaleGesamt: number;
+  minderungDurchVorabpauschale: number;
 };
 
 function irr(cashflows: number[]): number {
@@ -44,7 +55,10 @@ function irr(cashflows: number[]): number {
   return (low + high) / 2;
 }
 
-export function berechneSparplan(eingabe: SparplanEingabe): SparplanErgebnis {
+function simuliere(
+  eingabe: SparplanEingabe,
+  vorabpauschaleAnwenden: boolean,
+): Omit<SparplanErgebnis, "minderungDurchVorabpauschale"> {
   const {
     einmalbetrag,
     sparrate,
@@ -53,11 +67,14 @@ export function berechneSparplan(eingabe: SparplanEingabe): SparplanErgebnis {
     ausgabeaufschlag,
     verwaltungsgebuehr,
     jahre,
+    vorabpauschale,
   } = eingabe;
 
   const monatlicherKurszuwachs = Math.pow(1 + kurszuwachs / 100, 1 / 12) - 1;
   const monatlicheVerwaltungsgebuehr = Math.pow(1 + verwaltungsgebuehr / 100, 1 / 12) - 1;
   const aufschlagFaktor = 1 + ausgabeaufschlag / 100;
+  const jahresfaktorBestand =
+    Math.pow((1 + monatlicherKurszuwachs) * (1 - monatlicheVerwaltungsgebuehr), 12) - 1;
 
   let balance = 0;
   const monatlicheCashflows: number[] = [];
@@ -74,6 +91,7 @@ export function berechneSparplan(eingabe: SparplanEingabe): SparplanErgebnis {
   let einzahlungenGesamt = einmalbetrag;
   let ausgabeaufschlagGesamt = einmalbetrag - einmalbetrag / aufschlagFaktor;
   let verwaltungsgebuehrGesamt = 0;
+  let vorabpauschaleGesamt = 0;
   let laufendEingezahlt = einmalbetrag;
 
   for (let jahr = 1; jahr <= jahre; jahr++) {
@@ -102,9 +120,25 @@ export function berechneSparplan(eingabe: SparplanEingabe): SparplanErgebnis {
       monatlicheCashflows.push(-rateDiesesJahr);
     }
 
+    let jahrVorabpauschaleSteuer = 0;
+    if (vorabpauschaleAnwenden && vorabpauschale) {
+      const basisertrag = wertJahresanfang * (vorabpauschale.basiszins / 100) * 0.7;
+      const wertsteigerungBestand = wertJahresanfang * jahresfaktorBestand;
+      const bemessungsgrundlage = Math.max(0, Math.min(basisertrag, wertsteigerungBestand));
+      const steuerpflichtigerAnteil =
+        bemessungsgrundlage * (1 - vorabpauschale.teilfreistellung / 100);
+      const nachFreibetrag = Math.max(
+        0,
+        steuerpflichtigerAnteil - vorabpauschale.sparerpauschbetrag,
+      );
+      jahrVorabpauschaleSteuer = nachFreibetrag * (vorabpauschale.steuersatz / 100);
+      balance -= jahrVorabpauschaleSteuer;
+    }
+
     einzahlungenGesamt += jahrEinzahlung;
     ausgabeaufschlagGesamt += jahrAufschlag;
     verwaltungsgebuehrGesamt += jahrVerwaltungsgebuehr;
+    vorabpauschaleGesamt += jahrVorabpauschaleSteuer;
     laufendEingezahlt += jahrEinzahlung;
 
     jahreswerte.push({
@@ -114,6 +148,7 @@ export function berechneSparplan(eingabe: SparplanEingabe): SparplanErgebnis {
       ausgabeaufschlag: jahrAufschlag,
       wertzuwachs: jahrWertzuwachs,
       verwaltungsgebuehr: jahrVerwaltungsgebuehr,
+      vorabpauschaleSteuer: jahrVorabpauschaleSteuer,
       wertJahresende: balance,
       gewinnKumuliert: balance - laufendEingezahlt,
     });
@@ -133,5 +168,18 @@ export function berechneSparplan(eingabe: SparplanEingabe): SparplanErgebnis {
     gebuehrenGesamt: ausgabeaufschlagGesamt + verwaltungsgebuehrGesamt,
     gewinnNachGebuehren: endwert - einzahlungenGesamt,
     effektiveRendite,
+    vorabpauschaleGesamt,
   };
+}
+
+export function berechneSparplan(eingabe: SparplanEingabe): SparplanErgebnis {
+  const mitVorabpauschale = simuliere(eingabe, true);
+
+  let minderungDurchVorabpauschale = 0;
+  if (eingabe.vorabpauschale) {
+    const ohneVorabpauschale = simuliere(eingabe, false);
+    minderungDurchVorabpauschale = ohneVorabpauschale.endwert - mitVorabpauschale.endwert;
+  }
+
+  return { ...mitVorabpauschale, minderungDurchVorabpauschale };
 }

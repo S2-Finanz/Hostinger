@@ -16,6 +16,12 @@ export default function EtfSparplanrechner() {
   const [kosten, setKosten] = useState(0.2);
   const [jahre, setJahre] = useState(20);
 
+  const [vorabpauschaleAktiv, setVorabpauschaleAktiv] = useState(false);
+  const [basiszins, setBasiszins] = useState(2.5);
+  const [teilfreistellung, setTeilfreistellung] = useState(30);
+  const [sparerpauschbetrag, setSparerpauschbetrag] = useState(1000);
+  const [steuersatz, setSteuersatz] = useState(26.375);
+
   const eingabe = useMemo(
     () => ({
       einmalbetrag,
@@ -25,8 +31,24 @@ export default function EtfSparplanrechner() {
       ausgabeaufschlag,
       verwaltungsgebuehr: kosten,
       jahre,
+      vorabpauschale: vorabpauschaleAktiv
+        ? { basiszins, teilfreistellung, sparerpauschbetrag, steuersatz }
+        : undefined,
     }),
-    [einmalbetrag, sparrate, dynamik, rendite, ausgabeaufschlag, kosten, jahre],
+    [
+      einmalbetrag,
+      sparrate,
+      dynamik,
+      rendite,
+      ausgabeaufschlag,
+      kosten,
+      jahre,
+      vorabpauschaleAktiv,
+      basiszins,
+      teilfreistellung,
+      sparerpauschbetrag,
+      steuersatz,
+    ],
   );
 
   const ergebnis = useMemo(() => berechneSparplan(eingabe), [eingabe]);
@@ -99,6 +121,65 @@ export default function EtfSparplanrechner() {
             min={1}
             max={50}
           />
+
+          <div className="border-t border-white/10 pt-6">
+            <label className="flex items-center gap-3 text-sm text-white">
+              <input
+                type="checkbox"
+                checked={vorabpauschaleAktiv}
+                onChange={(e) => setVorabpauschaleAktiv(e.target.checked)}
+                className="h-4 w-4 accent-gold"
+              />
+              Vorabpauschale berücksichtigen
+            </label>
+
+            {vorabpauschaleAktiv && (
+              <div className="mt-6 flex flex-col gap-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <NumberField
+                    label="Basiszins p. a."
+                    suffix="%"
+                    value={basiszins}
+                    onChange={setBasiszins}
+                    step={0.1}
+                    max={10}
+                  />
+                  <NumberField
+                    label="Teilfreistellung"
+                    suffix="%"
+                    value={teilfreistellung}
+                    onChange={setTeilfreistellung}
+                    step={5}
+                    max={100}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <NumberField
+                    label="Sparerpauschbetrag p. a."
+                    suffix="€"
+                    value={sparerpauschbetrag}
+                    onChange={setSparerpauschbetrag}
+                    step={100}
+                    max={4000}
+                  />
+                  <NumberField
+                    label="Steuersatz (inkl. Soli)"
+                    suffix="%"
+                    value={steuersatz}
+                    onChange={setSteuersatz}
+                    step={0.125}
+                    max={50}
+                  />
+                </div>
+                <p className="text-xs text-nebel">
+                  Der Basiszins wird jährlich von der Bundesbank veröffentlicht und ändert sich –
+                  bitte den aktuellen Wert prüfen. Teilfreistellung 30 % entspricht dem
+                  Standardsatz für Aktienfonds. Der Sparerpauschbetrag wird hier für jedes Jahr in
+                  voller Höhe angenommen, unabhängig von sonstigen Kapitalerträgen.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="rounded-sm bg-onyx p-8">
@@ -113,6 +194,18 @@ export default function EtfSparplanrechner() {
             label="Effektive Rendite (IRR)"
             value={formatPercent(ergebnis.effektiveRendite)}
           />
+          {vorabpauschaleAktiv && (
+            <>
+              <ResultRow
+                label="Vorabpauschale-Steuer gesamt"
+                value={`-${formatEUR(ergebnis.vorabpauschaleGesamt)}`}
+              />
+              <ResultRow
+                label="Minderung durch Vorabpauschale"
+                value={`-${formatEUR(ergebnis.minderungDurchVorabpauschale)}`}
+              />
+            </>
+          )}
 
           <div className="mt-6">
             <PdfExportButton
@@ -127,7 +220,10 @@ export default function EtfSparplanrechner() {
           Wertentwicklung (Jahressummen)
         </h3>
         <div className="mt-4">
-          <Jahrestabelle jahreswerte={ergebnis.jahreswerte} />
+          <Jahrestabelle
+            jahreswerte={ergebnis.jahreswerte}
+            zeigeVorabpauschale={vorabpauschaleAktiv}
+          />
         </div>
       </div>
     </div>
