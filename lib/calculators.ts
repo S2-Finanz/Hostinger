@@ -59,6 +59,11 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
         href: "/rechner/etf-sparplanrechner/",
       },
       {
+        title: "ETF-Depot vs. Rentenversicherung",
+        text: "Vergleich nach Kosten und Steuern – inkl. Rebalancing und Auszahlvarianten.",
+        href: "/rechner/etf-vs-rentenversicherung/",
+      },
+      {
         title: "Aktienrenditerechner",
         text: "Durchschnittliche jährliche Rendite (CAGR) eines Investments.",
         href: "/rechner/aktienrenditerechner/",

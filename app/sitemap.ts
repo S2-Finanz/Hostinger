@@ -19,6 +19,7 @@ const ROUTES = [
   "/rechner/arbeitskraftrechner/",
   "/rechner/sparrechner/",
   "/rechner/etf-sparplanrechner/",
+  "/rechner/etf-vs-rentenversicherung/",
   "/rechner/aktienrenditerechner/",
   "/rechner/tagesgeldrechner/",
   "/rechner/entnahmerechner/",
