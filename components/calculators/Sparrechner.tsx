@@ -1,75 +1,134 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { NumberField, ResultRow, formatEUR } from "@/components/calculators/ui";
+import { NumberField, ResultRow, formatEUR, formatPercent } from "@/components/calculators/ui";
+import Jahrestabelle from "@/components/calculators/Jahrestabelle";
+import PdfExportButton from "@/components/calculators/PdfExportButton";
+import { berechneSparplan } from "@/lib/sparplan";
+import { exportSparplanPdf } from "@/lib/sparplan-pdf";
 
 export default function Sparrechner() {
-  const [start, setStart] = useState(5000);
-  const [rate, setRate] = useState(200);
-  const [zins, setZins] = useState(5);
+  const [einmalbetrag, setEinmalbetrag] = useState(5000);
+  const [sparrate, setSparrate] = useState(200);
+  const [dynamik, setDynamik] = useState(0);
+  const [kurszuwachs, setKurszuwachs] = useState(5);
+  const [ausgabeaufschlag, setAusgabeaufschlag] = useState(0);
+  const [verwaltungsgebuehr, setVerwaltungsgebuehr] = useState(0);
   const [jahre, setJahre] = useState(20);
 
-  const result = useMemo(() => {
-    const i = zins / 100 / 12;
-    const n = jahre * 12;
+  const eingabe = useMemo(
+    () => ({
+      einmalbetrag,
+      sparrate,
+      dynamik,
+      kurszuwachs,
+      ausgabeaufschlag,
+      verwaltungsgebuehr,
+      jahre,
+    }),
+    [einmalbetrag, sparrate, dynamik, kurszuwachs, ausgabeaufschlag, verwaltungsgebuehr, jahre],
+  );
 
-    const fvStart = start * Math.pow(1 + i, n);
-    const fvRate =
-      i === 0 ? rate * n : rate * ((Math.pow(1 + i, n) - 1) / i);
-
-    const endkapital = fvStart + fvRate;
-    const eingezahlt = start + rate * n;
-    const ertrag = endkapital - eingezahlt;
-
-    return { endkapital, eingezahlt, ertrag };
-  }, [start, rate, zins, jahre]);
+  const ergebnis = useMemo(() => berechneSparplan(eingabe), [eingabe]);
 
   return (
-    <div className="grid gap-10 md:grid-cols-2">
-      <div className="flex flex-col gap-8">
-        <NumberField
-          label="Startkapital"
-          suffix="€"
-          value={start}
-          onChange={setStart}
-          step={500}
-        />
-        <NumberField
-          label="Monatliche Sparrate"
-          suffix="€"
-          value={rate}
-          onChange={setRate}
-          step={25}
-        />
-        <NumberField
-          label="Erwartete Rendite p. a."
-          suffix="%"
-          value={zins}
-          onChange={setZins}
-          step={0.5}
-          max={20}
-        />
-        <NumberField
-          label="Laufzeit"
-          suffix="Jahre"
-          value={jahre}
-          onChange={setJahre}
-          step={1}
-          max={50}
-        />
+    <div className="flex flex-col gap-10">
+      <div className="grid gap-10 md:grid-cols-2">
+        <div className="flex flex-col gap-8">
+          <div className="grid grid-cols-2 gap-6">
+            <NumberField
+              label="Startkapital"
+              suffix="€"
+              value={einmalbetrag}
+              onChange={setEinmalbetrag}
+              step={500}
+            />
+            <NumberField
+              label="Monatliche Sparrate"
+              suffix="€"
+              value={sparrate}
+              onChange={setSparrate}
+              step={25}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <NumberField
+              label="Dynamik p. a."
+              suffix="%"
+              value={dynamik}
+              onChange={setDynamik}
+              step={0.5}
+              max={20}
+            />
+            <NumberField
+              label="Erwartete Rendite p. a."
+              suffix="%"
+              value={kurszuwachs}
+              onChange={setKurszuwachs}
+              step={0.5}
+              max={20}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <NumberField
+              label="Ausgabeaufschlag"
+              suffix="%"
+              value={ausgabeaufschlag}
+              onChange={setAusgabeaufschlag}
+              step={0.25}
+              max={10}
+            />
+            <NumberField
+              label="Verwaltungsgebühr p. a."
+              suffix="%"
+              value={verwaltungsgebuehr}
+              onChange={setVerwaltungsgebuehr}
+              step={0.05}
+              max={5}
+            />
+          </div>
+
+          <NumberField
+            label="Laufzeit"
+            suffix="Jahre"
+            value={jahre}
+            onChange={setJahre}
+            step={1}
+            min={1}
+            max={50}
+          />
+        </div>
+
+        <div className="rounded-sm bg-onyx p-8">
+          <ResultRow label="Endwert" value={formatEUR(ergebnis.endwert)} emphasis />
+          <ResultRow
+            label="Eingezahltes Kapital"
+            value={formatEUR(ergebnis.einzahlungenGesamt)}
+          />
+          <ResultRow label="Gewinn nach Gebühren" value={formatEUR(ergebnis.gewinnNachGebuehren)} />
+          <ResultRow label="Gebühren gesamt" value={`-${formatEUR(ergebnis.gebuehrenGesamt)}`} />
+          <ResultRow
+            label="Effektive Rendite (IRR)"
+            value={formatPercent(ergebnis.effektiveRendite)}
+          />
+
+          <div className="mt-6">
+            <PdfExportButton
+              onClick={() => exportSparplanPdf("Sparrechner S² Finanz", eingabe, ergebnis)}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-sm bg-onyx p-8">
-        <ResultRow
-          label="Voraussichtliches Endkapital"
-          value={formatEUR(result.endkapital)}
-          emphasis
-        />
-        <ResultRow
-          label="Eingezahltes Kapital"
-          value={formatEUR(result.eingezahlt)}
-        />
-        <ResultRow label="Ertrag" value={formatEUR(result.ertrag)} />
+      <div>
+        <h3 className="font-display text-lg font-semibold text-white">
+          Wertentwicklung (Jahressummen)
+        </h3>
+        <div className="mt-4">
+          <Jahrestabelle jahreswerte={ergebnis.jahreswerte} />
+        </div>
       </div>
     </div>
   );

@@ -112,3 +112,11 @@ export function formatEUR(value: number): string {
     maximumFractionDigits: 0,
   });
 }
+
+export function formatPercent(value: number, nachkommastellen = 2): string {
+  if (!Number.isFinite(value)) return "–";
+  return `${value.toLocaleString("de-DE", {
+    minimumFractionDigits: nachkommastellen,
+    maximumFractionDigits: nachkommastellen,
+  })} %`;
+}
