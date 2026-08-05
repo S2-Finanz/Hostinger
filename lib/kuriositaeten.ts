@@ -1,51 +1,66 @@
-// Lustige Vergleichswerte zur Einordnung von Wahrscheinlichkeiten. Grobe,
-// kursierende Schätzungen zur Veranschaulichung (u. a. NOAA-Blitzstatistik,
-// offizielle Lottoquoten, verbreitete Angaben zu Hai-/Krokodilangriffen) –
+// Lustige Vergleichswerte zur Einordnung von Wahrscheinlichkeiten – bewusst
+// alle aus der Kategorie „ungewöhnliche Todes-/Verletzungsursache im Laufe
+// des Lebens“ (Blitzschlag, Krokodil, Ertrinken usw.), angelehnt an
+// verbreitete Angaben (u. a. NOAA-Blitzstatistik, National-Safety-Council-
+// artige „Lifetime odds“-Tabellen, verbreitete Angaben zu Hai-/
+// Krokodilangriffen). Grobe, kursierende Schätzungen zur Veranschaulichung –
 // keine wissenschaftlich geprüfte Quelle, keine Tatsachenbehauptung.
 
 export type Kuriositaet = {
   id: string;
   text: string;
-  wahrscheinlichkeit: number; // als Anteil, z. B. 0.5 = 50 %
-  anzeige: string; // z. B. "1 : 2"
+  wahrscheinlichkeit: number; // als Anteil, z. B. 0.01 = 1 %
+  anzeige: string; // z. B. "1 : 100"
 };
 
 export const KURIOSITAETEN: Kuriositaet[] = [
   {
-    id: "muenzwurf",
-    text: "bei einem Münzwurf „Kopf“ zu werfen",
-    wahrscheinlichkeit: 1 / 2,
-    anzeige: "1 : 2",
+    id: "autounfall",
+    text: "im Laufe des Lebens bei einem Autounfall zu sterben",
+    wahrscheinlichkeit: 1 / 93,
+    anzeige: "1 : 93",
   },
   {
-    id: "wuerfel",
-    text: "beim Würfeln eine Sechs zu würfeln",
-    wahrscheinlichkeit: 1 / 6,
-    anzeige: "1 : 6",
+    id: "sturz",
+    text: "im Laufe des Lebens durch einen Sturz tödlich verunglückt zu sein",
+    wahrscheinlichkeit: 1 / 106,
+    anzeige: "1 : 106",
   },
   {
-    id: "linkshaender",
-    text: "als Linkshänder geboren zu werden",
-    wahrscheinlichkeit: 1 / 10,
-    anzeige: "1 : 10",
+    id: "ertrinken",
+    text: "im Laufe des Lebens zu ertrinken",
+    wahrscheinlichkeit: 1 / 1101,
+    anzeige: "1 : 1.101",
   },
   {
-    id: "zwillinge",
-    text: "bei einer Schwangerschaft Zwillinge zu bekommen",
-    wahrscheinlichkeit: 1 / 250,
-    anzeige: "1 : 250",
+    id: "ersticken",
+    text: "im Laufe des Lebens an Nahrung zu ersticken",
+    wahrscheinlichkeit: 1 / 2745,
+    anzeige: "1 : 2.745",
   },
   {
-    id: "vierling",
-    text: "bei einer Schwangerschaft Vierlinge zu bekommen",
-    wahrscheinlichkeit: 1 / 700000,
-    anzeige: "1 : 700.000",
+    id: "dusche",
+    text: "im Laufe des Lebens beim Baden oder Duschen zu ertrinken",
+    wahrscheinlichkeit: 1 / 11000,
+    anzeige: "1 : 11.000",
   },
   {
     id: "blitz",
-    text: "in einem bestimmten Jahr vom Blitz getroffen zu werden",
-    wahrscheinlichkeit: 1 / 1200000,
-    anzeige: "1 : 1.200.000",
+    text: "im Laufe des Lebens vom Blitz erschlagen zu werden",
+    wahrscheinlichkeit: 1 / 15300,
+    anzeige: "1 : 15.300",
+  },
+  {
+    id: "bienenstich",
+    text: "im Laufe des Lebens an einem Wespen- oder Bienenstich zu sterben",
+    wahrscheinlichkeit: 1 / 57825,
+    anzeige: "1 : 57.825",
+  },
+  {
+    id: "feuerwerk",
+    text: "im Laufe des Lebens durch einen Feuerwerkskörper tödlich verletzt zu werden",
+    wahrscheinlichkeit: 1 / 340733,
+    anzeige: "1 : 340.733",
   },
   {
     id: "krokodil",
@@ -55,38 +70,24 @@ export const KURIOSITAETEN: Kuriositaet[] = [
   },
   {
     id: "hai",
-    text: "im Laufe des Lebens von einem Hai angegriffen zu werden",
+    text: "im Laufe des Lebens von einem Hai angegriffen und getötet zu werden",
     wahrscheinlichkeit: 1 / 3700000,
     anzeige: "1 : 3.700.000",
   },
   {
     id: "flugzeugabsturz",
-    text: "bei einem einzelnen Flug in einen tödlichen Flugzeugabsturz verwickelt zu sein",
+    text: "im Laufe des Lebens bei einem Flugzeugabsturz zu sterben",
     wahrscheinlichkeit: 1 / 11000000,
     anzeige: "1 : 11.000.000",
   },
-  {
-    id: "lottojackpot",
-    text: "im Lotto „6 aus 49“ mit Superzahl den Jackpot zu knacken",
-    wahrscheinlichkeit: 1 / 140000000,
-    anzeige: "1 : 140.000.000",
-  },
 ];
 
-const KROKODIL = KURIOSITAETEN.find((k) => k.id === "krokodil")!;
-
-export type WahrscheinlichkeitsVergleich = {
-  passendste: Kuriositaet;
-  krokodil: Kuriositaet;
-  hoeherAlsPassendste: boolean;
-};
-
 // Sucht die Kuriosität, deren Wahrscheinlichkeit (auf einer logarithmischen
-// Skala) am nächsten an der übergebenen Wahrscheinlichkeit liegt. Das
-// Krokodil wird zusätzlich immer mitgeliefert, damit es als running gag
-// unabhängig vom Ergebnis immer auftaucht.
-export function findeVergleich(wahrscheinlichkeitProzent: number): WahrscheinlichkeitsVergleich {
-  const p = Math.max(wahrscheinlichkeitProzent / 100, 1e-10);
+// Skala) am nächsten an der übergebenen Wahrscheinlichkeit liegt. Keine der
+// Kuriositäten wird fest erzwungen – welche angezeigt wird, hängt allein
+// vom Rechenergebnis ab.
+export function findeVergleich(wahrscheinlichkeitProzent: number): Kuriositaet {
+  const p = Math.max(wahrscheinlichkeitProzent / 100, 1e-12);
   const logP = Math.log(p);
 
   let passendste = KURIOSITAETEN[0];
@@ -99,9 +100,5 @@ export function findeVergleich(wahrscheinlichkeitProzent: number): Wahrscheinlic
     }
   }
 
-  return {
-    passendste,
-    krokodil: KROKODIL,
-    hoeherAlsPassendste: p > passendste.wahrscheinlichkeit,
-  };
+  return passendste;
 }

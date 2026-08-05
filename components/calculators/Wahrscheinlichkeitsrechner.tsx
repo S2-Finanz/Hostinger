@@ -84,7 +84,7 @@ export default function Wahrscheinlichkeitsrechner() {
                 eingezahlt
               </p>
               <p className="mt-6 font-display text-4xl font-bold text-gold">
-                {formatPercent(ergebnis.wahrscheinlichkeitVerlust, 1)}
+                {formatPercent(ergebnis.wahrscheinlichkeitVerlust, 10)}
               </p>
               <p className="mt-2 text-sm text-nebel">
                 {ergebnis.anzahlVerlust} von {ergebnis.anzahlFenster}{" "}
@@ -102,7 +102,7 @@ export default function Wahrscheinlichkeitsrechner() {
                 Endkapital lag über der eingezahlten Summe
               </p>
               <p className="mt-6 font-display text-4xl font-bold text-white">
-                {formatPercent(100 - ergebnis.wahrscheinlichkeitVerlust, 1)}
+                {formatPercent(100 - ergebnis.wahrscheinlichkeitVerlust, 10)}
               </p>
               {ergebnis.schlechtestesFenster && ergebnis.bestesFenster && (
                 <p className="mt-2 text-sm text-nebel">
@@ -117,18 +117,10 @@ export default function Wahrscheinlichkeitsrechner() {
 
           <div className="rounded-sm border border-gold/30 bg-gold/5 px-6 py-5">
             <p className="text-sm leading-relaxed text-nebel">
-              Zum Vergleich: Die Chance,{" "}
-              <span className="text-white">{vergleich.krokodil.text}</span>,
-              liegt bei ungefähr {vergleich.krokodil.anzeige}.
-              {vergleich.passendste.id !== "krokodil" && (
-                <>
-                  {" "}
-                  Größenordnungsmäßig am nächsten kommt Ihrer historischen
-                  Verlustwahrscheinlichkeit die Chance,{" "}
-                  <span className="text-white">{vergleich.passendste.text}</span>{" "}
-                  (ungefähr {vergleich.passendste.anzeige}).
-                </>
-              )}
+              Zum Vergleich: Größenordnungsmäßig am nächsten kommt Ihrer
+              historischen Verlustwahrscheinlichkeit die Chance,{" "}
+              <span className="text-white">{vergleich.text}</span> (ungefähr{" "}
+              {vergleich.anzeige}).
             </p>
             <p className="mt-3 text-xs text-nebel/60">
               Alle Vergleichswerte sind grobe, kursierende Schätzungen zur
