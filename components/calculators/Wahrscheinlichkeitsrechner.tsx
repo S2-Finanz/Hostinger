@@ -75,12 +75,14 @@ export default function Wahrscheinlichkeitsrechner() {
         <>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="rounded-sm bg-graphit p-8">
-              <p className="font-display text-base font-bold uppercase tracking-wide text-white">
-                Chance auf ein positives Ergebnis
-              </p>
-              <p className="mt-2 text-sm text-nebel">
-                Endkapital lag über der eingezahlten Summe
-              </p>
+              <div className="sm:min-h-32">
+                <p className="font-display text-base font-bold uppercase tracking-wide text-white">
+                  Chance auf ein positives Ergebnis
+                </p>
+                <p className="mt-2 text-sm text-nebel">
+                  Endkapital lag über der eingezahlten Summe
+                </p>
+              </div>
               <p className="mt-6 font-display text-4xl font-bold text-white">
                 {formatPercent(100 - ergebnis.wahrscheinlichkeitVerlust, 10)}
               </p>
@@ -95,14 +97,16 @@ export default function Wahrscheinlichkeitsrechner() {
             </div>
 
             <div className="rounded-sm bg-graphit p-8">
-              <p className="font-display text-base font-bold uppercase tracking-wide text-gold">
-                Historische Verlustwahrscheinlichkeit
-              </p>
-              <p className="mt-2 text-sm text-nebel">
-                {formatEUR(sparrate)}/Monat über {laufzeit} Jahre –
-                Anteil der historischen Zeiträume mit weniger Endkapital als
-                eingezahlt
-              </p>
+              <div className="sm:min-h-32">
+                <p className="font-display text-base font-bold uppercase tracking-wide text-gold">
+                  Historische Verlustwahrscheinlichkeit
+                </p>
+                <p className="mt-2 text-sm text-nebel">
+                  {formatEUR(sparrate)}/Monat über {laufzeit} Jahre –
+                  Anteil der historischen Zeiträume mit weniger Endkapital als
+                  eingezahlt
+                </p>
+              </div>
               <p className="mt-6 font-display text-4xl font-bold text-gold">
                 {formatPercent(ergebnis.wahrscheinlichkeitVerlust, 10)}
               </p>
