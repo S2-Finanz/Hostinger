@@ -88,6 +88,11 @@ export const CALCULATOR_GROUPS: CalculatorGroup[] = [
         text: "Historische Index-Rendite: Was wäre aus einer Geldanlage seit Ihrer Geburt geworden?",
         href: "/rechner/was-waere-wenn-rechner/",
       },
+      {
+        title: "Wahrscheinlichkeitsrechner",
+        text: "Historisches Verlustrisiko eines MSCI-World-Sparplans über Ihre Laufzeit.",
+        href: "/rechner/wahrscheinlichkeitsrechner/",
+      },
     ],
   },
   {

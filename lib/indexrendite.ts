@@ -88,6 +88,98 @@ export const JAHRESRENDITEN: Record<IndexId, Record<number, number>> = {
   "bse-sensex": { 1991: 0.82, 1992: 0.37, 1993: 0.28, 1994: 0.17, 1995: -0.21, 1996: -0.01, 1997: 0.19, 1998: -0.16, 1999: 0.64, 2000: -0.21, 2001: -0.18, 2002: 0.04, 2003: 0.73, 2004: 0.13, 2005: 0.42, 2006: 0.47, 2007: 0.47, 2008: -0.52, 2009: 0.81, 2010: 0.17, 2011: -0.25, 2012: 0.26, 2013: 0.09, 2014: 0.3, 2015: -0.05, 2016: 0.02, 2017: 0.28, 2018: 0.06, 2019: 0.14, 2020: 0.16, 2021: 0.22, 2022: 0.04, 2023: 0.19, 2024: 0.08, 2025: 0.08 },
 };
 
+export type SparplanFenster = {
+  startJahr: number;
+  endJahr: number;
+  eingezahlt: number;
+  endwert: number;
+  verlust: boolean;
+};
+
+export type RollierendeSparplanErgebnis = {
+  fenster: SparplanFenster[];
+  anzahlFenster: number;
+  anzahlVerlust: number;
+  wahrscheinlichkeitVerlust: number;
+  bestesFenster: SparplanFenster | null;
+  schlechtestesFenster: SparplanFenster | null;
+};
+
+// Rollierende Betrachtung: simuliert für JEDEN historisch möglichen
+// Startjahrgang innerhalb der Datengrundlage einen monatlichen Sparplan
+// über "jahre" Jahre (gleiche Vereinfachung wie berechneSparplan: der
+// Jahresbeitrag gilt als zu Jahresbeginn eingezahlt) und prüft, in wie
+// vielen dieser Zeiträume am Ende weniger herauskam, als eingezahlt wurde.
+export function rollierendeSparplanFenster(
+  id: IndexId,
+  jahre: number,
+  monatsrate: number,
+): RollierendeSparplanErgebnis {
+  const meta = findIndex(id);
+  const ersterStart = meta.ersteJahr;
+  const letzterStart = LETZTES_VOLLSTAENDIGES_JAHR - jahre + 1;
+
+  const fenster: SparplanFenster[] = [];
+
+  for (let startJahr = ersterStart; startJahr <= letzterStart; startJahr++) {
+    let wert = 0;
+    let eingezahlt = 0;
+    let luecke = false;
+
+    for (let i = 0; i < jahre; i++) {
+      const rendite = renditeFuerJahr(id, startJahr + i);
+      if (rendite === undefined) {
+        luecke = true;
+        break;
+      }
+      const jahresbeitrag = monatsrate * 12;
+      wert += jahresbeitrag;
+      eingezahlt += jahresbeitrag;
+      wert *= 1 + rendite;
+    }
+
+    if (luecke) continue;
+
+    fenster.push({
+      startJahr,
+      endJahr: startJahr + jahre - 1,
+      eingezahlt,
+      endwert: wert,
+      verlust: wert < eingezahlt,
+    });
+  }
+
+  const anzahlFenster = fenster.length;
+  const anzahlVerlust = fenster.filter((f) => f.verlust).length;
+  const wahrscheinlichkeitVerlust =
+    anzahlFenster === 0 ? 0 : (anzahlVerlust / anzahlFenster) * 100;
+
+  let bestesFenster: SparplanFenster | null = null;
+  let schlechtestesFenster: SparplanFenster | null = null;
+  for (const f of fenster) {
+    const multiple = f.eingezahlt === 0 ? 0 : f.endwert / f.eingezahlt;
+    const bestMultiple =
+      bestesFenster && bestesFenster.eingezahlt !== 0
+        ? bestesFenster.endwert / bestesFenster.eingezahlt
+        : -Infinity;
+    const worstMultiple =
+      schlechtestesFenster && schlechtestesFenster.eingezahlt !== 0
+        ? schlechtestesFenster.endwert / schlechtestesFenster.eingezahlt
+        : Infinity;
+    if (!bestesFenster || multiple > bestMultiple) bestesFenster = f;
+    if (!schlechtestesFenster || multiple < worstMultiple) schlechtestesFenster = f;
+  }
+
+  return {
+    fenster,
+    anzahlFenster,
+    anzahlVerlust,
+    wahrscheinlichkeitVerlust,
+    bestesFenster,
+    schlechtestesFenster,
+  };
+}
+
 export function findIndex(id: IndexId): IndexMeta {
   const meta = INDIZES.find((i) => i.id === id);
   if (!meta) throw new Error(`Unbekannter Index: ${id}`);
