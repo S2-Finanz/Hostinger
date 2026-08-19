@@ -8,32 +8,32 @@ const FAQ = [
   {
     frage: "Was kostet mich eine Beratung?",
     antwort:
-      "Das erste Orientierungsgespräch ist für Sie kostenlos und unverbindlich. Wir lernen Ihre Situation kennen, klären Ihre Ziele und zeigen auf, wo aus unserer Sicht Handlungsbedarf besteht – ob und wie es danach weitergeht, entscheiden Sie in aller Ruhe.",
+      "Die Beratung ist für dich grundsätzlich kostenlos, vom Erstgespräch bis zur anschließenden Beratung. Wir finanzieren uns über die Produktanbieter, somit entstehen für dich keine zusätzlichen Kosten. Du erhältst eine unabhängige Beratung ohne versteckte Kosten.",
   },
   {
     frage: "Wie läuft ein Erstgespräch ab?",
     antwort:
-      "Im rund 30-minütigen Gespräch – persönlich oder digital per Videocall – verschaffen wir uns gemeinsam einen Überblick über Ihre aktuelle Absicherung, Ihre Ziele und Ihre finanzielle Situation. Sie erhalten eine erste, ehrliche Einschätzung, wo Optimierungsbedarf besteht und wo nicht.",
+      "Im ersten, rund 30-minütigen Gespräch lernen wir uns kennen, besprechen deine Ziele und zeigen dir, wie wir dich unterstützen können.",
   },
   {
     frage: "Wie geht es nach dem Erstgespräch weiter?",
     antwort:
-      "Sehen wir konkreten Bedarf, erarbeiten wir für Sie einen individuellen Vorschlag mit einem Vergleich passender Anbieter und Tarife. Die Entscheidung liegt danach ganz bei Ihnen – ohne Zeitdruck und ohne Verpflichtung, einen der Vorschläge auch tatsächlich abzuschließen.",
+      "Nachdem wir deine Situation, Wünsche und Bedürfnisse analysiert haben, erhältst du im Folgetermin eine detaillierte und strukturierte Empfehlung sowie einen Plan, wie wir alles gemeinsam umsetzen können.",
   },
   {
-    frage: "Sind Sie unabhängig?",
+    frage: "Seid ihr unabhängig?",
     antwort:
-      "Ja. Wir sind an keinen einzelnen Versicherer gebunden und vergleichen den gesamten Markt, um für Sie die passende Lösung zu finden – nicht die, die uns die höchste Provision einbringt.",
+      "Wir agieren als Versicherungsmakler und sind an keine Gesellschaft oder Versicherung gebunden. Das unterscheidet uns von einem klassischen Versicherungsvermittler (Vertreter): Der ist meist an ein bestimmtes Unternehmen gebunden und darf nur dessen Produkte anbieten. Als Makler vertreten wir dagegen deine Interessen und vergleichen für dich den gesamten Markt.",
   },
   {
     frage: "Wie schnell bekomme ich einen Termin?",
     antwort:
-      "In der Regel können wir Ihnen innerhalb weniger Tage einen Termin anbieten. Bei einem dringenden Anliegen sprechen Sie uns gerne direkt an – dann finden wir meist noch schneller einen passenden Slot.",
+      "In der Regel können wir dir innerhalb weniger Tage einen Termin anbieten. Bei einem dringenden Anliegen sprich uns gerne direkt an – dann finden wir meist noch schneller einen passenden Slot.",
   },
   {
     frage: "Für wen lohnt sich ein Termin mit uns?",
     antwort:
-      "Für Beamte, Angestellte und Geschäftsführer, die ihre private Krankenversicherung, Beamtenversorgung, Arbeitskraftabsicherung oder Altersvorsorge einmal unabhängig prüfen lassen möchten – egal ob zum Berufseinstieg oder zur Standortbestimmung nach einigen Jahren.",
+      "Wir sind Spezialisten für private Krankenversicherung, Arbeitskraftabsicherung sowie Beamtenversorgung. Am meisten profitieren Personen zwischen 18 und 40 Jahren von einer Zusammenarbeit mit uns.",
   },
 ];
 
@@ -66,7 +66,7 @@ export default function WissenFaq() {
           </h2>
           <p className="mt-4 text-nebel">
             Ein erster Überblick zu den Themen, mit denen wir uns täglich
-            beschäftigen. Für die individuelle Einordnung sprechen Sie gerne
+            beschäftigen. Für die individuelle Einordnung sprich gerne
             direkt mit uns.
           </p>
         </div>
@@ -136,7 +136,7 @@ export default function WissenFaq() {
             Noch Fragen?
           </h3>
           <p className="mx-auto mt-3 max-w-xs text-sm text-nebel">
-            Wir helfen Ihnen gerne persönlich weiter – kostenlos und
+            Wir helfen dir gerne persönlich weiter – kostenlos und
             unverbindlich.
           </p>
           <Link
