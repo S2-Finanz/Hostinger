@@ -13,7 +13,8 @@ export const SITE_INDEXABLE = false;
 export const NAV_LINKS = [
   { label: "Leistungen", href: "/#leistungen" },
   { label: "Rechner", href: "/rechner/" },
-  { label: "Über uns", href: "/ueber-uns/" },
+  { label: "Über uns", href: "/#ueber-uns" },
+  { label: "FAQ", href: "/#faq" },
   { label: "Wissen", href: "/wissen/" },
   { label: "Kontakt", href: "/kontakt/" },
   { label: "Kunden Login", href: "/kunden-login/" },

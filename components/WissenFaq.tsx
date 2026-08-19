@@ -2,49 +2,38 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { CAL_LINK } from "@/lib/constants";
 
 const FAQ = [
   {
-    frage: "Private Krankenversicherung (PKV) oder gesetzliche Krankenversicherung (GKV)?",
+    frage: "Was kostet mich eine Beratung?",
     antwort:
-      "Das hängt von Einkommen, Familienplanung, Gesundheitszustand und Berufsstatus ab. Für Beamte ist die PKV wegen der Beihilfe in aller Regel deutlich günstiger als die GKV. Für Angestellte und Geschäftsführer lohnt sich ein individueller Vergleich der laufenden Beiträge und Leistungen.",
-    href: "/rechner/pkv-rechner/",
-    hrefLabel: "GKV-PKV-Vergleichsrechner öffnen",
+      "Das erste Orientierungsgespräch ist für Sie kostenlos und unverbindlich. Wir lernen Ihre Situation kennen, klären Ihre Ziele und zeigen auf, wo aus unserer Sicht Handlungsbedarf besteht – ob und wie es danach weitergeht, entscheiden Sie in aller Ruhe.",
   },
   {
-    frage: "Wie wird meine Pension als Beamter berechnet?",
+    frage: "Wie läuft ein Erstgespräch ab?",
     antwort:
-      "Ihre Pension ergibt sich aus dem Ruhegehaltssatz (1,79375 % je ruhegehaltfähigem Dienstjahr, gedeckelt bei 71,75 %) und Ihrem letzten Grundgehalt. Teilzeit, Elternzeit und der Erfahrungsstufen-Aufstieg wirken sich direkt auf die Höhe aus.",
-    href: "/rechner/pensionsrechner/",
-    hrefLabel: "Pensionsrechner öffnen",
+      "Im rund 30-minütigen Gespräch – persönlich oder digital per Videocall – verschaffen wir uns gemeinsam einen Überblick über Ihre aktuelle Absicherung, Ihre Ziele und Ihre finanzielle Situation. Sie erhalten eine erste, ehrliche Einschätzung, wo Optimierungsbedarf besteht und wo nicht.",
   },
   {
-    frage: "Brauche ich eine Arbeitskraftabsicherung, wenn ich verbeamtet bin?",
+    frage: "Wie geht es nach dem Erstgespräch weiter?",
     antwort:
-      "Ja – Dienstunfähigkeit ist bei Beamten anders abgesichert als Erwerbsminderung bei Angestellten, aber die Versorgung reicht oft nicht aus, um den gewohnten Lebensstandard zu halten, besonders in jungen Jahren mit kurzer Dienstzeit. Eine private Dienstunfähigkeitsversicherung schließt diese Lücke.",
-    href: "/rechner/arbeitskraftrechner/",
-    hrefLabel: "Arbeitskraftrechner öffnen",
+      "Sehen wir konkreten Bedarf, erarbeiten wir für Sie einen individuellen Vorschlag mit einem Vergleich passender Anbieter und Tarife. Die Entscheidung liegt danach ganz bei Ihnen – ohne Zeitdruck und ohne Verpflichtung, einen der Vorschläge auch tatsächlich abzuschließen.",
   },
   {
-    frage: "Was ist das neue Altersvorsorgedepot ab 2027?",
+    frage: "Sind Sie unabhängig?",
     antwort:
-      "Das Altersvorsorgedepot ist Deutschlands neue, staatlich geförderte Form der privaten Altersvorsorge mit Zulagen, Startbonus und steueroptimierter Einzahlung. Im Gegensatz zu klassischen Riester-Produkten investiert das Kapital breit gestreut, etwa in ETFs.",
-    href: "/rechner/altersvorsorgedepot/",
-    hrefLabel: "Altersvorsorgedepot-Rechner öffnen",
+      "Ja. Wir sind an keinen einzelnen Versicherer gebunden und vergleichen den gesamten Markt, um für Sie die passende Lösung zu finden – nicht die, die uns die höchste Provision einbringt.",
   },
   {
-    frage: "Wie groß ist meine Rentenlücke?",
+    frage: "Wie schnell bekomme ich einen Termin?",
     antwort:
-      "Die Rentenlücke ist die Differenz zwischen Ihrem gewünschten Einkommen im Ruhestand und Ihrer voraussichtlichen gesetzlichen Rente bzw. Pension. Sie lässt sich mit wenigen Angaben zu Einkommen, Sparrate und Renteneintrittsalter überschlägig berechnen.",
-    href: "/rechner/rentenluecke/",
-    hrefLabel: "Rentenlückenrechner öffnen",
+      "In der Regel können wir Ihnen innerhalb weniger Tage einen Termin anbieten. Bei einem dringenden Anliegen sprechen Sie uns gerne direkt an – dann finden wir meist noch schneller einen passenden Slot.",
   },
   {
-    frage: "Was kostet eine Beratung bei S² Finanz?",
+    frage: "Für wen lohnt sich ein Termin mit uns?",
     antwort:
-      "Das erste Orientierungsgespräch ist für Sie kostenlos und unverbindlich. Dort klären wir gemeinsam Ihre Ausgangslage und ob eine weiterführende Beratung für Sie sinnvoll ist.",
-    href: "/#kontakt",
-    hrefLabel: "Termin vereinbaren",
+      "Für Beamte, Angestellte und Geschäftsführer, die ihre private Krankenversicherung, Beamtenversorgung, Arbeitskraftabsicherung oder Altersvorsorge einmal unabhängig prüfen lassen möchten – egal ob zum Berufseinstieg oder zur Standortbestimmung nach einigen Jahren.",
   },
 ];
 
@@ -65,60 +54,99 @@ export default function WissenFaq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="wissen" className="bg-graphit">
+    <section id="faq" className="bg-graphit">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="mx-auto max-w-content px-6 py-24">
-        <div className="max-w-xl">
+        <div className="mx-auto max-w-xl text-center">
           <h2 className="font-display text-3xl font-bold md:text-4xl">
             Häufige Fragen
           </h2>
           <p className="mt-4 text-nebel">
             Ein erster Überblick zu den Themen, mit denen wir uns täglich
-            beschäftigen. Für die individuelle Einordnung nutzen Sie gerne
-            unsere Rechner oder sprechen direkt mit uns.
+            beschäftigen. Für die individuelle Einordnung sprechen Sie gerne
+            direkt mit uns.
           </p>
         </div>
 
-        <div className="mt-12 divide-y divide-white/10 border-t border-white/10">
+        <div className="mx-auto mt-12 flex max-w-2xl flex-col gap-4">
           {FAQ.map((item, i) => {
             const isOpen = open === i;
             return (
-              <div key={item.frage}>
+              <div
+                key={item.frage}
+                className="rounded-sm border border-white/10 bg-onyx"
+              >
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : i)}
                   aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-4 py-6 text-left"
+                  className="flex w-full items-center justify-between gap-4 p-6 text-left"
                 >
-                  <span className="font-display text-base font-semibold text-white md:text-lg">
+                  <span className="font-display text-base font-semibold text-white">
                     {item.frage}
                   </span>
-                  <span
-                    className={`shrink-0 text-xl text-gold transition-transform ${isOpen ? "rotate-45" : ""}`}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`h-4 w-4 shrink-0 text-gold transition-transform ${isOpen ? "rotate-180" : ""}`}
                     aria-hidden
                   >
-                    +
-                  </span>
+                    <path d="M5 7.5 10 12.5 15 7.5" />
+                  </svg>
                 </button>
                 {isOpen && (
-                  <div className="pb-6">
-                    <p className="max-w-2xl text-sm leading-relaxed text-nebel">
+                  <div className="px-6 pb-6">
+                    <p className="text-sm leading-relaxed text-nebel">
                       {item.antwort}
                     </p>
-                    <Link
-                      href={item.href}
-                      className="mt-4 inline-block text-sm font-semibold text-gold hover:opacity-80"
-                    >
-                      {item.hrefLabel} →
-                    </Link>
                   </div>
                 )}
               </div>
             );
           })}
+        </div>
+
+        <div className="mx-auto mt-12 max-w-md rounded-sm border border-gold/40 bg-onyx p-10 text-center">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-gold/30 bg-gold/10">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              className="h-5 w-5 text-gold"
+              aria-hidden
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"
+              />
+            </svg>
+          </div>
+          <h3 className="mt-5 font-display text-lg font-bold text-white">
+            Noch Fragen?
+          </h3>
+          <p className="mx-auto mt-3 max-w-xs text-sm text-nebel">
+            Wir helfen Ihnen gerne persönlich weiter – kostenlos und
+            unverbindlich.
+          </p>
+          <Link
+            href={CAL_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-block rounded-sm bg-gold px-7 py-3.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
+          >
+            Termin vereinbaren
+          </Link>
         </div>
       </div>
     </section>
