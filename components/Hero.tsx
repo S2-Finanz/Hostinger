@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { CAL_LINK } from "@/lib/constants";
 
@@ -11,14 +10,19 @@ const STATS = [
 export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-onyx">
-      <Image
-        src="/images/hero-skyline.jpg"
-        alt=""
-        fill
-        priority
-        className="object-cover object-right opacity-30"
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster="/images/hero-drone-poster.jpg"
+        className="absolute inset-0 h-full w-full object-cover object-right opacity-30"
         aria-hidden
-      />
+      >
+        <source src="/videos/hero-drone-loop.webm" type="video/webm" />
+        <source src="/videos/hero-drone-loop.mp4" type="video/mp4" />
+      </video>
       <div
         className="absolute inset-0"
         style={{
