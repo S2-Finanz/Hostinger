@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { CAL_LINK } from "@/lib/constants";
 
@@ -8,9 +11,24 @@ const STATS = [
 ];
 
 export default function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    // Manche mobilen Browser (v. a. iOS Safari) übernehmen das "muted"-
+    // Attribut nach der Hydration nicht zuverlässig genug für Autoplay –
+    // Property explizit setzen und Wiedergabe aktiv anstoßen.
+    video.muted = true;
+    video.defaultMuted = true;
+    const playPromise = video.play();
+    if (playPromise) playPromise.catch(() => {});
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-onyx">
       <video
+        ref={videoRef}
         autoPlay
         muted
         loop
