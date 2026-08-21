@@ -5,10 +5,14 @@ export type Kunde = {
   id: string;
   vorname: string;
   nachname: string;
-  geburtsdatum: string;
+  geburtsdatum: string | null;
   email: string;
   telefon: string | null;
   erstellt_am: string;
+  quelle: "manuell" | "funnel";
+  funnel_antworten: Record<string, string | string[]> | null;
+  newsletter_opt_in: boolean;
+  datenschutz_akzeptiert_am: string | null;
 };
 
 export type FragebogenStatus = "erstellt" | "versendet" | "ausgefuellt";

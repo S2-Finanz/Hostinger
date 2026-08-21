@@ -8,6 +8,7 @@ const ROUTES = [
   "/",
   "/ueber-uns/",
   "/kontakt/",
+  "/kennenlernen/",
   "/wissen/",
   "/rechner/",
   "/rechner/pensionsrechner/",

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { CAL_LINK } from "@/lib/constants";
 
 const STATS = [
   { value: "16+", label: "Jahre Praxiserfahrung" },
@@ -66,20 +65,10 @@ export default function Hero() {
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
           <Link
-            href={CAL_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/kennenlernen/"
             className="rounded-sm bg-gold px-7 py-3.5 text-center text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
           >
-            Termin vereinbaren
-          </Link>
-          <Link
-            href={CAL_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-sm border border-gold px-7 py-3.5 text-center text-sm font-semibold text-gold transition-colors hover:bg-gold/10"
-          >
-            Versorgungslücke im 15-Minuten-Check klären
+            Jetzt kostenloses Kennenlerngespräch vereinbaren
           </Link>
         </div>
 

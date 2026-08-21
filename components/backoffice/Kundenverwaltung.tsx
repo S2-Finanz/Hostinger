@@ -10,6 +10,7 @@ import {
   type Kunde,
 } from "@/lib/backoffice";
 import FragebogenAnsicht from "@/components/backoffice/FragebogenAnsicht";
+import FunnelAntwortenAnsicht from "@/components/backoffice/FunnelAntwortenAnsicht";
 
 const eingabeKlasse =
   "mt-1.5 block w-full rounded-sm border border-white/15 bg-onyx px-4 py-2.5 text-sm text-white placeholder:text-nebel/50 focus:border-gold focus:outline-none";
@@ -210,6 +211,7 @@ function KundeZeile({ kunde }: { kunde: Kunde }) {
   const [fehler, setFehler] = useState<string | null>(null);
   const [erfolg, setErfolg] = useState<string | null>(null);
   const [angezeigterFragebogenId, setAngezeigterFragebogenId] = useState<string | null>(null);
+  const [funnelAntwortenOffen, setFunnelAntwortenOffen] = useState(false);
 
   async function verlaufLaden() {
     try {
@@ -249,15 +251,32 @@ function KundeZeile({ kunde }: { kunde: Kunde }) {
     <div className="rounded-sm border border-white/10 bg-graphit p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="font-semibold text-white">
+          <p className="flex items-center gap-2 font-semibold text-white">
             {kunde.vorname} {kunde.nachname}
+            {kunde.quelle === "funnel" && (
+              <span className="rounded-sm border border-gold/40 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-gold">
+                Funnel
+              </span>
+            )}
           </p>
           <p className="mt-0.5 text-sm text-nebel">
-            {new Date(kunde.geburtsdatum).toLocaleDateString("de-DE")} · {kunde.email}
+            {kunde.geburtsdatum
+              ? new Date(kunde.geburtsdatum).toLocaleDateString("de-DE") + " · "
+              : ""}
+            {kunde.email}
             {kunde.telefon ? ` · ${kunde.telefon}` : ""}
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {kunde.quelle === "funnel" && (
+            <button
+              type="button"
+              onClick={() => setFunnelAntwortenOffen((v) => !v)}
+              className="text-sm text-nebel underline-offset-2 hover:text-white hover:underline"
+            >
+              {funnelAntwortenOffen ? "Anfrage ausblenden" : "Anfrage ansehen"}
+            </button>
+          )}
           {letzterStatus && (
             <span
               className={`rounded-sm border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${STATUS_FARBE[letzterStatus]}`}
@@ -292,6 +311,18 @@ function KundeZeile({ kunde }: { kunde: Kunde }) {
         <p className="mt-4 rounded-sm border border-gold/30 bg-gold/10 px-4 py-2.5 text-sm text-gold">
           {erfolg}
         </p>
+      )}
+
+      {funnelAntwortenOffen && kunde.funnel_antworten && (
+        <div className="mt-4 rounded-sm border border-white/10 bg-onyx p-4">
+          <p className="text-sm text-nebel">
+            Newsletter: {kunde.newsletter_opt_in ? "Ja" : "Nein"} · Datenschutz
+            akzeptiert: {formatDatum(kunde.datenschutz_akzeptiert_am)}
+          </p>
+          <div className="mt-4">
+            <FunnelAntwortenAnsicht antworten={kunde.funnel_antworten} />
+          </div>
+        </div>
       )}
 
       {verlaufOffen && (
