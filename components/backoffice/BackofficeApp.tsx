@@ -5,9 +5,10 @@ import type { Session } from "@supabase/supabase-js";
 import { ERLAUBTE_EMAIL_DOMAIN, istErlaubteEmail, supabase } from "@/lib/supabase";
 import Kundenverwaltung from "@/components/backoffice/Kundenverwaltung";
 import Kontaktanfragen from "@/components/backoffice/Kontaktanfragen";
+import Provisionen from "@/components/backoffice/Provisionen";
 
 type Modus = "login" | "signup";
-type Bereich = "kunden" | "kontakt";
+type Bereich = "kunden" | "kontakt" | "provisionen";
 
 const eingabeKlasse =
   "mt-1.5 block w-full rounded-sm border border-white/15 bg-onyx px-4 py-2.5 text-sm text-white placeholder:text-nebel/50 focus:border-gold focus:outline-none";
@@ -93,9 +94,20 @@ function AuthenticatedView({ session }: { session: Session }) {
         >
           Kontaktanfragen
         </button>
+        <button
+          type="button"
+          onClick={() => setBereich("provisionen")}
+          className={`rounded-sm px-5 py-2 font-semibold transition-colors ${
+            bereich === "provisionen" ? "bg-gold text-onyx" : "text-nebel hover:text-white"
+          }`}
+        >
+          Provisionen
+        </button>
       </div>
 
-      {bereich === "kunden" ? <Kundenverwaltung /> : <Kontaktanfragen />}
+      {bereich === "kunden" && <Kundenverwaltung />}
+      {bereich === "kontakt" && <Kontaktanfragen />}
+      {bereich === "provisionen" && <Provisionen />}
     </div>
   );
 }
