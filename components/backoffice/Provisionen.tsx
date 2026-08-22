@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PROVISIONS_KATEGORIEN } from "@/lib/provisionen";
+import Provisionsrechner from "@/components/backoffice/Provisionsrechner";
 
 const HINWEIS_KUERZE = 90;
 
@@ -30,6 +31,37 @@ function HinweisZelle({ text }: { text: string }) {
 }
 
 export default function Provisionen() {
+  const [ansicht, setAnsicht] = useState<"uebersicht" | "rechner">("uebersicht");
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex w-fit rounded-sm border border-white/10 p-1 text-sm">
+        <button
+          type="button"
+          onClick={() => setAnsicht("uebersicht")}
+          className={`rounded-sm px-5 py-2 font-semibold transition-colors ${
+            ansicht === "uebersicht" ? "bg-gold text-onyx" : "text-nebel hover:text-white"
+          }`}
+        >
+          Übersicht
+        </button>
+        <button
+          type="button"
+          onClick={() => setAnsicht("rechner")}
+          className={`rounded-sm px-5 py-2 font-semibold transition-colors ${
+            ansicht === "rechner" ? "bg-gold text-onyx" : "text-nebel hover:text-white"
+          }`}
+        >
+          Rechner
+        </button>
+      </div>
+
+      {ansicht === "uebersicht" ? <ProvisionsUebersicht /> : <Provisionsrechner />}
+    </div>
+  );
+}
+
+function ProvisionsUebersicht() {
   const [kategorieKey, setKategorieKey] = useState(PROVISIONS_KATEGORIEN[0].key);
   const [suche, setSuche] = useState("");
 
