@@ -36,10 +36,6 @@ export default function ServicesGrid() {
           <h2 className="font-display text-3xl font-bold md:text-4xl">
             Unsere Leistungen
           </h2>
-          <p className="mt-4 text-nebel">
-            Vier Themen. Eine Beratung, die zusammendenkt, was
-            zusammengehört.
-          </p>
         </div>
 
         <div className="mt-14 grid gap-px overflow-hidden rounded-sm bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
