@@ -4,25 +4,25 @@ import { CAL_LINK } from "@/lib/constants";
 const SERVICES = [
   {
     title: "Private Krankenversicherung",
-    text: "Optimaler Versicherungsschutz für Angestellte und Beamte – individuell kalkuliert, lebenslang tragfähig.",
+    text: "Premium-Gesundheitsversorgung ohne Tarif-Dschungel. Exakt kalkuliert, bedarfsgerecht und nachhaltig bezahlbar.",
     calculatorLabel: "GKV-PKV-Vergleichsrechner",
     calculatorHref: "/rechner/pkv-rechner/",
   },
   {
     title: "Beamtenversorgung",
-    text: "Pension, Beihilfe und Dienstunfähigkeit im Zusammenspiel – speziell für den öffentlichen Dienst.",
+    text: "Beihilfe. Pension. Dienstunfähigkeit. Perfekt aufeinander abgestimmt, maßgeschneiderter Schutz für Anwärter, Beamte auf Probe und Beamte auf Lebenszeit.",
     calculatorLabel: "Pensionsrechner",
     calculatorHref: "/rechner/pensionsrechner/",
   },
   {
     title: "Arbeitskraftabsicherung",
-    text: "Schutz Ihres Einkommens, wenn Sie es am dringendsten brauchen – für Angestellte und Geschäftsführer.",
+    text: "Dein Einkommen ist dein größter Hebel. Wir sichern deine finanzielle Existenz und deinen Lebensstandard langfristig.",
     calculatorLabel: "Arbeitskraftrechner",
     calculatorHref: "/rechner/arbeitskraftrechner/",
   },
   {
-    title: "Altersvorsorge & Geldanlage",
-    text: "Vermögen strukturiert aufbauen und Ihre Zukunft finanziell absichern.",
+    title: "Altersvorsorge & Vermögensaufbau",
+    text: "Planmäßiger Vermögensaufbau, klug strukturiert. Systematisch, ertragsstark auf deine Zukunft ausgelegt.",
     calculatorLabel: "Sparrechner",
     calculatorHref: "/rechner/sparrechner/",
   },
