@@ -37,7 +37,7 @@ const TEAM: {
     photo: "/images/team/marcel-schaefer.jpg",
     facts: [
       "5 Jahre Berufserfahrung",
-      "Versicherungsfachmann DVA",
+      "Versicherungsfachmann IHK",
       "Ex-Beamter",
       "Spezialist für Beamtenversorgung",
       "Experte für Arbeitskraftabsicherung und Altersvorsorge",
@@ -74,7 +74,7 @@ export default function UeberUnsPage() {
               Über uns
             </h1>
             <p className="mt-4 max-w-xl text-nebel">
-              16 Jahre Erfahrung, zwei klare Spezialisierungen. Wir sind S²
+              19 Jahre Erfahrung, zwei klare Spezialisierungen. Wir sind S²
               Finanz – ein spezialisierter Digitalmakler für private
               Krankenversicherung, Beamtenversorgung, Arbeitskraftabsicherung
               und Altersvorsorge.

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 
 const STATS = [
-  { value: "16+", label: "Jahre Praxiserfahrung" },
+  { value: "19+", label: "Jahre Praxiserfahrung" },
   { value: "2", label: "Spezialisten unter einem Dach" },
   { value: "100%", label: "unabhängige Beratung" },
 ];
