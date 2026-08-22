@@ -22,7 +22,7 @@ const TEAM: {
     photo: "/images/team/marcel-schaefer.jpg",
     facts: [
       "5 Jahre Berufserfahrung",
-      "Versicherungsfachmann DVA",
+      "Versicherungsfachmann IHK",
       "Ex-Beamter",
       "Spezialist für Beamtenversorgung",
       "Experte für Arbeitskraftabsicherung und Altersvorsorge",
@@ -36,7 +36,7 @@ export default function AboutTeaser() {
       <div className="mx-auto grid max-w-content items-center gap-12 px-6 py-24 md:grid-cols-2">
         <div>
           <h2 className="font-display text-3xl font-bold text-onyx md:text-4xl">
-            16 Jahre Erfahrung. Zwei klare Spezialisierungen.
+            19 Jahre Erfahrung. Zwei klare Spezialisierungen.
           </h2>
           <p className="mt-6 text-steingrau">
             Marcel Scheuermann ist Experte für private Krankenversicherung
