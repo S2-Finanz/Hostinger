@@ -23,7 +23,7 @@ const TEAM: {
     rolle: "Gründer & Spezialist für PKV und Beamtenversorgung",
     photo: "/images/team/marcel-scheuermann.jpg",
     facts: [
-      "20 Jahre Berufserfahrung in der Finanzbranche",
+      "21 Jahre Berufserfahrung in der Finanzbranche",
       "Bankkaufmann IHK",
       "Kaufmann für Versicherungen und Finanzen IHK",
       "Spezialist für private Krankenversicherung für Angestellte und Geschäftsführer",
@@ -74,7 +74,7 @@ export default function UeberUnsPage() {
               Über uns
             </h1>
             <p className="mt-4 max-w-xl text-nebel">
-              20 Jahre Erfahrung, zwei klare Spezialisierungen. Wir sind S²
+              21 Jahre Erfahrung, zwei klare Spezialisierungen. Wir sind S²
               Finanz – ein spezialisierter Digitalmakler für private
               Krankenversicherung, Beamtenversorgung, Arbeitskraftabsicherung
               und Altersvorsorge.
