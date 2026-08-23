@@ -25,6 +25,7 @@ const TEAM: {
       "Versicherungsfachmann IHK",
       "Ex-Beamter",
       "Spezialist für Beamtenversorgung",
+      "Spezialist für private Krankenversicherung",
       "Experte für Arbeitskraftabsicherung und Altersvorsorge",
     ],
   },
