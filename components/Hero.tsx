@@ -52,15 +52,17 @@ export default function Hero() {
 
       <div className="relative mx-auto max-w-content px-6 py-28 md:py-36">
         <h1 className="max-w-2xl font-display text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-          Ihre Absicherung.
+          Deine Absicherung.
           <br />
-          Unsere Verantwortung.
+          Unser Job.
         </h1>
 
         <p className="mt-6 max-w-xl text-lg text-nebel">
-          Unabhängige Beratung für private Krankenversicherung,
-          Beamtenversorgung, Arbeitskraftabsicherung und Vermögensaufbau –
-          für Beamte, Angestellte und Geschäftsführer.
+          19 Jahres Praxiserfahrung. Ein durchdachtes System.
+          <br />
+          Dein unabhängiger Partner für PKV, Beamtenversorgung,
+          Einkommensschutz und Vermögensaufbau, maßgeschneidert für Beamte,
+          Angestellte und Geschäftsführer.
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">

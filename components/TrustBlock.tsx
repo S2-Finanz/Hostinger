@@ -1,15 +1,15 @@
 const POINTS = [
   {
     title: "Spezialisierte Expertise",
-    text: "PKV, Beamtenversorgung, Arbeitskraftabsicherung, Altersvorsorge",
+    text: "Fokus auf PKV, Beamtenversorgung, Arbeitskraftabsicherung & Vermögensaufbau. Individuell. Spezialisiert. Maßgeschneidert.",
   },
   {
     title: "Unabhängige Beratung",
-    text: "ohne Bindung an einen einzelnen Anbieter",
+    text: "Dem Kunden verpflichtet, nicht den Versicherern.",
   },
   {
-    title: "Persönliche Betreuung",
-    text: "ein fester Ansprechpartner, kein Callcenter",
+    title: "Echter Ansprechpartner",
+    text: "Feste Betreuung von Mensch zu Mensch.",
   },
 ];
 
@@ -24,14 +24,14 @@ export default function TrustBlock() {
             Ein Fokus
           </h2>
           <p className="mt-6 text-steingrau">
-            S² Finanz ist ein spezialisierter Digitalmakler für private
-            Krankenversicherung, Absicherung der Arbeitskraft sowie
-            individuelle Beamtenversorgung.
+            Wir machen komplexe Finanz- und Versicherungsthemen einfach. S²
+            Finanz steht für die perfekte Kombination aus persönlicher
+            Expertise und digitaler Abwicklung.
           </p>
           <p className="mt-4 text-steingrau">
-            Wir beraten unabhängig, transparent und auf Augenhöhe – für
-            Menschen, die Verantwortung tragen: im öffentlichen Dienst, als
-            Angestellte oder als Unternehmer.
+            Unabhängig, transparent und ohne Umwege, entwickelt für Menschen,
+            die Verantwortung tragen: im öffentlichen Dienst, als Angestellte
+            oder als Unternehmer.
           </p>
         </div>
 
