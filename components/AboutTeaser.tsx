@@ -76,7 +76,7 @@ export default function AboutTeaser() {
               className="box-border grid min-h-[410px] min-w-0 grid-cols-[minmax(0,41.85%)_minmax(0,58.15%)] border border-[rgba(23,27,26,0.14)] bg-[#FFFAF1] max-[640px]:grid-cols-1"
             >
               {person.photo ? (
-                <div className="relative min-w-0 max-[640px]:aspect-[4/3]">
+                <div className="relative min-w-0 max-[640px]:aspect-[3/4]">
                   <Image
                     src={person.photo}
                     alt={`Portraitfoto ${person.name}`}
@@ -87,7 +87,7 @@ export default function AboutTeaser() {
                 </div>
               ) : (
                 <div
-                  className="relative flex min-w-0 items-center justify-center bg-stein/40 max-[640px]:aspect-[4/3]"
+                  className="relative flex min-w-0 items-center justify-center bg-stein/40 max-[640px]:aspect-[3/4]"
                   role="img"
                   aria-label={`Portraitfoto ${person.name}`}
                 >
