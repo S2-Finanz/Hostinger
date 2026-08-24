@@ -38,16 +38,13 @@ export default function ServicesGrid() {
           </h2>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICES.map((service, index) => (
+        <div className="mt-14 grid gap-px overflow-hidden rounded-sm bg-stein sm:grid-cols-2 lg:grid-cols-4">
+          {SERVICES.map((service) => (
             <div
               key={service.title}
-              className="flex flex-col rounded-sm border border-stein bg-hellcreme p-8"
+              className="flex flex-col bg-hellcreme p-8"
             >
-              <span className="text-sm font-bold text-gold">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-4 font-sans text-[20px] font-bold leading-[1.35] text-onyx">
+              <h3 className="font-sans text-[20px] font-bold leading-[1.35] text-onyx">
                 {service.title}
               </h3>
               <p className="mt-3 flex-1 text-sm text-steingrau">
@@ -55,13 +52,13 @@ export default function ServicesGrid() {
               </p>
               <a
                 href="#kontakt"
-                className="mt-6 text-sm font-bold text-gold transition-opacity hover:opacity-80"
+                className="mt-6 text-sm font-semibold text-onyx transition-colors hover:text-gold"
               >
                 Mehr erfahren →
               </a>
               <Link
                 href={service.calculatorHref}
-                className="mt-2 text-sm font-bold text-gold transition-opacity hover:opacity-80"
+                className="mt-2 text-sm font-semibold text-steingrau transition-colors hover:text-gold"
               >
                 {service.calculatorLabel} →
               </Link>
