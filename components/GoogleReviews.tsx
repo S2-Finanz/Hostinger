@@ -35,6 +35,31 @@ export const REVIEWS: Review[] = [
     rating: 5,
     text: "Marcel arbeitet sehr strukturiert und übersichtlich für seine Kunden. Während unserer Beratung hat er Schritt für Schritt alles erklärt in einer Sprache, die jeder versteht. Ansonsten bekommt man von Finanzberater irgendwelche Fachbegriffe rumgeworfen. Er kennt sich mit den Gesetzen aus und ist immer up-to-date somit kann er auf jede Bedürfnisse eingehen und findet mehrere Optionen die er mit seinen Kunden bespricht und transparent macht. Der Kunde steht im Fokus und das spürt man! Er arbeitet mit Leidenschaft! Vielen Dank Marcel!",
   },
+  {
+    name: "Dilara",
+    rating: 5,
+    text: "Dieses Jahr habe ich auf der Didacta Marcel Scheuermann kennengelernt und bin dort direkt in seine Beratung gekommen. Er hat mich auf der Messe sehr sympathisch, offen und kompetent beraten, sodass ich direkt ein gutes Gefühl hatte. Auch im weiteren Verlauf der Beratung im Lehrer-Beratungszentrum hat sich dieser Eindruck absolut bestätigt. Die Gespräche waren durchweg freundlich, verständlich und nie aufdringlich. Man nimmt sich Zeit für Fragen und erklärt alles so, dass man es wirklich gut nachvollziehen kann. Genau deshalb habe ich mich entschieden, meine Versicherungen dort abzuschließen.",
+  },
+  {
+    name: "Jennifer Barroso Sobrado",
+    rating: 5,
+    text: "Mein Partner und ich fühlen uns sehr gut beraten. Der liebe Marcel ist sehr kompetent und freundlich! Alleine hätten wir uns nicht durch den ganzen Versicherungskram gequält. So war alles perfekt auf unsere Bedürfnisse und Anliegen abgestimmt und direkt eingegrenzt, ohne Druck und Stress. Vielen Dank dafür!",
+  },
+  {
+    name: "Lea Geffers",
+    rating: 5,
+    text: "Ich wurde vor meinem Start ins Ref mit Empathie, Geduld und Zeit vom Mitarbeiter Marcel Schäfer beraten. Marcel schafft schon bei der ersten Kontaktaufnahme eine entspannte Atmosphäre, bleibt gleichzeitig aber immer professionell und kompetent. Ich habe mich in allen Belangen (bei mir besonders das Thema Versicherungen) exzellent beraten gefühlt und kann Marcel nur wärmstens empfehlen.",
+  },
+  {
+    name: "Lea Gommel",
+    rating: 5,
+    text: "Ich bin momentan sehr zufrieden mit der Beratung durch Marcel Scheuermann. Gerade im Hinblick auf meinen Start ins Referendariat habe ich mich bestens informiert und unterstützt gefühlt. Ich kann die Beratung wirklich jedem empfehlen, der vor dem Referendariat steht oder Unterstützung bei Versicherungsfragen braucht.",
+  },
+  {
+    name: "Lynn",
+    rating: 5,
+    text: "Das Beratungsgespräch bei Marcel Schäfer war wirklich super aufschlussreich. Er hat mir so viele offene Fragen beantwortet und ist auch wirklich transparent mit den ganzen Themen umgegangen und das Gespräch war super nett und kompetent. Auch, wenn ich schon fast am Ende des Refs bin, hat es mir nochmal sehr geholfen! Danke!",
+  },
 ];
 
 function Stars({ rating }: { rating: number }) {
