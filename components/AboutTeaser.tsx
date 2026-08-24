@@ -9,7 +9,7 @@ const TEAM: {
     name: "Marcel Scheuermann",
     photo: "/images/team/marcel-scheuermann.jpg",
     facts: [
-      "19 Jahre Berufserfahrung in der Finanzbranche",
+      "20 Jahre Berufserfahrung in der Finanzbranche",
       "Bankkaufmann IHK",
       "Kaufmann f. Versicherungen und Finanzen IHK",
       "Spezialist für private Krankenversicherung für Angestellte und Geschäftsführer",
@@ -37,7 +37,7 @@ export default function AboutTeaser() {
       <div className="mx-auto grid max-w-content items-center gap-12 px-6 py-24 md:grid-cols-2">
         <div>
           <h2 className="font-display text-3xl font-bold text-onyx md:text-4xl">
-            19 Jahre Erfahrung. Zwei klare Spezialisierungen.
+            20 Jahre Erfahrung. Zwei klare Spezialisierungen.
           </h2>
           <p className="mt-6 text-steingrau">
             Marcel Scheuermann ist Experte für private Krankenversicherung
