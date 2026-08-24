@@ -57,7 +57,7 @@ export default function Hero() {
         </h1>
 
         <p
-          className="mt-6 max-w-xl"
+          className="mt-6 max-w-2xl"
           style={{
             fontFamily: "var(--font-inter), Arial, sans-serif",
             fontWeight: 400,
@@ -68,9 +68,11 @@ export default function Hero() {
         >
           19 Jahres Praxiserfahrung. Ein durchdachtes System.
           <br />
-          Dein unabhängiger Partner für PKV, Beamtenversorgung,
-          Einkommensschutz und Vermögensaufbau, maßgeschneidert für Beamte,
-          Angestellte und Geschäftsführer.
+          Dein unabhängiger Partner für PKV, Beamtenversorgung, Einkommensschutz
+          und
+          <br />
+          Vermögensaufbau, maßgeschneidert für Beamte, Angestellte und
+          Geschäftsführer.
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -86,7 +88,14 @@ export default function Hero() {
           {STATS.map((stat) => (
             <div key={stat.label}>
               <dt className="sr-only">{stat.label}</dt>
-              <dd className="font-display text-3xl font-bold text-gold md:text-4xl">
+              <dd
+                style={{
+                  fontFamily: "var(--font-inter), Arial, sans-serif",
+                  fontWeight: 800,
+                  fontSize: "31px",
+                  color: "#DFC594",
+                }}
+              >
                 {stat.value}
               </dd>
               <dd className="mt-1 text-sm text-nebel">{stat.label}</dd>
