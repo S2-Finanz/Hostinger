@@ -19,8 +19,8 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
-        <TrustBlock />
         <ServicesGrid />
+        <TrustBlock />
         <AboutTeaser />
         <TestimonialCta />
         <WissenFaq />
