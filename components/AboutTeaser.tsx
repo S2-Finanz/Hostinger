@@ -31,48 +31,67 @@ const TEAM: {
   },
 ];
 
+const SPECIALIZATION_LABEL = "PKV & Beamtenversorgung & Vorsorge";
+
 export default function AboutTeaser() {
   return (
-    <section id="ueber-uns" className="bg-creme">
-      <div className="mx-auto grid max-w-content items-center gap-12 px-6 py-24 md:grid-cols-2">
-        <div>
-          <h2 className="font-display text-3xl font-bold text-onyx md:text-4xl">
-            20 Jahre Erfahrung. Zwei klare Spezialisierungen.
-          </h2>
-          <p className="mt-6 text-steingrau">
-            Marcel Scheuermann ist Experte für private Krankenversicherung
-            und Beamtenversorgung. Marcel Schäfer ist spezialisiert auf
-            Arbeitskraftabsicherung, Altersvorsorge, Geldanlage und
-            Beamtenversorgung. Gemeinsam bringen sie die Tiefe, die komplexe
-            Absicherungsfragen verdienen.
-          </p>
-          <a
-            href="/ueber-uns/"
-            className="mt-8 inline-block rounded-sm bg-gold px-7 py-3.5 text-sm font-semibold text-onyx transition-opacity hover:opacity-90"
-          >
-            Team kennenlernen
-          </a>
+    <section
+      id="ueber-uns"
+      className="bg-[#FBF8F2] py-[104px] max-[899px]:py-16 max-[640px]:py-12"
+    >
+      <div className="mx-auto box-border max-w-[1180px] px-6 max-[640px]:px-5">
+        <div className="grid grid-cols-[minmax(0,660px)_minmax(0,440px)] items-end gap-x-20 max-[899px]:grid-cols-1 max-[899px]:items-start max-[899px]:gap-y-6">
+          <div className="min-w-0">
+            <p className="mb-[18px] font-sans text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#C8A265]">
+              Persönlich statt anonym
+            </p>
+            <h2
+              className="font-sans font-bold text-[#171B1A]"
+              style={{
+                fontSize: "clamp(38px, 4vw, 51px)",
+                lineHeight: 1.08,
+                letterSpacing: "-0.035em",
+              }}
+            >
+              <span className="block whitespace-normal min-[1200px]:whitespace-nowrap">
+                20 Jahre Erfahrung.
+              </span>
+              <span className="block whitespace-normal min-[1200px]:whitespace-nowrap">
+                Zwei klare Spezialisierungen.
+              </span>
+            </h2>
+          </div>
+
+          <div className="min-w-0">
+            <p className="font-sans text-base leading-[1.65] text-[#626B68]">
+              Marcel Scheuermann ist Experte für private Krankenversicherung
+              und Beamtenversorgung. Marcel Schäfer ist spezialisiert auf
+              Arbeitskraftabsicherung, Altersvorsorge, Geldanlage und
+              Beamtenversorgung. Gemeinsam bringen sie die Tiefe, die komplexe
+              Absicherungsfragen verdienen.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="mt-12 grid grid-cols-2 gap-[22px] max-[899px]:grid-cols-1">
           {TEAM.map((person) => (
             <div
               key={person.name}
-              className="flex flex-col overflow-hidden rounded-sm border border-stein/60 bg-hellcreme"
+              className="box-border flex min-h-[410px] min-w-0 border border-[rgba(23,27,26,0.14)] bg-[#FFFAF1] max-[640px]:flex-col"
             >
               {person.photo ? (
-                <div className="relative aspect-[3/4] w-full bg-stein/40">
+                <div className="relative w-[42%] shrink-0 max-[640px]:aspect-[4/3] max-[640px]:w-full">
                   <Image
                     src={person.photo}
                     alt={`Portraitfoto ${person.name}`}
                     fill
                     className="object-cover"
-                    sizes="(min-width: 768px) 25vw, 50vw"
+                    sizes="(min-width: 640px) 25vw, 100vw"
                   />
                 </div>
               ) : (
                 <div
-                  className="relative flex aspect-[3/4] w-full items-center justify-center bg-stein/40"
+                  className="relative flex w-[42%] shrink-0 items-center justify-center bg-stein/40 max-[640px]:aspect-[4/3] max-[640px]:w-full"
                   role="img"
                   aria-label={`Portraitfoto ${person.name}`}
                 >
@@ -87,23 +106,42 @@ export default function AboutTeaser() {
                 </div>
               )}
 
-              <div className="flex flex-col gap-2 border-l-4 border-gold p-5">
-                <p className="font-display text-sm font-semibold text-onyx">
+              <div className="flex min-w-0 flex-1 flex-col px-9 py-8 max-[640px]:p-6">
+                <p className="mb-5 font-sans text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#886C3C]">
+                  {SPECIALIZATION_LABEL}
+                </p>
+                <p
+                  className="font-sans font-bold text-[#171B1A]"
+                  style={{ fontSize: "28px", lineHeight: 1.12 }}
+                >
                   {person.name}
                 </p>
-                <ul className="space-y-1.5">
+                <ul className="mt-4 space-y-2">
                   {person.facts.map((fact) => (
                     <li
                       key={fact}
-                      className="text-xs leading-snug text-steingrau"
+                      className="flex gap-2 font-sans text-sm leading-[1.45] text-[#626B68]"
                     >
-                      {fact}
+                      <span
+                        className="mt-[5px] h-1.5 w-1.5 shrink-0 bg-[#C8A265]"
+                        aria-hidden
+                      />
+                      <span className="min-w-0 break-words">{fact}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-12 flex justify-center">
+          <a
+            href="/ueber-uns/"
+            className="inline-block rounded-sm bg-[#C8A265] px-8 py-4 text-sm font-semibold text-[#171B1A] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#171B1A]"
+          >
+            Team kennenlernen
+          </a>
         </div>
       </div>
     </section>
