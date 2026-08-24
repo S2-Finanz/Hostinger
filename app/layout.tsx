@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SITE_INDEXABLE, SITE_URL } from "@/lib/constants";
-import { REVIEWS } from "@/components/GoogleReviews";
+import { REVIEWS } from "@/lib/reviews";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
