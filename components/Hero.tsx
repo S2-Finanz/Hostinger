@@ -44,7 +44,7 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, rgba(14,18,17,0.7) 0%, rgba(14,18,17,0.5) 50%, rgba(14,18,17,0.05) 100%)",
+            "linear-gradient(90deg, rgba(14,18,17,0.7) 0%, rgba(14,18,17,0.4) 50%, rgba(14,18,17,0.02) 100%)",
         }}
         aria-hidden
       />
