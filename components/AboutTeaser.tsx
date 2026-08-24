@@ -9,7 +9,7 @@ const TEAM: {
     name: "Marcel Scheuermann",
     photo: "/images/team/marcel-scheuermann.jpg",
     facts: [
-      "20 Jahre Berufserfahrung in der Finanzbranche",
+      "19 Jahre Berufserfahrung in der Finanzbranche",
       "Bankkaufmann IHK",
       "Kaufmann f. Versicherungen und Finanzen IHK",
       "Spezialist für private Krankenversicherung für Angestellte und Geschäftsführer",
@@ -31,7 +31,8 @@ const TEAM: {
   },
 ];
 
-const SPECIALIZATION_LABEL = "PKV & Beamtenversorgung & Vorsorge";
+const SPECIALIZATION_LABEL =
+  "PKV – Beamtenversorgung – Vorsorge – Arbeitskraft";
 
 export default function AboutTeaser() {
   return (
@@ -48,27 +49,22 @@ export default function AboutTeaser() {
             <h2
               className="font-sans font-bold text-[#171B1A]"
               style={{
-                fontSize: "clamp(38px, 4vw, 51px)",
+                fontSize: "clamp(42px, 4vw, 51.32px)",
                 lineHeight: 1.08,
                 letterSpacing: "-0.035em",
               }}
             >
               <span className="block whitespace-normal min-[1200px]:whitespace-nowrap">
-                20 Jahre Erfahrung.
+                Kompetenz bekommt ein
               </span>
-              <span className="block whitespace-normal min-[1200px]:whitespace-nowrap">
-                Zwei klare Spezialisierungen.
-              </span>
+              <span className="block">Gesicht.</span>
             </h2>
           </div>
 
           <div className="min-w-0">
-            <p className="font-sans text-base leading-[1.65] text-[#626B68]">
-              Marcel Scheuermann ist Experte für private Krankenversicherung
-              und Beamtenversorgung. Marcel Schäfer ist spezialisiert auf
-              Arbeitskraftabsicherung, Altersvorsorge, Geldanlage und
-              Beamtenversorgung. Gemeinsam bringen sie die Tiefe, die komplexe
-              Absicherungsfragen verdienen.
+            <p className="max-w-[440px] font-sans text-base font-normal leading-[1.65] text-[#626B68]">
+              Echte Berater, klare Spezialisierung und feste Ansprechpartner
+              über die gesamte Zusammenarbeit.
             </p>
           </div>
         </div>
@@ -77,21 +73,21 @@ export default function AboutTeaser() {
           {TEAM.map((person) => (
             <div
               key={person.name}
-              className="box-border flex min-h-[410px] min-w-0 border border-[rgba(23,27,26,0.14)] bg-[#FFFAF1] max-[640px]:flex-col"
+              className="box-border grid min-h-[410px] min-w-0 grid-cols-[minmax(0,41.85%)_minmax(0,58.15%)] border border-[rgba(23,27,26,0.14)] bg-[#FFFAF1] max-[640px]:grid-cols-1"
             >
               {person.photo ? (
-                <div className="relative w-[42%] shrink-0 max-[640px]:aspect-[4/3] max-[640px]:w-full">
+                <div className="relative min-w-0 max-[640px]:aspect-[4/3]">
                   <Image
                     src={person.photo}
                     alt={`Portraitfoto ${person.name}`}
                     fill
-                    className="object-cover"
+                    className="block object-cover object-center"
                     sizes="(min-width: 640px) 25vw, 100vw"
                   />
                 </div>
               ) : (
                 <div
-                  className="relative flex w-[42%] shrink-0 items-center justify-center bg-stein/40 max-[640px]:aspect-[4/3] max-[640px]:w-full"
+                  className="relative flex min-w-0 items-center justify-center bg-stein/40 max-[640px]:aspect-[4/3]"
                   role="img"
                   aria-label={`Portraitfoto ${person.name}`}
                 >
@@ -106,8 +102,8 @@ export default function AboutTeaser() {
                 </div>
               )}
 
-              <div className="flex min-w-0 flex-1 flex-col px-9 py-8 max-[640px]:p-6">
-                <p className="mb-5 font-sans text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#886C3C]">
+              <div className="box-border flex min-w-0 flex-col border-l-[8px] border-l-[#D2B37A] px-9 py-8 max-[640px]:border-l-0 max-[640px]:border-t-[8px] max-[640px]:border-t-[#D2B37A] max-[640px]:p-6">
+                <p className="mb-5 font-sans text-[11px] font-extrabold uppercase leading-[1.45] tracking-[0.12em] text-[#886C3C]">
                   {SPECIALIZATION_LABEL}
                 </p>
                 <p
