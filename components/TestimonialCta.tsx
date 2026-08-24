@@ -4,9 +4,9 @@ import GoogleReviews from "@/components/GoogleReviews";
 
 export default function TestimonialCta() {
   return (
-    <section className="bg-onyx py-24">
+    <section className="bg-testimonial-bg py-24">
       <div className="mx-auto max-w-content px-6">
-        <h2 className="font-display text-2xl font-bold md:text-3xl">
+        <h2 className="font-display text-2xl font-bold text-onyx md:text-3xl">
           Was Mandanten sagen
         </h2>
       </div>

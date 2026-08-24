@@ -57,10 +57,10 @@ export default function AboutTeaser() {
           {TEAM.map((person) => (
             <div
               key={person.name}
-              className="flex flex-col overflow-hidden rounded-sm bg-onyx"
+              className="flex flex-col overflow-hidden rounded-sm border border-stein/60 bg-hellcreme"
             >
               {person.photo ? (
-                <div className="relative aspect-[3/4] w-full border-b border-white/10 bg-graphit">
+                <div className="relative aspect-[3/4] w-full bg-stein/40">
                   <Image
                     src={person.photo}
                     alt={`Portraitfoto ${person.name}`}
@@ -71,14 +71,14 @@ export default function AboutTeaser() {
                 </div>
               ) : (
                 <div
-                  className="relative flex aspect-[3/4] w-full items-center justify-center border-b border-white/10 bg-graphit"
+                  className="relative flex aspect-[3/4] w-full items-center justify-center bg-stein/40"
                   role="img"
                   aria-label={`Portraitfoto ${person.name}`}
                 >
                   <svg
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="h-16 w-16 text-white/25"
+                    className="h-16 w-16 text-onyx/20"
                     aria-hidden
                   >
                     <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-3.34 0-10 1.68-10 5v3h20v-3c0-3.32-6.66-5-10-5Z" />
@@ -86,13 +86,16 @@ export default function AboutTeaser() {
                 </div>
               )}
 
-              <div className="flex flex-col gap-2 p-5">
-                <p className="font-display text-sm font-semibold text-gold">
+              <div className="flex flex-col gap-2 border-l-4 border-gold p-5">
+                <p className="font-display text-sm font-semibold text-onyx">
                   {person.name}
                 </p>
                 <ul className="space-y-1.5">
                   {person.facts.map((fact) => (
-                    <li key={fact} className="text-xs leading-snug text-nebel">
+                    <li
+                      key={fact}
+                      className="text-xs leading-snug text-steingrau"
+                    >
                       {fact}
                     </li>
                   ))}

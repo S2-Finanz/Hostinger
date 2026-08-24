@@ -68,7 +68,7 @@ function Stars({ rating }: { rating: number }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <span
           key={i}
-          className={i < rating ? "text-gold" : "text-white/15"}
+          className={i < rating ? "text-gold" : "text-onyx/15"}
         >
           ★
         </span>
@@ -79,15 +79,15 @@ function Stars({ rating }: { rating: number }) {
 
 function ReviewCard({ review }: { review: Review }) {
   return (
-    <div className="mx-3 flex h-64 w-80 shrink-0 flex-col gap-3 rounded-sm border border-white/10 bg-graphit p-6">
+    <div className="mx-3 flex h-64 w-80 shrink-0 flex-col gap-3 rounded-sm border border-stein/60 bg-testimonial-card p-6">
       <div className="flex items-center justify-between">
         <Stars rating={review.rating} />
-        <span className="text-xs text-nebel/70">Google</span>
+        <span className="text-xs text-steingrau/70">Google</span>
       </div>
-      <p className="line-clamp-6 text-sm leading-relaxed text-white">
+      <p className="line-clamp-6 text-sm leading-relaxed text-onyx">
         {review.text}
       </p>
-      <p className="mt-auto text-xs text-nebel">— {review.name}</p>
+      <p className="mt-auto text-xs text-steingrau">— {review.name}</p>
     </div>
   );
 }
