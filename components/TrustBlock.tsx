@@ -15,9 +15,9 @@ const POINTS = [
 
 export default function TrustBlock() {
   return (
-    <section className="bg-[#FBF8F2] py-[104px] max-[1023px]:py-[72px] max-[640px]:py-[56px]">
+    <section className="bg-[#FBF8F2] py-[104px] max-[899px]:py-[72px] max-[640px]:py-[56px]">
       <div className="mx-auto box-border max-w-[1180px] px-6 max-[640px]:px-5">
-        <div className="grid grid-cols-[minmax(0,0.34fr)_minmax(0,0.56fr)] gap-x-[120px] max-[1023px]:grid-cols-1 max-[1023px]:gap-x-0 max-[1023px]:gap-y-12">
+        <div className="grid grid-cols-[minmax(0,397.5px)_minmax(0,662.5px)] gap-x-[120px] max-[899px]:grid-cols-1 max-[899px]:gap-x-0 max-[899px]:gap-y-12">
           <div className="min-w-0">
             <p className="mb-[18px] font-sans text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#C8A265] max-[640px]:text-[10px]">
               Vertrauen durch Klarheit
@@ -25,14 +25,15 @@ export default function TrustBlock() {
             <h2
               className="font-sans font-bold text-[#171B1A]"
               style={{
-                fontSize: "clamp(32px, calc(8px + 4.2vw), 51px)",
+                fontSize: "clamp(42px, 4vw, 51.32px)",
                 lineHeight: 1.08,
                 letterSpacing: "-0.035em",
               }}
             >
-              Zwei Experten.
-              <br />
-              Ein Fokus.
+              <span className="block whitespace-nowrap max-[899px]:whitespace-normal">
+                Zwei Experten.
+              </span>
+              <span className="block">Ein Fokus.</span>
             </h2>
           </div>
 
@@ -42,16 +43,19 @@ export default function TrustBlock() {
               persönlich, transparent und ohne Umwege.
             </p>
 
-            <div className="grid grid-cols-3 gap-7 max-[1023px]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] max-[640px]:grid-cols-1 max-[640px]:gap-6">
+            <div className="grid w-full grid-cols-3 gap-7 max-[899px]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] max-[640px]:grid-cols-1 max-[640px]:gap-6">
               {POINTS.map((point) => (
                 <div
                   key={point.title}
                   className="min-w-0 box-border border-t border-[rgba(23,27,26,0.14)] pt-[17px]"
                 >
-                  <p className="mb-2 break-words font-sans text-base font-bold text-[#171B1A]">
+                  <p className="mb-2 whitespace-normal font-sans text-base font-bold leading-[1.2] text-[#171B1A] min-[1240px]:whitespace-nowrap">
                     {point.title}
                   </p>
-                  <p className="break-words font-sans text-sm leading-[1.55] text-[#626B68]">
+                  <p
+                    className="font-sans text-sm leading-[1.55] text-[#626B68]"
+                    style={{ overflowWrap: "normal" }}
+                  >
                     {point.text}
                   </p>
                 </div>
