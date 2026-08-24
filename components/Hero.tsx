@@ -53,10 +53,19 @@ export default function Hero() {
         <h1 className="max-w-2xl font-display text-4xl font-bold leading-tight tracking-tight md:text-6xl">
           Deine Absicherung.
           <br />
-          Unser Job.
+          <span style={{ color: "#DFC594" }}>Unser Job.</span>
         </h1>
 
-        <p className="mt-6 max-w-xl text-lg text-nebel">
+        <p
+          className="mt-6 max-w-xl"
+          style={{
+            fontFamily: "var(--font-inter), Arial, sans-serif",
+            fontWeight: 400,
+            fontSize: "17px",
+            lineHeight: 1.7,
+            color: "#D6DCDA",
+          }}
+        >
           19 Jahres Praxiserfahrung. Ein durchdachtes System.
           <br />
           Dein unabhängiger Partner für PKV, Beamtenversorgung,
