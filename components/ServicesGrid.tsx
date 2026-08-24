@@ -30,32 +30,35 @@ const SERVICES = [
 
 export default function ServicesGrid() {
   return (
-    <section id="leistungen" className="bg-onyx">
+    <section id="leistungen" className="bg-creme">
       <div className="mx-auto max-w-content px-6 py-24">
         <div className="max-w-xl">
-          <h2 className="font-display text-3xl font-bold md:text-4xl">
+          <h2 className="font-display text-3xl font-bold text-onyx md:text-4xl">
             Unsere Leistungen
           </h2>
         </div>
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-sm bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-px overflow-hidden rounded-sm bg-stein sm:grid-cols-2 lg:grid-cols-4">
           {SERVICES.map((service) => (
-            <div key={service.title} className="flex flex-col bg-onyx p-8">
-              <h3 className="font-display text-lg font-semibold">
+            <div
+              key={service.title}
+              className="flex flex-col bg-hellcreme p-8"
+            >
+              <h3 className="font-display text-lg font-semibold text-onyx">
                 {service.title}
               </h3>
-              <p className="mt-3 flex-1 text-sm text-nebel">
+              <p className="mt-3 flex-1 text-sm text-steingrau">
                 {service.text}
               </p>
               <a
                 href="#kontakt"
-                className="mt-6 text-sm font-semibold text-gold hover:opacity-80"
+                className="mt-6 text-sm font-semibold text-onyx transition-colors hover:text-gold"
               >
                 Mehr erfahren →
               </a>
               <Link
                 href={service.calculatorHref}
-                className="mt-2 text-sm font-semibold text-nebel hover:text-gold"
+                className="mt-2 text-sm font-semibold text-steingrau transition-colors hover:text-gold"
               >
                 {service.calculatorLabel} →
               </Link>

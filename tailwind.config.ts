@@ -6,11 +6,16 @@ const config: Config = {
     extend: {
       colors: {
         onyx: "#0E1211",
-        graphit: "#232A29",
-        nebel: "#8E9997",
-        gold: "#C8A265",
-        creme: "#FAF8F5",
-        steingrau: "#5B6462",
+        graphit: "#171B1D",
+        anthrazit: "#232729",
+        nebel: "#AEB6B3",
+        gold: "#C6A265",
+        creme: "#F4EFE5",
+        hellcreme: "#FBF8F1",
+        stein: "#D8D1C5",
+        steingrau: "#626B68",
+        "testimonial-bg": "#EADBC5",
+        "testimonial-card": "#F8F0E4",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Arial", "sans-serif"],
