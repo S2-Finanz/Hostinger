@@ -38,7 +38,7 @@ export default function AboutTeaser() {
   return (
     <section
       id="ueber-uns"
-      className="bg-[#FBF8F2] py-[104px] max-[899px]:py-16 max-[640px]:py-12"
+      className="bg-[#F1EADF] py-[104px] max-[899px]:py-16 max-[640px]:py-12"
     >
       <div className="mx-auto box-border max-w-[1180px] px-6 max-[640px]:px-5">
         <div className="grid grid-cols-[minmax(0,660px)_minmax(0,440px)] items-end gap-x-20 max-[899px]:grid-cols-1 max-[899px]:items-start max-[899px]:gap-y-6">
