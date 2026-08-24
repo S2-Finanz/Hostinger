@@ -44,7 +44,7 @@ export default function ServicesGrid() {
               key={service.title}
               className="flex flex-col bg-hellcreme p-8"
             >
-              <h3 className="font-display text-lg font-semibold text-onyx">
+              <h3 className="font-sans text-[20px] font-bold leading-[1.35] text-onyx">
                 {service.title}
               </h3>
               <p className="mt-3 flex-1 text-sm text-steingrau">
