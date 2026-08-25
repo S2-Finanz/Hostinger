@@ -34,7 +34,7 @@ export default function Hero() {
         playsInline
         preload="auto"
         poster="/images/hero-drone-poster.jpg"
-        className="absolute inset-0 h-full w-full object-cover object-right opacity-45 md:object-[right_65%]"
+        className="absolute inset-0 h-full w-full object-cover object-right opacity-45 md:origin-bottom-right md:scale-[1.3] md:object-[right_100%]"
         aria-hidden
       >
         <source src="/videos/hero-drone-loop.webm" type="video/webm" />
