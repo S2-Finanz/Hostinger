@@ -42,6 +42,9 @@ export default function Footer() {
           <a href="/datenschutz/" className="hover:text-white">
             Datenschutz
           </a>
+          <a href="/erstinformation/" className="hover:text-white">
+            Erstinformation
+          </a>
         </nav>
       </div>
     </footer>
