@@ -24,6 +24,8 @@ export type PkvVergleichInput = {
   hatKinder: boolean;
   gkvSteigerungProzent: number;
 
+  pkvGesellschaft: string;
+  pkvTarifbezeichnung: string;
   pkvHaupttarif: number;
   pkvKrankentagegeld: number;
   pkvSonstige: number;
@@ -55,6 +57,8 @@ export const PKV_VERGLEICH_DEFAULT: PkvVergleichInput = {
   hatKinder: false,
   gkvSteigerungProzent: 3.2,
 
+  pkvGesellschaft: "",
+  pkvTarifbezeichnung: "",
   pkvHaupttarif: 0,
   pkvKrankentagegeld: 0,
   pkvSonstige: 0,

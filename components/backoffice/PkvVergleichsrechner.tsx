@@ -312,6 +312,26 @@ export default function PkvVergleichsrechner() {
             Private Krankenversicherung – Beiträge heute
           </h3>
           <div className="grid grid-cols-2 gap-4">
+            <Feld label="Gesellschaft">
+              <input
+                type="text"
+                value={input.pkvGesellschaft}
+                onChange={(e) => feld("pkvGesellschaft", e.target.value)}
+                placeholder="z. B. Allianz, Signal Iduna, ..."
+                className={eingabeKlasse}
+              />
+            </Feld>
+            <Feld label="Tarifbezeichnung">
+              <input
+                type="text"
+                value={input.pkvTarifbezeichnung}
+                onChange={(e) => feld("pkvTarifbezeichnung", e.target.value)}
+                placeholder="z. B. Komfort Plus"
+                className={eingabeKlasse}
+              />
+            </Feld>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <ZahlFeld
               label="Haupttarif"
               suffix="€"
@@ -481,42 +501,95 @@ function ErgebnisAnsicht({
     PKV: Math.round(v.pkvEigen),
   }));
 
+  const gkvKasse = KRANKENKASSEN.find((k) => k.name === input.krankenkasseName);
+
+  const pkvTarifzeilen: { label: string; betrag: number }[] = [
+    { label: "Haupttarif", betrag: input.pkvHaupttarif },
+    { label: "Krankentagegeld", betrag: input.pkvKrankentagegeld },
+    { label: "Pflegepflichtversicherung", betrag: input.pkvPflege },
+    { label: "Gesetzlicher Zuschlag", betrag: input.pkvGesetzlicherZuschlag },
+    { label: "Sonstige Zusatztarife", betrag: input.pkvSonstige },
+    ...(input.beVorhanden
+      ? [{ label: "Beitragsentlastung", betrag: input.bePraemieHeute }]
+      : []),
+  ].filter((z) => z.betrag > 0);
+
   return (
-    <div className="flex flex-col gap-6 rounded-sm border border-gold/30 bg-onyx p-6 print:border-black/20 print:bg-white">
+    <div className="flex flex-col gap-4 rounded-sm border border-gold/30 bg-onyx p-6 print:gap-3 print:border-black/20 print:bg-white print:p-4">
       {input.bezeichnung && (
-        <h2 className="font-display text-xl font-bold text-white print:text-black">
+        <h2 className="font-display text-xl font-bold text-white print:text-lg print:text-black">
           PKV-Vergleich: {input.bezeichnung}
         </h2>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-sm border border-white/10 p-5 print:border-black/20">
+      {(input.pkvGesellschaft || pkvTarifzeilen.length > 0) && (
+        <div className="[break-inside:avoid] rounded-sm border border-white/10 p-4 print:border-black/20 print:p-3">
+          <p className="font-semibold text-white print:text-black">
+            Versicherungsschutz
+          </p>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <div className="text-sm text-nebel print:text-black/70">
+              <p>
+                <span className="text-nebel/60 print:text-black/50">PKV-Gesellschaft: </span>
+                <span className="font-semibold text-white print:text-black">
+                  {input.pkvGesellschaft || "–"}
+                </span>
+              </p>
+              {input.pkvTarifbezeichnung && (
+                <p>
+                  <span className="text-nebel/60 print:text-black/50">Tarif: </span>
+                  <span className="font-semibold text-white print:text-black">
+                    {input.pkvTarifbezeichnung}
+                  </span>
+                </p>
+              )}
+              <p>
+                <span className="text-nebel/60 print:text-black/50">Vergleich mit: </span>
+                {gkvKasse?.name ?? "–"}
+              </p>
+            </div>
+            {pkvTarifzeilen.length > 0 && (
+              <dl className="space-y-1 text-sm text-nebel print:text-black/70">
+                {pkvTarifzeilen.map((z) => (
+                  <div key={z.label} className="flex justify-between gap-4">
+                    <dt>{z.label}</dt>
+                    <dd>{formatEUR(z.betrag)}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="[break-inside:avoid] grid gap-4 sm:grid-cols-3">
+        <div className="rounded-sm border border-white/10 p-4 print:border-black/20 print:p-3">
           <p className="text-xs uppercase tracking-wide text-nebel/60 print:text-black/60">
             GKV heute (netto)
           </p>
-          <p className="mt-2 font-display text-2xl font-bold text-white print:text-black">
+          <p className="mt-1 font-display text-2xl font-bold text-white print:text-xl print:text-black">
             {formatEUR(ergebnis.heute.gkvNetto)}
           </p>
           <p className="mt-1 text-xs text-nebel/60 print:text-black/60">
             Eigenanteil brutto: {formatEUR(ergebnis.heute.gkvEigen)}
           </p>
         </div>
-        <div className="rounded-sm border border-white/10 p-5 print:border-black/20">
+        <div className="rounded-sm border border-white/10 p-4 print:border-black/20 print:p-3">
           <p className="text-xs uppercase tracking-wide text-nebel/60 print:text-black/60">
             PKV heute (netto)
           </p>
-          <p className="mt-2 font-display text-2xl font-bold text-white print:text-black">
+          <p className="mt-1 font-display text-2xl font-bold text-white print:text-xl print:text-black">
             {formatEUR(ergebnis.heute.pkvNetto)}
           </p>
           <p className="mt-1 text-xs text-nebel/60 print:text-black/60">
             Eigenanteil brutto: {formatEUR(ergebnis.heute.pkvEigenGesamt)}
           </p>
         </div>
-        <div className="rounded-sm border border-gold/40 bg-gold/5 p-5">
+        <div className="rounded-sm border border-gold/40 bg-gold/5 p-4 print:p-3">
           <p className="text-xs uppercase tracking-wide text-nebel/60 print:text-black/60">
             Netto-Ersparnis PKV
           </p>
-          <p className="mt-2 font-display text-2xl font-bold text-gold">
+          <p className="mt-1 font-display text-2xl font-bold text-gold print:text-xl">
             {formatEUR(ergebnis.heute.ersparnisNetto)}
           </p>
           <p className="mt-1 text-xs text-nebel/60 print:text-black/60">
@@ -525,21 +598,21 @@ function ErgebnisAnsicht({
         </div>
       </div>
 
-      <div>
+      <div className="[break-inside:avoid]">
         <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-gold">
           Entwicklung bis zum Renteneintritt ({input.renteneintrittsalter})
         </h3>
-        <div className="mt-4 h-72 w-full">
+        <div className="mt-3 h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartDaten}>
+            <LineChart data={chartDaten} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="jahr" stroke="#8E9997" fontSize={12} />
-              <YAxis stroke="#8E9997" fontSize={12} />
+              <XAxis dataKey="jahr" stroke="#8E9997" fontSize={11} />
+              <YAxis stroke="#8E9997" fontSize={11} />
               <Tooltip
                 contentStyle={{ background: "#171B1D", border: "1px solid rgba(255,255,255,0.15)" }}
                 formatter={(value) => formatEUR(Number(value))}
               />
-              <Legend />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
               <Line type="monotone" dataKey="GKV" stroke="#8E9997" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="PKV" stroke="#C6A265" strokeWidth={2} dot={false} />
             </LineChart>
@@ -547,14 +620,14 @@ function ErgebnisAnsicht({
         </div>
       </div>
 
-      <div>
+      <div className="[break-inside:avoid]">
         <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-gold">
           Beitrag zum Renteneintritt ({input.renteneintrittsalter})
         </h3>
-        <div className="mt-4 grid gap-6 sm:grid-cols-2">
-          <div className="rounded-sm border border-white/10 p-5 print:border-black/20">
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 print:gap-3">
+          <div className="rounded-sm border border-white/10 p-4 print:border-black/20 print:p-3">
             <p className="font-semibold text-white print:text-black">Gesetzliche Kranken-/Pflegeversicherung</p>
-            <dl className="mt-3 space-y-1.5 text-sm text-nebel print:text-black/70">
+            <dl className="mt-2 space-y-1 text-sm text-nebel print:text-black/70">
               <div className="flex justify-between">
                 <dt>KV auf gesetzliche Rente</dt>
                 <dd>{formatEUR(ergebnis.renteneintritt.gkv.beitragAufRente)}</dd>
@@ -577,9 +650,9 @@ function ErgebnisAnsicht({
               </div>
             </dl>
           </div>
-          <div className="rounded-sm border border-white/10 p-5 print:border-black/20">
+          <div className="rounded-sm border border-white/10 p-4 print:border-black/20 print:p-3">
             <p className="font-semibold text-white print:text-black">Private Kranken-/Pflegeversicherung</p>
-            <dl className="mt-3 space-y-1.5 text-sm text-nebel print:text-black/70">
+            <dl className="mt-2 space-y-1 text-sm text-nebel print:text-black/70">
               <div className="flex justify-between">
                 <dt>Hochgerechneter Beitrag (KV + PV)</dt>
                 <dd>
@@ -619,7 +692,7 @@ function ErgebnisAnsicht({
         </div>
       </div>
 
-      <p className="text-xs leading-relaxed text-nebel/60 print:text-black/60">
+      <p className="[break-inside:avoid] text-xs leading-relaxed text-nebel/60 print:text-[10px] print:leading-snug print:text-black/60">
         Alle Werte sind Hochrechnungen auf Basis der eingegebenen Annahmen
         (Beitragssteigerungen, Steuersatz, Rentenhöhe) und können in der
         Realität abweichen. Krankentagegeld entfällt zum Renteneintritt
