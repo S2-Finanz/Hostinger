@@ -137,8 +137,6 @@ export default function ErstinformationPage() {
                   5. Beteiligungen
                 </h2>
                 <p className="mt-3">
-                  {/* TODO: Vor Veröffentlichung bestätigen, dass diese
-                  Standardangabe für S² Finanz zutrifft. */}
                   Der Informationspflichtige hält keine unmittelbaren oder
                   mittelbaren Beteiligungen von mehr als 10 % der
                   Stimmrechte oder des Kapitals an einem
