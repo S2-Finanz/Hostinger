@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function BackofficePage() {
   return (
-    <main className="min-h-screen bg-onyx px-6 py-16">
+    <main className="min-h-screen bg-onyx px-6 py-16 print:bg-white print:px-0 print:py-0">
       <div className="mx-auto w-full max-w-4xl">
-        <div className="mb-8 flex flex-col items-center text-center">
+        <div className="mb-8 flex flex-col items-center text-center print:hidden">
           <Image src="/images/logo.png" alt="S² Finanz" width={924} height={928} className="h-16 w-auto" />
           <p className="mt-2 text-sm text-nebel">Mitarbeiter-Backoffice</p>
         </div>

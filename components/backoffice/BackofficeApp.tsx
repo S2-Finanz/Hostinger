@@ -6,9 +6,10 @@ import { ERLAUBTE_EMAIL_DOMAIN, istErlaubteEmail, supabase } from "@/lib/supabas
 import Kundenverwaltung from "@/components/backoffice/Kundenverwaltung";
 import Kontaktanfragen from "@/components/backoffice/Kontaktanfragen";
 import Provisionen from "@/components/backoffice/Provisionen";
+import PkvVergleichsrechner from "@/components/backoffice/PkvVergleichsrechner";
 
 type Modus = "login" | "signup";
-type Bereich = "kunden" | "kontakt" | "provisionen";
+type Bereich = "kunden" | "kontakt" | "provisionen" | "pkv-vergleich";
 
 const eingabeKlasse =
   "mt-1.5 block w-full rounded-sm border border-white/15 bg-onyx px-4 py-2.5 text-sm text-white placeholder:text-nebel/50 focus:border-gold focus:outline-none";
@@ -61,7 +62,7 @@ function AuthenticatedView({ session }: { session: Session }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-white/10 bg-graphit p-5">
+      <div className="print:hidden flex flex-wrap items-center justify-between gap-3 rounded-sm border border-white/10 bg-graphit p-5">
         <p className="text-sm text-nebel">
           Angemeldet als <span className="font-semibold text-white">{session.user.email}</span>
         </p>
@@ -75,7 +76,7 @@ function AuthenticatedView({ session }: { session: Session }) {
         </button>
       </div>
 
-      <div className="flex w-fit rounded-sm border border-white/10 p-1 text-sm">
+      <div className="print:hidden flex w-fit flex-wrap rounded-sm border border-white/10 p-1 text-sm">
         <button
           type="button"
           onClick={() => setBereich("kunden")}
@@ -103,11 +104,21 @@ function AuthenticatedView({ session }: { session: Session }) {
         >
           Provisionen
         </button>
+        <button
+          type="button"
+          onClick={() => setBereich("pkv-vergleich")}
+          className={`rounded-sm px-5 py-2 font-semibold transition-colors ${
+            bereich === "pkv-vergleich" ? "bg-gold text-onyx" : "text-nebel hover:text-white"
+          }`}
+        >
+          PKV-Vergleich
+        </button>
       </div>
 
       {bereich === "kunden" && <Kundenverwaltung />}
       {bereich === "kontakt" && <Kontaktanfragen />}
       {bereich === "provisionen" && <Provisionen />}
+      {bereich === "pkv-vergleich" && <PkvVergleichsrechner />}
     </div>
   );
 }
