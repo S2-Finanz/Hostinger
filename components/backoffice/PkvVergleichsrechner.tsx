@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { supabase } from "@/lib/supabase";
 import { KRANKENKASSEN } from "@/lib/gkv";
+import { ladeKunden, type Kunde } from "@/lib/backoffice";
 import {
   berechnePkvVergleich,
   PKV_VERGLEICH_DEFAULT,
@@ -27,11 +28,16 @@ function formatEUR(value: number): string {
   return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 }
 
+function kundeName(k: Kunde): string {
+  return `${k.vorname} ${k.nachname}`;
+}
+
 type GespeicherteBerechnung = {
   id: string;
   bezeichnung: string;
   eingaben: PkvVergleichInput;
   erstellt_am: string;
+  kunde_id: string | null;
 };
 
 function Feld({
@@ -78,6 +84,8 @@ function ZahlFeld({
 export default function PkvVergleichsrechner() {
   const [input, setInput] = useState<PkvVergleichInput>(PKV_VERGLEICH_DEFAULT);
   const [aktiveId, setAktiveId] = useState<string | null>(null);
+  const [kundeId, setKundeId] = useState<string | null>(null);
+  const [kunden, setKunden] = useState<Kunde[]>([]);
   const [gespeicherte, setGespeicherte] = useState<GespeicherteBerechnung[]>([]);
   const [ladeListe, setLadeListe] = useState(true);
   const [speichertGerade, setSpeichertGerade] = useState(false);
@@ -85,18 +93,31 @@ export default function PkvVergleichsrechner() {
 
   useEffect(() => {
     ladeGespeicherte();
+    ladeKunden()
+      .then(setKunden)
+      .catch(() => {
+        /* Kundenliste ist ein Komfortfeature -- ohne sie bleibt Freitext möglich */
+      });
   }, []);
 
   async function ladeGespeicherte() {
     setLadeListe(true);
     const { data, error } = await supabase
       .from("pkv_berechnungen")
-      .select("id, bezeichnung, eingaben, erstellt_am")
+      .select("id, bezeichnung, eingaben, erstellt_am, kunde_id")
       .order("erstellt_am", { ascending: false });
     if (!error && data) {
       setGespeicherte(data as GespeicherteBerechnung[]);
     }
     setLadeListe(false);
+  }
+
+  function kundeAuswaehlen(id: string) {
+    setKundeId(id || null);
+    const kunde = kunden.find((k) => k.id === id);
+    if (kunde && !input.bezeichnung.trim()) {
+      feld("bezeichnung", kundeName(kunde));
+    }
   }
 
   function feld<K extends keyof PkvVergleichInput>(
@@ -109,12 +130,14 @@ export default function PkvVergleichsrechner() {
   function neueBerechnung() {
     setInput(PKV_VERGLEICH_DEFAULT);
     setAktiveId(null);
+    setKundeId(null);
     setStatus(null);
   }
 
   function berechnungLaden(b: GespeicherteBerechnung) {
     setInput({ ...PKV_VERGLEICH_DEFAULT, ...b.eingaben });
     setAktiveId(b.id);
+    setKundeId(b.kunde_id);
     setStatus(null);
   }
 
@@ -132,6 +155,7 @@ export default function PkvVergleichsrechner() {
         .update({
           bezeichnung: input.bezeichnung.trim(),
           eingaben: input,
+          kunde_id: kundeId,
           aktualisiert_am: new Date().toISOString(),
         })
         .eq("id", aktiveId);
@@ -144,7 +168,7 @@ export default function PkvVergleichsrechner() {
     } else {
       const { data, error } = await supabase
         .from("pkv_berechnungen")
-        .insert({ bezeichnung: input.bezeichnung.trim(), eingaben: input })
+        .insert({ bezeichnung: input.bezeichnung.trim(), eingaben: input, kunde_id: kundeId })
         .select("id")
         .single();
       if (error) {
@@ -189,11 +213,16 @@ export default function PkvVergleichsrechner() {
                 ? "Keine gespeicherten Berechnungen"
                 : "Bitte wählen …"}
           </option>
-          {gespeicherte.map((b) => (
-            <option key={b.id} value={b.id} className="bg-graphit">
-              {b.bezeichnung} ({new Date(b.erstellt_am).toLocaleDateString("de-DE")})
-            </option>
-          ))}
+          {gespeicherte.map((b) => {
+            const verknuepfterKunde = kunden.find((k) => k.id === b.kunde_id);
+            return (
+              <option key={b.id} value={b.id} className="bg-graphit">
+                {b.bezeichnung}
+                {verknuepfterKunde ? ` – Kunde: ${kundeName(verknuepfterKunde)}` : ""} (
+                {new Date(b.erstellt_am).toLocaleDateString("de-DE")})
+              </option>
+            );
+          })}
         </select>
         {aktiveId && (
           <button
@@ -218,6 +247,22 @@ export default function PkvVergleichsrechner() {
           <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-gold">
             Basis
           </h3>
+          <Feld label="Kunde (optional)">
+            <select
+              value={kundeId ?? ""}
+              onChange={(e) => kundeAuswaehlen(e.target.value)}
+              className={eingabeKlasse}
+            >
+              <option value="" className="bg-graphit">
+                Kein angelegter Kunde
+              </option>
+              {kunden.map((k) => (
+                <option key={k.id} value={k.id} className="bg-graphit">
+                  {kundeName(k)}
+                </option>
+              ))}
+            </select>
+          </Feld>
           <Feld label="Bezeichnung (z. B. Kundenname)">
             <input
               type="text"
@@ -227,6 +272,12 @@ export default function PkvVergleichsrechner() {
               className={eingabeKlasse}
             />
           </Feld>
+          {kundeId && (
+            <p className="text-xs text-nebel/60">
+              Diese Berechnung wird beim Speichern mit dem ausgewählten Kunden
+              verknüpft.
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <ZahlFeld
               label="Aktuelles Alter"
