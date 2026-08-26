@@ -34,7 +34,7 @@ export default function Hero() {
         playsInline
         preload="auto"
         poster="/images/hero-drone-poster.jpg"
-        className="absolute inset-0 h-full w-full object-cover object-right opacity-45"
+        className="absolute inset-0 h-full w-full object-cover object-right opacity-45 md:object-[right_65%]"
         aria-hidden
       >
         <source src="/videos/hero-drone-loop.webm" type="video/webm" />
@@ -44,8 +44,7 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 80% 20%, rgba(200,162,101,0.12), transparent 45%), linear-gradient(90deg, #0E1211 0%, rgba(14,18,17,0.9) 32%, rgba(14,18,17,0.4) 100%), linear-gradient(180deg, #0E1211 0%, rgba(23,27,26,0.9) 60%, #0E1211 100%)",
-          opacity: 0.85,
+            "linear-gradient(90deg, rgba(14,18,17,0.7) 0%, rgba(14,18,17,0.4) 50%, rgba(14,18,17,0.02) 100%)",
         }}
         aria-hidden
       />
@@ -54,15 +53,26 @@ export default function Hero() {
         <h1 className="max-w-2xl font-display text-4xl font-bold leading-tight tracking-tight md:text-6xl">
           Deine Absicherung.
           <br />
-          Unser Job.
+          <span style={{ color: "#DFC594" }}>Unser Job.</span>
         </h1>
 
-        <p className="mt-6 max-w-xl text-lg text-nebel">
+        <p
+          className="mt-6 max-w-2xl"
+          style={{
+            fontFamily: "var(--font-inter), Arial, sans-serif",
+            fontWeight: 400,
+            fontSize: "17px",
+            lineHeight: 1.7,
+            color: "#D6DCDA",
+          }}
+        >
           19 Jahres Praxiserfahrung. Ein durchdachtes System.
           <br />
           Dein unabhängiger Partner für PKV, Beamtenversorgung,
-          Einkommensschutz und Vermögensaufbau, maßgeschneidert für Beamte,
-          Angestellte und Geschäftsführer.
+          Einkommensschutz und
+          <br />
+          Vermögensaufbau, maßgeschneidert für Beamte, Angestellte und
+          Geschäftsführer.
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -78,7 +88,14 @@ export default function Hero() {
           {STATS.map((stat) => (
             <div key={stat.label}>
               <dt className="sr-only">{stat.label}</dt>
-              <dd className="font-display text-3xl font-bold text-gold md:text-4xl">
+              <dd
+                style={{
+                  fontFamily: "var(--font-inter), Arial, sans-serif",
+                  fontWeight: 800,
+                  fontSize: "31px",
+                  color: "#DFC594",
+                }}
+              >
                 {stat.value}
               </dd>
               <dd className="mt-1 text-sm text-nebel">{stat.label}</dd>
