@@ -15,6 +15,16 @@ export default function Footer() {
           />
           <p className="mt-3">Furtstr. 41/5</p>
           <p>73770 Denkendorf</p>
+          <p className="mt-1">
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Furtstr.+41%2F5%2C+73770+Denkendorf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white underline underline-offset-2"
+            >
+              Auf Google Maps ansehen
+            </a>
+          </p>
           <p className="mt-3">
             <a href="tel:+491741865960" className="hover:text-white">
               0174 1865960
