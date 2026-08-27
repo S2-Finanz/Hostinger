@@ -19,9 +19,6 @@ export default function Header() {
               className="h-20 w-auto"
             />
           </Link>
-          <span className="hidden shrink-0 rounded-sm border border-red-500/40 bg-red-500/10 px-2 py-1 text-[11px] font-bold text-red-400 lg:inline-block">
-            Homepage nicht Live!
-          </span>
         </div>
 
         <nav className="hidden gap-8 text-sm text-nebel md:flex">
