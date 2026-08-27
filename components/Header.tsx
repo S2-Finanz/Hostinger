@@ -8,16 +8,21 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-onyx/95 backdrop-blur">
       <div className="relative mx-auto flex max-w-content items-center justify-between px-6 py-2">
-        <Link href="/" className="shrink-0">
-          <Image
-            src="/images/logo.png"
-            alt="S² Finanz"
-            width={924}
-            height={928}
-            priority
-            className="h-20 w-auto"
-          />
-        </Link>
+        <div className="flex shrink-0 items-center gap-3">
+          <Link href="/" className="shrink-0">
+            <Image
+              src="/images/logo.png"
+              alt="S² Finanz"
+              width={924}
+              height={928}
+              priority
+              className="h-20 w-auto"
+            />
+          </Link>
+          <span className="hidden shrink-0 rounded-sm border border-red-500/40 bg-red-500/10 px-2 py-1 text-[11px] font-bold text-red-400 lg:inline-block">
+            Homepage nicht Live!
+          </span>
+        </div>
 
         <nav className="hidden gap-8 text-sm text-nebel md:flex">
           {NAV_LINKS.map((link) =>
