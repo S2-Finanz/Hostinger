@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { NumberField, ResultRow, formatEUR } from "@/components/calculators/ui";
+import {
+  SliderField,
+  ResultRow,
+  formatEUR,
+  formatPercent,
+} from "@/components/calculators/ui";
 import {
   einkommensteuer,
   soli,
@@ -79,6 +84,63 @@ function PayoutBar({
             style={{ width: `${nettoAnteil}%` }}
           />
           <div className="h-full flex-1 bg-white/20" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NettoAuszahlungVergleich({
+  nettoAvd,
+  nettoEtf,
+}: {
+  nettoAvd: number;
+  nettoEtf: number;
+}) {
+  const max = Math.max(nettoAvd, nettoEtf, 1);
+
+  return (
+    <div className="rounded-sm bg-onyx p-8">
+      <p className="text-xs uppercase tracking-wide text-nebel/60">
+        Monatliche Auszahlung
+      </p>
+      <p className="mt-2 font-display text-4xl font-bold text-gold md:text-5xl">
+        {formatEUR(nettoAvd)}
+      </p>
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-nebel">
+        So viel bleibt Ihnen im Ruhestand netto jeden Monat aus dem
+        Altersvorsorgedepot übrig. Investieren Sie den gleichen Betrag
+        stattdessen in ein normales ETF-Depot ohne Förderung, könnten Sie bei
+        gleicher Entnahmestrategie monatlich {formatEUR(nettoEtf)} entnehmen.
+      </p>
+      <div className="mt-6 flex flex-col gap-4">
+        <div>
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="text-white">Altersvorsorgedepot</span>
+            <span className="font-semibold text-gold">
+              {formatEUR(nettoAvd)}
+            </span>
+          </div>
+          <div className="mt-1.5 h-7 w-full overflow-hidden rounded-sm bg-white/5">
+            <div
+              className="h-full rounded-sm bg-gold"
+              style={{ width: `${Math.max((nettoAvd / max) * 100, 4)}%` }}
+            />
+          </div>
+        </div>
+        <div>
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="text-white">Normales ETF-Depot</span>
+            <span className="font-semibold text-white">
+              {formatEUR(nettoEtf)}
+            </span>
+          </div>
+          <div className="mt-1.5 h-7 w-full overflow-hidden rounded-sm bg-white/5">
+            <div
+              className="h-full rounded-sm bg-white/40"
+              style={{ width: `${Math.max((nettoEtf / max) * 100, 4)}%` }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -328,85 +390,97 @@ export default function Altersvorsorgedepot() {
     <div className="flex flex-col gap-12">
       <div className="grid gap-10 md:grid-cols-2">
         <div className="flex flex-col gap-8">
-          <NumberField
+          <SliderField
             label="Monatlicher Eigenbeitrag"
-            suffix="€"
             value={monatlich}
             onChange={setMonatlich}
-            step={10}
+            min={0}
             max={570}
+            step={10}
+            formatValue={(v) => formatEUR(v)}
           />
-          <NumberField
+          <SliderField
             label="Alter bei Abschluss"
-            suffix="Jahre"
             value={alter}
             onChange={setAlter}
-            step={1}
             min={16}
             max={65}
+            step={1}
+            formatValue={(v) => `${v} Jahre`}
           />
-          <NumberField
+          <SliderField
             label="Kindergeldberechtigte Kinder"
             value={kinder}
             onChange={setKinder}
-            step={1}
+            min={0}
             max={10}
+            step={1}
+            formatValue={(v) => `${v}`}
           />
           {kinder > 0 && (
-            <NumberField
+            <SliderField
               label="Jahre mit Anspruch auf Kinderzulage"
-              suffix="Jahre"
               value={kinderzulageJahre}
               onChange={setKinderzulageJahre}
-              step={1}
+              min={0}
               max={25}
+              step={1}
+              formatValue={(v) => `${v} Jahre`}
             />
           )}
-          <NumberField
+          <SliderField
             label="Zu versteuerndes Jahreseinkommen"
-            suffix="€"
             value={zvE}
             onChange={setZvE}
+            min={0}
+            max={250000}
             step={1000}
+            formatValue={(v) => formatEUR(v)}
           />
-          <NumberField
+          <SliderField
             label="Erwartete Rendite p. a."
-            suffix="%"
             value={rendite}
             onChange={setRendite}
-            step={0.5}
+            min={0}
             max={15}
+            step={0.5}
+            formatValue={(v) => formatPercent(v, 1)}
           />
-          <NumberField
+          <SliderField
             label="Anlagedauer bis zur Auszahlung"
-            suffix="Jahre"
             value={jahre}
             onChange={setJahre}
-            step={1}
+            min={1}
             max={50}
+            step={1}
+            formatValue={(v) => `${v} Jahre`}
           />
-          <NumberField
+          <SliderField
             label="Kosten für das Altersvorsorgedepot"
-            suffix="% p. a."
             value={avdKosten}
             onChange={setAvdKosten}
-            step={0.1}
+            min={0}
             max={1}
+            step={0.1}
+            formatValue={(v) => `${formatPercent(v, 1)} p. a.`}
           />
-          <NumberField
+          <SliderField
             label="Vorhandenes Riester-Kapital (Übertrag)"
-            suffix="€"
             value={riesterUebertrag}
             onChange={setRiesterUebertrag}
+            min={0}
+            max={50000}
             step={500}
+            formatValue={(v) => formatEUR(v)}
           />
-          <NumberField
+          <SliderField
             label="Basiszins für die Vorabpauschale (Vergleichsdepot)"
-            suffix="%"
             value={vorabBasiszins}
             onChange={setVorabBasiszins}
-            step={0.1}
+            min={0}
             max={5}
+            step={0.1}
+            formatValue={(v) => formatPercent(v, 1)}
           />
         </div>
 
@@ -511,74 +585,86 @@ export default function Altersvorsorgedepot() {
 
             <div className="grid gap-10 md:grid-cols-2">
               <div className="flex flex-col gap-8">
-                <NumberField
+                <SliderField
                   label="Auszahlungsbeginn (Alter)"
-                  suffix="Jahre"
                   value={auszahlAlter}
                   onChange={setAuszahlAlter}
-                  step={1}
                   min={55}
                   max={75}
+                  step={1}
+                  formatValue={(v) => `${v} Jahre`}
                 />
-                <NumberField
+                <SliderField
                   label="Auszahlung bis (Alter)"
-                  suffix="Jahre"
                   value={auszahlEndalter}
                   onChange={setAuszahlEndalter}
-                  step={1}
                   min={AUSZAHLPLAN_MINDESTALTER}
                   max={100}
+                  step={1}
+                  formatValue={(v) => `${v} Jahre`}
                 />
-                <NumberField
+                <SliderField
                   label="Gesetzliche Rente (voll steuerpflichtig)"
-                  suffix="€/Monat"
                   value={gesRente}
                   onChange={setGesRente}
+                  min={0}
+                  max={5000}
                   step={100}
+                  formatValue={(v) => `${formatEUR(v)} / Monat`}
                 />
-                <NumberField
+                <SliderField
                   label="Betriebliche Altersvorsorge"
-                  suffix="€/Monat"
                   value={bav}
                   onChange={setBav}
+                  min={0}
+                  max={3000}
                   step={100}
+                  formatValue={(v) => `${formatEUR(v)} / Monat`}
                 />
-                <NumberField
+                <SliderField
                   label="Basisrente (Rürup)"
-                  suffix="€/Monat"
                   value={basisrente}
                   onChange={setBasisrente}
+                  min={0}
+                  max={3000}
                   step={100}
+                  formatValue={(v) => `${formatEUR(v)} / Monat`}
                 />
-                <NumberField
+                <SliderField
                   label="Mieteinnahmen"
-                  suffix="€/Monat"
                   value={miete}
                   onChange={setMiete}
+                  min={0}
+                  max={3000}
                   step={100}
+                  formatValue={(v) => `${formatEUR(v)} / Monat`}
                 />
-                <NumberField
+                <SliderField
                   label={`Private Rentenversicherung (Ertragsanteil ${vergleich.ea} %)`}
-                  suffix="€/Monat"
                   value={privRente}
                   onChange={setPrivRente}
+                  min={0}
+                  max={3000}
                   step={100}
+                  formatValue={(v) => `${formatEUR(v)} / Monat`}
                 />
-                <NumberField
+                <SliderField
                   label="Kirchensteuer (0, 8 oder 9)"
-                  suffix="%"
                   value={kirchensteuer}
                   onChange={setKirchensteuer}
-                  step={1}
+                  min={0}
                   max={9}
+                  step={1}
+                  formatValue={(v) => formatPercent(v, 0)}
                 />
-                <NumberField
+                <SliderField
                   label="Rendite in der Auszahlphase p. a."
-                  suffix="%"
                   value={renditeAuszahlung}
                   onChange={setRenditeAuszahlung}
-                  step={0.5}
+                  min={0}
                   max={10}
+                  step={0.5}
+                  formatValue={(v) => formatPercent(v, 1)}
                 />
               </div>
 
@@ -612,22 +698,16 @@ export default function Altersvorsorgedepot() {
                   </div>
                 </div>
 
+                <NettoAuszahlungVergleich
+                  nettoAvd={vergleich.nettoAvdJahr / 12}
+                  nettoEtf={vergleich.nettoEtfJahr1 / 12}
+                />
+
                 <div className="rounded-sm bg-onyx p-8">
-                  <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-                    Monatlich netto in der Tasche
-                  </p>
-                  <ResultRow
-                    label="Altersvorsorgedepot"
-                    value={formatEUR(vergleich.nettoAvdJahr / 12)}
-                    emphasis
-                  />
-                  <ResultRow
-                    label="ETF-Depot"
-                    value={formatEUR(vergleich.nettoEtfJahr1 / 12)}
-                  />
                   <ResultRow
                     label="Netto-Mehrbetrag des AVD pro Monat"
                     value={formatEUR(vergleich.nettoDifferenzJahr1 / 12)}
+                    emphasis
                   />
                   <p className="mt-4 text-xs leading-relaxed text-nebel">
                     Effektive Steuerbelastung der AVD-Auszahlung:{" "}
