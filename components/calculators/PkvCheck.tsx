@@ -70,7 +70,7 @@ export default function PkvCheck() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,340px)_1fr]">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,340px)_1fr]">
         <div className="flex flex-col gap-7 rounded-sm bg-onyx p-8">
           <h2 className="font-display text-lg font-semibold text-white">
             Ihre Angaben

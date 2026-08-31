@@ -8,7 +8,13 @@ import {
   ertragsanteil,
   ABGELTUNGSTEUER,
   SPARERPAUSCHBETRAG,
+  TEILFREISTELLUNG_AKTIENFONDS,
 } from "@/lib/steuer";
+
+// Faktor für den Basisertrag der Vorabpauschale nach § 18 InvStG: 70 % des
+// Basiszinses auf den Fondswert zu Jahresbeginn. Vereinfachend (wie auch bei
+// Finanzfluss) ohne Deckelung durch den tatsächlichen Wertzuwachs des Jahres.
+const VORABPAUSCHALE_FAKTOR = 0.7;
 
 // Fördereckwerte des Altersvorsorgedepots (Gesetz 2026, Start 1.1.2027)
 const ZULAGE_STUFE_1_GRENZE = 360; // 50 Cent je Euro
@@ -20,7 +26,7 @@ const STARTBONUS = 200; // einmalig bei Abschluss unter 25 Jahren
 const STARTBONUS_ALTERSGRENZE = 25;
 const SA_ABZUG_MAX = 1800; // Sonderausgabenabzug: Beiträge bis 1.800 €/Jahr
 const MAX_EINZAHLUNG = 6840; // maximale Jahreseinzahlung ins Depot
-const AUSZAHLPLAN_ENDALTER = 85; // Auszahlplan beider Varianten läuft bis 85
+const AUSZAHLPLAN_MINDESTALTER = 85; // gesetzliches Mindestalter für das Auszahlplan-Ende
 
 function grundzulage(jahresbeitrag: number): number {
   const stufe1 =
@@ -87,9 +93,15 @@ export default function Altersvorsorgedepot() {
   const [zvE, setZvE] = useState(45000);
   const [rendite, setRendite] = useState(6);
   const [jahre, setJahre] = useState(30);
+  const [avdKosten, setAvdKosten] = useState(1);
+  const [vorabBasiszins, setVorabBasiszins] = useState(0);
+  const [riesterUebertrag, setRiesterUebertrag] = useState(0);
 
   const [vergleichOffen, setVergleichOffen] = useState(false);
   const [auszahlAlter, setAuszahlAlter] = useState(67);
+  const [auszahlEndalter, setAuszahlEndalter] = useState(
+    AUSZAHLPLAN_MINDESTALTER,
+  );
   const [gesRente, setGesRente] = useState(2000);
   const [bav, setBav] = useState(0);
   const [basisrente, setBasisrente] = useState(0);
@@ -119,19 +131,40 @@ export default function Altersvorsorgedepot() {
     // ein reines ETF-Szenario mit identischem Eigenbeitrag und identischer
     // Rendite, aber OHNE jede staatliche Zulage durchgerechnet – das ist die
     // realistische Vergleichsbasis, denn ein privater ETF-Sparplan bekommt
-    // keine Förderung.
-    const i = rendite / 100 / 12;
+    // keine Förderung. Das AVD trägt zusätzlich seine eigenen Depotkosten,
+    // das Vergleichsdepot bleibt kostenfrei (wie bei einem gebührenfreien
+    // ETF-Sparplan üblich).
+    const iAvd = (rendite - avdKosten) / 100 / 12;
+    const iEtf = rendite / 100 / 12;
+    const basiszinsVorab = vorabBasiszins / 100;
     const kzJahre = Math.min(Math.max(kinderzulageJahre, 0), jahre);
-    let kapitalAvd = startbonus;
+    // Ein bestehender Riester-Vertrag kann als Startkapital ins AVD
+    // übertragen werden.
+    let kapitalAvd = startbonus + riesterUebertrag;
     let kapitalEtf = 0;
     const eigenMonat = jahresbeitrag / 12;
 
-    for (let m = 0; m < jahre * 12; m++) {
-      const jahrIndex = Math.floor(m / 12);
+    for (let jahr = 0; jahr < jahre; jahr++) {
+      // Vorabpauschale betrifft nur das ungeförderte Vergleichsdepot: Das
+      // AVD ist als zertifiziertes Vorsorgeprodukt nachgelagert besteuert,
+      // eine jährliche Vorab-Besteuerung nicht realisierter Gewinne entfällt
+      // dort systembedingt.
+      const kapitalEtfJahresstart = kapitalEtf;
       const zulageMonat =
-        (zulageGrund + (jahrIndex < kzJahre ? kinderzulage : 0)) / 12;
-      kapitalAvd = kapitalAvd * (1 + i) + eigenMonat + zulageMonat;
-      kapitalEtf = kapitalEtf * (1 + i) + eigenMonat;
+        (zulageGrund + (jahr < kzJahre ? kinderzulage : 0)) / 12;
+
+      for (let m = 0; m < 12; m++) {
+        kapitalAvd = kapitalAvd * (1 + iAvd) + eigenMonat + zulageMonat;
+        kapitalEtf = kapitalEtf * (1 + iEtf) + eigenMonat;
+      }
+
+      if (basiszinsVorab > 0) {
+        const vorabpauschale =
+          kapitalEtfJahresstart * basiszinsVorab * VORABPAUSCHALE_FAKTOR;
+        const steuerVorab =
+          vorabpauschale * (1 - TEILFREISTELLUNG_AKTIENFONDS) * ABGELTUNGSTEUER;
+        kapitalEtf -= steuerVorab;
+      }
     }
 
     // Zusätzliche Steuererstattungen (Günstigerprüfung) fließen an die Person, nicht ins Depot
@@ -157,16 +190,29 @@ export default function Altersvorsorgedepot() {
       eingezahlt,
       zulagenGesamt,
       erstattungenGesamt,
-      ertrag: kapitalAvd - eingezahlt - zulagenGesamt,
+      riesterUebertrag,
+      ertrag: kapitalAvd - eingezahlt - zulagenGesamt - riesterUebertrag,
       foerderTopf: zulagenGesamt + erstattungenGesamt,
     };
-  }, [monatlich, alter, kinder, kinderzulageJahre, zvE, rendite, jahre]);
+  }, [
+    monatlich,
+    alter,
+    kinder,
+    kinderzulageJahre,
+    zvE,
+    rendite,
+    jahre,
+    avdKosten,
+    vorabBasiszins,
+    riesterUebertrag,
+  ]);
 
   const vergleich = useMemo(() => {
     if (!vergleichOffen) return null;
 
     const startAlter = Math.min(Math.max(auszahlAlter, 55), 75);
-    const n = AUSZAHLPLAN_ENDALTER - startAlter;
+    const endalter = Math.max(auszahlEndalter, AUSZAHLPLAN_MINDESTALTER);
+    const n = endalter - startAlter;
     const iA = renditeAuszahlung / 100;
 
     // Unterschiedliches Kapital → unterschiedlich hohe Auszahlung: Das AVD
@@ -213,8 +259,12 @@ export default function Altersvorsorgedepot() {
     for (let jahr = 1; jahr <= n; jahr++) {
       const kVorher = kEtf * (1 + iA);
       const gewinnanteil = kVorher > 0 ? Math.max(1 - basis / kVorher, 0) : 0;
+      // 30 % Teilfreistellung für Aktienfonds (§ 20 InvStG): nur 70 % des
+      // Gewinnanteils sind überhaupt steuerpflichtig, bevor der
+      // Sparerpauschbetrag greift.
       const steuerpflichtig = Math.max(
-        wEtf * gewinnanteil - SPARERPAUSCHBETRAG,
+        wEtf * gewinnanteil * (1 - TEILFREISTELLUNG_AKTIENFONDS) -
+          SPARERPAUSCHBETRAG,
         0,
       );
       const steuerEtf = steuerpflichtig * ABGELTUNGSTEUER;
@@ -241,6 +291,7 @@ export default function Altersvorsorgedepot() {
     return {
       n,
       startAlter,
+      endalter,
       wAvd,
       wEtf,
       wAvdMonat: wAvd / 12,
@@ -263,6 +314,7 @@ export default function Altersvorsorgedepot() {
     vergleichOffen,
     result,
     auszahlAlter,
+    auszahlEndalter,
     gesRente,
     bav,
     basisrente,
@@ -332,6 +384,29 @@ export default function Altersvorsorgedepot() {
             onChange={setJahre}
             step={1}
             max={50}
+          />
+          <NumberField
+            label="Kosten für das Altersvorsorgedepot"
+            suffix="% p. a."
+            value={avdKosten}
+            onChange={setAvdKosten}
+            step={0.1}
+            max={1}
+          />
+          <NumberField
+            label="Vorhandenes Riester-Kapital (Übertrag)"
+            suffix="€"
+            value={riesterUebertrag}
+            onChange={setRiesterUebertrag}
+            step={500}
+          />
+          <NumberField
+            label="Basiszins für die Vorabpauschale (Vergleichsdepot)"
+            suffix="%"
+            value={vorabBasiszins}
+            onChange={setVorabBasiszins}
+            step={0.1}
+            max={5}
           />
         </div>
 
@@ -427,7 +502,7 @@ export default function Altersvorsorgedepot() {
               Rendite an – das ETF-Depot aber ohne jede Zulage. Dadurch ist
               das AVD-Kapital ({formatEUR(result.kapitalAvd)}) größer als das
               ETF-Kapital ({formatEUR(result.kapitalEtf)}), und aus dem
-              Auszahlplan bis Alter {AUSZAHLPLAN_ENDALTER} zahlt das AVD eine
+              Auszahlplan bis Alter {vergleich.endalter} zahlt das AVD eine
               höhere Rente aus. Zugleich ist diese Auszahlung voll
               steuerpflichtig, während beim ETF-Depot nur die Erträge mit
               Abgeltungsteuer belastet werden – am Ende zählt, was nach
@@ -444,6 +519,15 @@ export default function Altersvorsorgedepot() {
                   step={1}
                   min={55}
                   max={75}
+                />
+                <NumberField
+                  label="Auszahlung bis (Alter)"
+                  suffix="Jahre"
+                  value={auszahlEndalter}
+                  onChange={setAuszahlEndalter}
+                  step={1}
+                  min={AUSZAHLPLAN_MINDESTALTER}
+                  max={100}
                 />
                 <NumberField
                   label="Gesetzliche Rente (voll steuerpflichtig)"
@@ -568,7 +652,7 @@ export default function Altersvorsorgedepot() {
               </p>
               <p className="mt-2 text-sm text-nebel">
                 {vergleich.breakEvenJahr === null
-                  ? `Jahre – auch am Ende des Auszahlplans (Alter ${AUSZAHLPLAN_ENDALTER}) liegt das AVD unter diesen Annahmen noch mit ${formatEUR(
+                  ? `Jahre – auch am Ende des Auszahlplans (Alter ${vergleich.endalter}) liegt das AVD unter diesen Annahmen noch mit ${formatEUR(
                       vergleich.kumVorteilEnde,
                     )} kumuliert netto vorn (inklusive der zusätzlichen Steuererstattung aus der Ansparphase).`
                   : `${
