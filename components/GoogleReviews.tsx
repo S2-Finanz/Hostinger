@@ -186,22 +186,12 @@ export default function GoogleReviews() {
     if (e.pointerType === "mouse") isHoveredRef.current = false;
   };
 
-  const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    isPointerDownRef.current = true;
-    hasDraggedRef.current = false;
-    dragStartXRef.current = e.clientX;
-    dragStartOffsetRef.current = offsetRef.current;
-    activePointerIdRef.current = e.pointerId;
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {
-      // Manche Browser/Eingabegeräte lehnen das Capture in Randfällen ab –
-      // Ziehen funktioniert dank pointermove/-up auf dem Element trotzdem.
-    }
-  };
-
-  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+  // Bewusst kein setPointerCapture: Das würde in Chromium auch den
+  // anschließenden Klick auf den "Bewertung anzeigen"-Button umleiten,
+  // sodass dessen onClick nie mehr ausgelöst wird. Stattdessen hängen wir
+  // während des Ziehens Listener direkt an window, damit die Bewegung auch
+  // außerhalb des Karussells zuverlässig weiterverfolgt wird.
+  const handleWindowPointerMove = (e: PointerEvent) => {
     if (!isPointerDownRef.current || activePointerIdRef.current !== e.pointerId) return;
     const delta = e.clientX - dragStartXRef.current;
     if (Math.abs(delta) > DRAG_THRESHOLD_PX) hasDraggedRef.current = true;
@@ -209,10 +199,25 @@ export default function GoogleReviews() {
     offsetRef.current = normalizeOffset(dragStartOffsetRef.current + delta);
   };
 
-  const endPointerInteraction = (e: ReactPointerEvent<HTMLDivElement>) => {
+  const handleWindowPointerUp = (e: PointerEvent) => {
     if (activePointerIdRef.current !== e.pointerId) return;
     isPointerDownRef.current = false;
     activePointerIdRef.current = null;
+    window.removeEventListener("pointermove", handleWindowPointerMove);
+    window.removeEventListener("pointerup", handleWindowPointerUp);
+    window.removeEventListener("pointercancel", handleWindowPointerUp);
+  };
+
+  const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    isPointerDownRef.current = true;
+    hasDraggedRef.current = false;
+    dragStartXRef.current = e.clientX;
+    dragStartOffsetRef.current = offsetRef.current;
+    activePointerIdRef.current = e.pointerId;
+    window.addEventListener("pointermove", handleWindowPointerMove);
+    window.addEventListener("pointerup", handleWindowPointerUp);
+    window.addEventListener("pointercancel", handleWindowPointerUp);
   };
 
   // Verhindert, dass ein Ziehen am Ende versehentlich als Klick auf
@@ -232,9 +237,6 @@ export default function GoogleReviews() {
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
         onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={endPointerInteraction}
-        onPointerCancel={endPointerInteraction}
         onClickCapture={handleClickCapture}
       >
         {track.map((review, i) => {
