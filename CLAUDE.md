@@ -16,8 +16,18 @@
     "Bewertung vollständig anzeigen"-Button, lange automatisch schon.
   - Klick klappt nur die jeweils betroffene Karte auf (voller Text, keine Höhenbegrenzung mehr),
     Button-Text wechselt zu "Bewertung wieder einklappen"; erneuter Klick klappt wieder ein.
-  - Das endlos scrollende Karussell (`animate-scroll-x`) pausiert automatisch, sobald irgendeine
-    Karte aufgeklappt ist (nicht nur bei Hover, funktioniert auch auf Mobilgeräten ohne Hover).
+  - Das endlos scrollende Karussell läuft **nicht** mehr über eine CSS-Animation
+    (`animate-scroll-x`), sondern per `requestAnimationFrame` (siehe `offsetRef`/`tick()` in
+    `GoogleReviews.tsx`), damit Auto-Lauf, Pausieren und manuelles Ziehen denselben
+    Verschiebungswert teilen und nahtlos ineinander übergehen. Pausiert wird **nur**, solange
+    Maus/Finger tatsächlich auf dem Karussell ist (Hover bzw. Pointer-Down) – **nicht** mehr
+    dauerhaft, solange eine Karte aufgeklappt ist; bewegt man die Maus weg bzw. hebt den Finger,
+    läuft es weiter, auch wenn eine Karte noch aufgeklappt ist.
+  - Das Karussell lässt sich per Maus (Klick + Ziehen) am Desktop bzw. per Finger (Swipe) auf
+    Mobilgeräten manuell hin- und herschieben, unabhängig vom Auf-/Zugeklappt-Zustand einer
+    Karte. Ein Ziehen wird über eine kleine Schwelle (`DRAG_THRESHOLD_PX`) vom normalen
+    Klick/Tap auf den "Bewertung anzeigen"-Button unterschieden, damit beides zuverlässig
+    nebeneinander funktioniert.
   - Barrierearm umgesetzt: `<button type="button">`, `aria-expanded`, `aria-controls`.
 - **Diese Umsetzung nicht verändern/vereinfachen**, außer der Nutzer bittet ausdrücklich darum.
   Beim Hinzufügen neuer Bewertungen reicht ein Eintrag in `lib/reviews.ts`.
@@ -38,5 +48,10 @@
 - Ablauf für ein Deploy: Quellcode ändern → committen/pushen auf den eigenen `claude/...`-Branch
   → `npm run build` (braucht `.env.local` mit `NEXT_PUBLIC_SUPABASE_URL` /
   `NEXT_PUBLIC_SUPABASE_ANON_KEY`) → Build-Output (`out/`) in einen frischen Git-Worktree von
-  `origin/deploy` kopieren (dabei `.htaccess`/`.gitignore` des deploy-Branches erhalten) →
-  committen ("Deploy: ... (vX.XX)", Versionsnummer hochzählen) → nach `origin/deploy` pushen.
+  `origin/deploy` kopieren (dabei `.htaccess`/`.htpasswd`/`.gitignore` des deploy-Branches
+  erhalten) → committen ("Deploy: ... (vX.XX)", Versionsnummer hochzählen) → nach
+  `origin/deploy` pushen.
+- Die Live-Seite ist per HTTP-Basic-Auth geschützt (`.htaccess`/`.htpasswd` im `deploy`-Branch,
+  nicht über die Hostinger-eigene "Passwortgeschützte Verzeichnisse"-Funktion – die würde bei
+  jedem Deploy überschrieben). Diese beiden Dateien bei jedem Deploy unbedingt aus dem
+  vorherigen `deploy`-Stand übernehmen, sonst ist die Seite danach ungeschützt live.
