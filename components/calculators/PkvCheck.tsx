@@ -82,7 +82,7 @@ export default function PkvCheck() {
             onChange={setAlter}
             min={18}
             max={65}
-            formatValue={(v) => `${v} Jahre`}
+            suffix="Jahre"
           />
 
           <SliderField
@@ -92,7 +92,7 @@ export default function PkvCheck() {
             min={20000}
             max={150000}
             step={1000}
-            formatValue={(v) => formatEUR(v)}
+            suffix="€"
           />
 
           <label className="block">

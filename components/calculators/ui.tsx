@@ -42,7 +42,7 @@ export function SliderField({
   min,
   max,
   step = 1,
-  formatValue,
+  suffix,
 }: {
   label: string;
   value: number;
@@ -50,15 +50,25 @@ export function SliderField({
   min: number;
   max: number;
   step?: number;
-  formatValue: (value: number) => string;
+  suffix?: string;
 }) {
   return (
     <label className="block">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between gap-3">
         <span className="text-sm text-nebel">{label}</span>
-        <span className="text-sm font-semibold text-gold">
-          {formatValue(value)}
-        </span>
+        <div className="flex items-baseline gap-1.5 border-b border-white/20 pb-0.5 focus-within:border-gold">
+          <input
+            type="number"
+            inputMode="decimal"
+            value={Number.isFinite(value) ? value : 0}
+            min={min}
+            max={max}
+            step={step}
+            onChange={(e) => onChange(e.target.valueAsNumber || 0)}
+            className="w-20 bg-transparent text-right text-sm font-semibold text-gold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
+          {suffix && <span className="text-sm text-nebel">{suffix}</span>}
+        </div>
       </div>
       <input
         type="range"

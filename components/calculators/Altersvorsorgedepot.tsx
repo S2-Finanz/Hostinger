@@ -5,7 +5,6 @@ import {
   SliderField,
   ResultRow,
   formatEUR,
-  formatPercent,
 } from "@/components/calculators/ui";
 import {
   einkommensteuer,
@@ -76,7 +75,7 @@ function PayoutBar({
       </div>
       <div
         className="mt-2 h-6 overflow-hidden rounded-sm bg-white/5"
-        style={{ width: `${Math.max(breite, 4)}%` }}
+        style={{ width: `${Math.min(Math.max(breite, 4), 100)}%` }}
       >
         <div className="flex h-full w-full">
           <div
@@ -397,7 +396,7 @@ export default function Altersvorsorgedepot() {
             min={0}
             max={570}
             step={10}
-            formatValue={(v) => formatEUR(v)}
+            suffix="€"
           />
           <SliderField
             label="Alter bei Abschluss"
@@ -406,7 +405,7 @@ export default function Altersvorsorgedepot() {
             min={16}
             max={65}
             step={1}
-            formatValue={(v) => `${v} Jahre`}
+            suffix="Jahre"
           />
           <SliderField
             label="Kindergeldberechtigte Kinder"
@@ -415,7 +414,6 @@ export default function Altersvorsorgedepot() {
             min={0}
             max={10}
             step={1}
-            formatValue={(v) => `${v}`}
           />
           {kinder > 0 && (
             <SliderField
@@ -425,7 +423,7 @@ export default function Altersvorsorgedepot() {
               min={0}
               max={25}
               step={1}
-              formatValue={(v) => `${v} Jahre`}
+              suffix="Jahre"
             />
           )}
           <SliderField
@@ -435,7 +433,7 @@ export default function Altersvorsorgedepot() {
             min={0}
             max={250000}
             step={1000}
-            formatValue={(v) => formatEUR(v)}
+            suffix="€"
           />
           <SliderField
             label="Erwartete Rendite p. a."
@@ -444,7 +442,7 @@ export default function Altersvorsorgedepot() {
             min={0}
             max={15}
             step={0.5}
-            formatValue={(v) => formatPercent(v, 1)}
+            suffix="%"
           />
           <SliderField
             label="Anlagedauer bis zur Auszahlung"
@@ -453,7 +451,7 @@ export default function Altersvorsorgedepot() {
             min={1}
             max={50}
             step={1}
-            formatValue={(v) => `${v} Jahre`}
+            suffix="Jahre"
           />
           <SliderField
             label="Kosten für das Altersvorsorgedepot"
@@ -462,7 +460,7 @@ export default function Altersvorsorgedepot() {
             min={0}
             max={1}
             step={0.1}
-            formatValue={(v) => `${formatPercent(v, 1)} p. a.`}
+            suffix="% p. a."
           />
           <SliderField
             label="Vorhandenes Riester-Kapital (Übertrag)"
@@ -471,7 +469,7 @@ export default function Altersvorsorgedepot() {
             min={0}
             max={50000}
             step={500}
-            formatValue={(v) => formatEUR(v)}
+            suffix="€"
           />
           <SliderField
             label="Basiszins für die Vorabpauschale (Vergleichsdepot)"
@@ -480,7 +478,7 @@ export default function Altersvorsorgedepot() {
             min={0}
             max={5}
             step={0.1}
-            formatValue={(v) => formatPercent(v, 1)}
+            suffix="%"
           />
         </div>
 
@@ -592,7 +590,7 @@ export default function Altersvorsorgedepot() {
                   min={55}
                   max={75}
                   step={1}
-                  formatValue={(v) => `${v} Jahre`}
+                  suffix="Jahre"
                 />
                 <SliderField
                   label="Auszahlung bis (Alter)"
@@ -601,7 +599,7 @@ export default function Altersvorsorgedepot() {
                   min={AUSZAHLPLAN_MINDESTALTER}
                   max={100}
                   step={1}
-                  formatValue={(v) => `${v} Jahre`}
+                  suffix="Jahre"
                 />
                 <SliderField
                   label="Gesetzliche Rente (voll steuerpflichtig)"
@@ -610,7 +608,7 @@ export default function Altersvorsorgedepot() {
                   min={0}
                   max={5000}
                   step={100}
-                  formatValue={(v) => `${formatEUR(v)} / Monat`}
+                  suffix="€ / Monat"
                 />
                 <SliderField
                   label="Betriebliche Altersvorsorge"
@@ -619,7 +617,7 @@ export default function Altersvorsorgedepot() {
                   min={0}
                   max={3000}
                   step={100}
-                  formatValue={(v) => `${formatEUR(v)} / Monat`}
+                  suffix="€ / Monat"
                 />
                 <SliderField
                   label="Basisrente (Rürup)"
@@ -628,7 +626,7 @@ export default function Altersvorsorgedepot() {
                   min={0}
                   max={3000}
                   step={100}
-                  formatValue={(v) => `${formatEUR(v)} / Monat`}
+                  suffix="€ / Monat"
                 />
                 <SliderField
                   label="Mieteinnahmen"
@@ -637,7 +635,7 @@ export default function Altersvorsorgedepot() {
                   min={0}
                   max={3000}
                   step={100}
-                  formatValue={(v) => `${formatEUR(v)} / Monat`}
+                  suffix="€ / Monat"
                 />
                 <SliderField
                   label={`Private Rentenversicherung (Ertragsanteil ${vergleich.ea} %)`}
@@ -646,17 +644,28 @@ export default function Altersvorsorgedepot() {
                   min={0}
                   max={3000}
                   step={100}
-                  formatValue={(v) => `${formatEUR(v)} / Monat`}
+                  suffix="€ / Monat"
                 />
-                <SliderField
-                  label="Kirchensteuer (0, 8 oder 9)"
-                  value={kirchensteuer}
-                  onChange={setKirchensteuer}
-                  min={0}
-                  max={9}
-                  step={1}
-                  formatValue={(v) => formatPercent(v, 0)}
-                />
+                <div className="block">
+                  <span className="text-sm text-nebel">Kirchensteuer</span>
+                  <div className="mt-2 flex gap-2">
+                    {[0, 8, 9].map((satz) => (
+                      <button
+                        key={satz}
+                        type="button"
+                        onClick={() => setKirchensteuer(satz)}
+                        aria-pressed={kirchensteuer === satz}
+                        className={`flex-1 rounded-sm border px-3 py-2 text-sm font-semibold transition-colors ${
+                          kirchensteuer === satz
+                            ? "border-gold bg-gold/10 text-gold"
+                            : "border-white/20 text-nebel hover:border-white/40"
+                        }`}
+                      >
+                        {satz === 0 ? "keine" : `${satz} %`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <SliderField
                   label="Rendite in der Auszahlphase p. a."
                   value={renditeAuszahlung}
@@ -664,7 +673,7 @@ export default function Altersvorsorgedepot() {
                   min={0}
                   max={10}
                   step={0.5}
-                  formatValue={(v) => formatPercent(v, 1)}
+                  suffix="%"
                 />
               </div>
 
@@ -678,13 +687,13 @@ export default function Altersvorsorgedepot() {
                       label="Altersvorsorgedepot"
                       brutto={vergleich.wAvd}
                       steuer={vergleich.steuerAvdJahr}
-                      maxBrutto={vergleich.wAvd}
+                      maxBrutto={Math.max(vergleich.wAvd, vergleich.wEtf)}
                     />
                     <PayoutBar
                       label="ETF-Depot (kein Zulagenkapital)"
                       brutto={vergleich.wEtf}
                       steuer={vergleich.steuerEtfJahr1}
-                      maxBrutto={vergleich.wAvd}
+                      maxBrutto={Math.max(vergleich.wAvd, vergleich.wEtf)}
                     />
                   </div>
                   <div className="mt-5 flex items-center gap-4 text-xs text-nebel">
