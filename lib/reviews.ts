@@ -60,4 +60,19 @@ export const REVIEWS: Review[] = [
     rating: 5,
     text: "Das Beratungsgespräch bei Marcel Schäfer war wirklich super aufschlussreich. Er hat mir so viele offene Fragen beantwortet und ist auch wirklich transparent mit den ganzen Themen umgegangen und das Gespräch war super nett und kompetent. Auch, wenn ich schon fast am Ende des Refs bin, hat es mir nochmal sehr geholfen! Danke!",
   },
+  {
+    name: "Luis Esencan",
+    rating: 5,
+    text: "Ich bin mit der Beratung von Herrn Schäfer rundum zufrieden. Er ist kompetent, nimmt sich Zeit und erklärt alles verständlich. Dabei vermittelt er stets das Gefühl, dass für ihn die beste Lösung für mich im Mittelpunkt steht. Besonders hervorzuheben ist seine hervorragende Erreichbarkeit. Auch bei dringenden Anliegen kümmert er sich zuverlässig und schnell. Eine solche persönliche Betreuung ist heutzutage selten geworden. Klare Empfehlung!",
+  },
+  {
+    name: "Verena Dreher",
+    rating: 5,
+    text: "Ich wurde von Herrn Schäfer zu unterschiedlichen Anliegen beraten und bin total begeistert. Er ist ein kompetenter, zuverlässiger und ehrlicher Ansprechpartner, der sich viel Zeit nimmt und umfassend berät, ohne etwas aufzudrängen. Herr Schäfer ist immer erreichbar und bemüht, die beste Lösung für die individuellen Bedürfnisse zu finden. Klare Empfehlung!",
+  },
+  {
+    name: "Heinz Günthardtt",
+    rating: 5,
+    text: "Ich möchte Herrn Schäfer mein größtes Lob aussprechen. Seine Arbeit als Berater ist in jeder Hinsicht herausragend. Herr Schäfer ist äußerst kompetent und besitzt tiefgehende Fachkenntnisse, die er verständlich und zugänglich vermittelt. Er nimmt sich die Zeit, auch komplexe Themen ausführlich zu erklären, sodass man alle notwendigen Informationen für fundierte Entscheidungen erhält. Besonders beeindruckend ist seine Zuverlässigkeit: Bei Fragen oder Anliegen ist er schnell erreichbar und kümmert sich prompt und gewissenhaft um alles. Dank ihm fühle ich mich bestens beraten und abgesichert. Wer einen exzellenten, kompetenten und engagierten Ansprechpartner sucht, dem kann ich Herrn Schäfer nur wärmstens empfehlen!",
+  },
 ];
