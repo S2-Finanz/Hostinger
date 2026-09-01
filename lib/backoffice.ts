@@ -8,6 +8,9 @@ export type Kunde = {
   geburtsdatum: string | null;
   email: string;
   telefon: string | null;
+  strasse: string | null;
+  plz: string | null;
+  ort: string | null;
   erstellt_am: string;
   quelle: "manuell" | "funnel";
   funnel_antworten: Record<string, string | string[]> | null;
@@ -43,6 +46,9 @@ export async function legeKundeAn(input: {
   geburtsdatum: string;
   email: string;
   telefon: string;
+  strasse: string;
+  plz: string;
+  ort: string;
 }): Promise<Kunde> {
   const { data, error } = await supabase
     .from("kunden")
@@ -52,6 +58,9 @@ export async function legeKundeAn(input: {
       geburtsdatum: input.geburtsdatum,
       email: input.email,
       telefon: input.telefon || null,
+      strasse: input.strasse || null,
+      plz: input.plz || null,
+      ort: input.ort || null,
     })
     .select()
     .single();

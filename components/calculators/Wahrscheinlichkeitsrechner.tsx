@@ -43,7 +43,7 @@ export default function Wahrscheinlichkeitsrechner() {
           onChange={setLaufzeit}
           min={LAUFZEIT_MIN}
           max={laufzeitMax}
-          formatValue={(v) => `${v} Jahre`}
+          suffix="Jahre"
         />
 
         <NumberField

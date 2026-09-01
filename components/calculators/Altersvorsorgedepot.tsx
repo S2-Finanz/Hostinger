@@ -1,14 +1,24 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { NumberField, ResultRow, formatEUR } from "@/components/calculators/ui";
+import {
+  SliderField,
+  ResultRow,
+  formatEUR,
+} from "@/components/calculators/ui";
 import {
   einkommensteuer,
   soli,
   ertragsanteil,
   ABGELTUNGSTEUER,
   SPARERPAUSCHBETRAG,
+  TEILFREISTELLUNG_AKTIENFONDS,
 } from "@/lib/steuer";
+
+// Faktor für den Basisertrag der Vorabpauschale nach § 18 InvStG: 70 % des
+// Basiszinses auf den Fondswert zu Jahresbeginn. Vereinfachend (wie auch bei
+// Finanzfluss) ohne Deckelung durch den tatsächlichen Wertzuwachs des Jahres.
+const VORABPAUSCHALE_FAKTOR = 0.7;
 
 // Fördereckwerte des Altersvorsorgedepots (Gesetz 2026, Start 1.1.2027)
 const ZULAGE_STUFE_1_GRENZE = 360; // 50 Cent je Euro
@@ -20,7 +30,7 @@ const STARTBONUS = 200; // einmalig bei Abschluss unter 25 Jahren
 const STARTBONUS_ALTERSGRENZE = 25;
 const SA_ABZUG_MAX = 1800; // Sonderausgabenabzug: Beiträge bis 1.800 €/Jahr
 const MAX_EINZAHLUNG = 6840; // maximale Jahreseinzahlung ins Depot
-const AUSZAHLPLAN_ENDALTER = 85; // Auszahlplan beider Varianten läuft bis 85
+const AUSZAHLPLAN_MINDESTALTER = 85; // gesetzliches Mindestalter für das Auszahlplan-Ende
 
 function grundzulage(jahresbeitrag: number): number {
   const stufe1 =
@@ -65,7 +75,7 @@ function PayoutBar({
       </div>
       <div
         className="mt-2 h-6 overflow-hidden rounded-sm bg-white/5"
-        style={{ width: `${Math.max(breite, 4)}%` }}
+        style={{ width: `${Math.min(Math.max(breite, 4), 100)}%` }}
       >
         <div className="flex h-full w-full">
           <div
@@ -73,6 +83,63 @@ function PayoutBar({
             style={{ width: `${nettoAnteil}%` }}
           />
           <div className="h-full flex-1 bg-white/20" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NettoAuszahlungVergleich({
+  nettoAvd,
+  nettoEtf,
+}: {
+  nettoAvd: number;
+  nettoEtf: number;
+}) {
+  const max = Math.max(nettoAvd, nettoEtf, 1);
+
+  return (
+    <div className="rounded-sm bg-onyx p-8">
+      <p className="text-xs uppercase tracking-wide text-nebel/60">
+        Monatliche Auszahlung
+      </p>
+      <p className="mt-2 font-display text-4xl font-bold text-gold md:text-5xl">
+        {formatEUR(nettoAvd)}
+      </p>
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-nebel">
+        So viel bleibt Ihnen im Ruhestand netto jeden Monat aus dem
+        Altersvorsorgedepot übrig. Investieren Sie den gleichen Betrag
+        stattdessen in ein normales ETF-Depot ohne Förderung, könnten Sie bei
+        gleicher Entnahmestrategie monatlich {formatEUR(nettoEtf)} entnehmen.
+      </p>
+      <div className="mt-6 flex flex-col gap-4">
+        <div>
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="text-white">Altersvorsorgedepot</span>
+            <span className="font-semibold text-gold">
+              {formatEUR(nettoAvd)}
+            </span>
+          </div>
+          <div className="mt-1.5 h-7 w-full overflow-hidden rounded-sm bg-white/5">
+            <div
+              className="h-full rounded-sm bg-gold"
+              style={{ width: `${Math.max((nettoAvd / max) * 100, 4)}%` }}
+            />
+          </div>
+        </div>
+        <div>
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="text-white">Normales ETF-Depot</span>
+            <span className="font-semibold text-white">
+              {formatEUR(nettoEtf)}
+            </span>
+          </div>
+          <div className="mt-1.5 h-7 w-full overflow-hidden rounded-sm bg-white/5">
+            <div
+              className="h-full rounded-sm bg-white/40"
+              style={{ width: `${Math.max((nettoEtf / max) * 100, 4)}%` }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -87,9 +154,15 @@ export default function Altersvorsorgedepot() {
   const [zvE, setZvE] = useState(45000);
   const [rendite, setRendite] = useState(6);
   const [jahre, setJahre] = useState(30);
+  const [avdKosten, setAvdKosten] = useState(1);
+  const [vorabBasiszins, setVorabBasiszins] = useState(0);
+  const [riesterUebertrag, setRiesterUebertrag] = useState(0);
 
   const [vergleichOffen, setVergleichOffen] = useState(false);
   const [auszahlAlter, setAuszahlAlter] = useState(67);
+  const [auszahlEndalter, setAuszahlEndalter] = useState(
+    AUSZAHLPLAN_MINDESTALTER,
+  );
   const [gesRente, setGesRente] = useState(2000);
   const [bav, setBav] = useState(0);
   const [basisrente, setBasisrente] = useState(0);
@@ -119,19 +192,40 @@ export default function Altersvorsorgedepot() {
     // ein reines ETF-Szenario mit identischem Eigenbeitrag und identischer
     // Rendite, aber OHNE jede staatliche Zulage durchgerechnet – das ist die
     // realistische Vergleichsbasis, denn ein privater ETF-Sparplan bekommt
-    // keine Förderung.
-    const i = rendite / 100 / 12;
+    // keine Förderung. Das AVD trägt zusätzlich seine eigenen Depotkosten,
+    // das Vergleichsdepot bleibt kostenfrei (wie bei einem gebührenfreien
+    // ETF-Sparplan üblich).
+    const iAvd = (rendite - avdKosten) / 100 / 12;
+    const iEtf = rendite / 100 / 12;
+    const basiszinsVorab = vorabBasiszins / 100;
     const kzJahre = Math.min(Math.max(kinderzulageJahre, 0), jahre);
-    let kapitalAvd = startbonus;
+    // Ein bestehender Riester-Vertrag kann als Startkapital ins AVD
+    // übertragen werden.
+    let kapitalAvd = startbonus + riesterUebertrag;
     let kapitalEtf = 0;
     const eigenMonat = jahresbeitrag / 12;
 
-    for (let m = 0; m < jahre * 12; m++) {
-      const jahrIndex = Math.floor(m / 12);
+    for (let jahr = 0; jahr < jahre; jahr++) {
+      // Vorabpauschale betrifft nur das ungeförderte Vergleichsdepot: Das
+      // AVD ist als zertifiziertes Vorsorgeprodukt nachgelagert besteuert,
+      // eine jährliche Vorab-Besteuerung nicht realisierter Gewinne entfällt
+      // dort systembedingt.
+      const kapitalEtfJahresstart = kapitalEtf;
       const zulageMonat =
-        (zulageGrund + (jahrIndex < kzJahre ? kinderzulage : 0)) / 12;
-      kapitalAvd = kapitalAvd * (1 + i) + eigenMonat + zulageMonat;
-      kapitalEtf = kapitalEtf * (1 + i) + eigenMonat;
+        (zulageGrund + (jahr < kzJahre ? kinderzulage : 0)) / 12;
+
+      for (let m = 0; m < 12; m++) {
+        kapitalAvd = kapitalAvd * (1 + iAvd) + eigenMonat + zulageMonat;
+        kapitalEtf = kapitalEtf * (1 + iEtf) + eigenMonat;
+      }
+
+      if (basiszinsVorab > 0) {
+        const vorabpauschale =
+          kapitalEtfJahresstart * basiszinsVorab * VORABPAUSCHALE_FAKTOR;
+        const steuerVorab =
+          vorabpauschale * (1 - TEILFREISTELLUNG_AKTIENFONDS) * ABGELTUNGSTEUER;
+        kapitalEtf -= steuerVorab;
+      }
     }
 
     // Zusätzliche Steuererstattungen (Günstigerprüfung) fließen an die Person, nicht ins Depot
@@ -157,16 +251,29 @@ export default function Altersvorsorgedepot() {
       eingezahlt,
       zulagenGesamt,
       erstattungenGesamt,
-      ertrag: kapitalAvd - eingezahlt - zulagenGesamt,
+      riesterUebertrag,
+      ertrag: kapitalAvd - eingezahlt - zulagenGesamt - riesterUebertrag,
       foerderTopf: zulagenGesamt + erstattungenGesamt,
     };
-  }, [monatlich, alter, kinder, kinderzulageJahre, zvE, rendite, jahre]);
+  }, [
+    monatlich,
+    alter,
+    kinder,
+    kinderzulageJahre,
+    zvE,
+    rendite,
+    jahre,
+    avdKosten,
+    vorabBasiszins,
+    riesterUebertrag,
+  ]);
 
   const vergleich = useMemo(() => {
     if (!vergleichOffen) return null;
 
     const startAlter = Math.min(Math.max(auszahlAlter, 55), 75);
-    const n = AUSZAHLPLAN_ENDALTER - startAlter;
+    const endalter = Math.max(auszahlEndalter, AUSZAHLPLAN_MINDESTALTER);
+    const n = endalter - startAlter;
     const iA = renditeAuszahlung / 100;
 
     // Unterschiedliches Kapital → unterschiedlich hohe Auszahlung: Das AVD
@@ -213,8 +320,12 @@ export default function Altersvorsorgedepot() {
     for (let jahr = 1; jahr <= n; jahr++) {
       const kVorher = kEtf * (1 + iA);
       const gewinnanteil = kVorher > 0 ? Math.max(1 - basis / kVorher, 0) : 0;
+      // 30 % Teilfreistellung für Aktienfonds (§ 20 InvStG): nur 70 % des
+      // Gewinnanteils sind überhaupt steuerpflichtig, bevor der
+      // Sparerpauschbetrag greift.
       const steuerpflichtig = Math.max(
-        wEtf * gewinnanteil - SPARERPAUSCHBETRAG,
+        wEtf * gewinnanteil * (1 - TEILFREISTELLUNG_AKTIENFONDS) -
+          SPARERPAUSCHBETRAG,
         0,
       );
       const steuerEtf = steuerpflichtig * ABGELTUNGSTEUER;
@@ -241,6 +352,7 @@ export default function Altersvorsorgedepot() {
     return {
       n,
       startAlter,
+      endalter,
       wAvd,
       wEtf,
       wAvdMonat: wAvd / 12,
@@ -263,6 +375,7 @@ export default function Altersvorsorgedepot() {
     vergleichOffen,
     result,
     auszahlAlter,
+    auszahlEndalter,
     gesRente,
     bav,
     basisrente,
@@ -276,62 +389,96 @@ export default function Altersvorsorgedepot() {
     <div className="flex flex-col gap-12">
       <div className="grid gap-10 md:grid-cols-2">
         <div className="flex flex-col gap-8">
-          <NumberField
+          <SliderField
             label="Monatlicher Eigenbeitrag"
-            suffix="€"
             value={monatlich}
             onChange={setMonatlich}
-            step={10}
+            min={0}
             max={570}
+            step={10}
+            suffix="€"
           />
-          <NumberField
+          <SliderField
             label="Alter bei Abschluss"
-            suffix="Jahre"
             value={alter}
             onChange={setAlter}
-            step={1}
             min={16}
             max={65}
+            step={1}
+            suffix="Jahre"
           />
-          <NumberField
+          <SliderField
             label="Kindergeldberechtigte Kinder"
             value={kinder}
             onChange={setKinder}
-            step={1}
+            min={0}
             max={10}
+            step={1}
           />
           {kinder > 0 && (
-            <NumberField
+            <SliderField
               label="Jahre mit Anspruch auf Kinderzulage"
-              suffix="Jahre"
               value={kinderzulageJahre}
               onChange={setKinderzulageJahre}
-              step={1}
+              min={0}
               max={25}
+              step={1}
+              suffix="Jahre"
             />
           )}
-          <NumberField
+          <SliderField
             label="Zu versteuerndes Jahreseinkommen"
-            suffix="€"
             value={zvE}
             onChange={setZvE}
+            min={0}
+            max={250000}
             step={1000}
+            suffix="€"
           />
-          <NumberField
+          <SliderField
             label="Erwartete Rendite p. a."
-            suffix="%"
             value={rendite}
             onChange={setRendite}
-            step={0.5}
+            min={0}
             max={15}
+            step={0.5}
+            suffix="%"
           />
-          <NumberField
+          <SliderField
             label="Anlagedauer bis zur Auszahlung"
-            suffix="Jahre"
             value={jahre}
             onChange={setJahre}
-            step={1}
+            min={1}
             max={50}
+            step={1}
+            suffix="Jahre"
+          />
+          <SliderField
+            label="Kosten für das Altersvorsorgedepot"
+            value={avdKosten}
+            onChange={setAvdKosten}
+            min={0}
+            max={1}
+            step={0.1}
+            suffix="% p. a."
+          />
+          <SliderField
+            label="Vorhandenes Riester-Kapital (Übertrag)"
+            value={riesterUebertrag}
+            onChange={setRiesterUebertrag}
+            min={0}
+            max={50000}
+            step={500}
+            suffix="€"
+          />
+          <SliderField
+            label="Basiszins für die Vorabpauschale (Vergleichsdepot)"
+            value={vorabBasiszins}
+            onChange={setVorabBasiszins}
+            min={0}
+            max={5}
+            step={0.1}
+            suffix="%"
           />
         </div>
 
@@ -427,7 +574,7 @@ export default function Altersvorsorgedepot() {
               Rendite an – das ETF-Depot aber ohne jede Zulage. Dadurch ist
               das AVD-Kapital ({formatEUR(result.kapitalAvd)}) größer als das
               ETF-Kapital ({formatEUR(result.kapitalEtf)}), und aus dem
-              Auszahlplan bis Alter {AUSZAHLPLAN_ENDALTER} zahlt das AVD eine
+              Auszahlplan bis Alter {vergleich.endalter} zahlt das AVD eine
               höhere Rente aus. Zugleich ist diese Auszahlung voll
               steuerpflichtig, während beim ETF-Depot nur die Erträge mit
               Abgeltungsteuer belastet werden – am Ende zählt, was nach
@@ -436,65 +583,97 @@ export default function Altersvorsorgedepot() {
 
             <div className="grid gap-10 md:grid-cols-2">
               <div className="flex flex-col gap-8">
-                <NumberField
+                <SliderField
                   label="Auszahlungsbeginn (Alter)"
-                  suffix="Jahre"
                   value={auszahlAlter}
                   onChange={setAuszahlAlter}
-                  step={1}
                   min={55}
                   max={75}
+                  step={1}
+                  suffix="Jahre"
                 />
-                <NumberField
+                <SliderField
+                  label="Auszahlung bis (Alter)"
+                  value={auszahlEndalter}
+                  onChange={setAuszahlEndalter}
+                  min={AUSZAHLPLAN_MINDESTALTER}
+                  max={100}
+                  step={1}
+                  suffix="Jahre"
+                />
+                <SliderField
                   label="Gesetzliche Rente (voll steuerpflichtig)"
-                  suffix="€/Monat"
                   value={gesRente}
                   onChange={setGesRente}
+                  min={0}
+                  max={5000}
                   step={100}
+                  suffix="€ / Monat"
                 />
-                <NumberField
+                <SliderField
                   label="Betriebliche Altersvorsorge"
-                  suffix="€/Monat"
                   value={bav}
                   onChange={setBav}
+                  min={0}
+                  max={3000}
                   step={100}
+                  suffix="€ / Monat"
                 />
-                <NumberField
+                <SliderField
                   label="Basisrente (Rürup)"
-                  suffix="€/Monat"
                   value={basisrente}
                   onChange={setBasisrente}
+                  min={0}
+                  max={3000}
                   step={100}
+                  suffix="€ / Monat"
                 />
-                <NumberField
+                <SliderField
                   label="Mieteinnahmen"
-                  suffix="€/Monat"
                   value={miete}
                   onChange={setMiete}
+                  min={0}
+                  max={3000}
                   step={100}
+                  suffix="€ / Monat"
                 />
-                <NumberField
+                <SliderField
                   label={`Private Rentenversicherung (Ertragsanteil ${vergleich.ea} %)`}
-                  suffix="€/Monat"
                   value={privRente}
                   onChange={setPrivRente}
+                  min={0}
+                  max={3000}
                   step={100}
+                  suffix="€ / Monat"
                 />
-                <NumberField
-                  label="Kirchensteuer (0, 8 oder 9)"
-                  suffix="%"
-                  value={kirchensteuer}
-                  onChange={setKirchensteuer}
-                  step={1}
-                  max={9}
-                />
-                <NumberField
+                <div className="block">
+                  <span className="text-sm text-nebel">Kirchensteuer</span>
+                  <div className="mt-2 flex gap-2">
+                    {[0, 8, 9].map((satz) => (
+                      <button
+                        key={satz}
+                        type="button"
+                        onClick={() => setKirchensteuer(satz)}
+                        aria-pressed={kirchensteuer === satz}
+                        className={`flex-1 rounded-sm border px-3 py-2 text-sm font-semibold transition-colors ${
+                          kirchensteuer === satz
+                            ? "border-gold bg-gold/10 text-gold"
+                            : "border-white/20 text-nebel hover:border-white/40"
+                        }`}
+                      >
+                        {satz === 0 ? "keine" : `${satz} %`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <SliderField
                   label="Rendite in der Auszahlphase p. a."
-                  suffix="%"
                   value={renditeAuszahlung}
                   onChange={setRenditeAuszahlung}
-                  step={0.5}
+                  min={0}
                   max={10}
+                  step={0.5}
+                  suffix="%"
                 />
               </div>
 
@@ -508,13 +687,13 @@ export default function Altersvorsorgedepot() {
                       label="Altersvorsorgedepot"
                       brutto={vergleich.wAvd}
                       steuer={vergleich.steuerAvdJahr}
-                      maxBrutto={vergleich.wAvd}
+                      maxBrutto={Math.max(vergleich.wAvd, vergleich.wEtf)}
                     />
                     <PayoutBar
                       label="ETF-Depot (kein Zulagenkapital)"
                       brutto={vergleich.wEtf}
                       steuer={vergleich.steuerEtfJahr1}
-                      maxBrutto={vergleich.wAvd}
+                      maxBrutto={Math.max(vergleich.wAvd, vergleich.wEtf)}
                     />
                   </div>
                   <div className="mt-5 flex items-center gap-4 text-xs text-nebel">
@@ -528,22 +707,16 @@ export default function Altersvorsorgedepot() {
                   </div>
                 </div>
 
+                <NettoAuszahlungVergleich
+                  nettoAvd={vergleich.nettoAvdJahr / 12}
+                  nettoEtf={vergleich.nettoEtfJahr1 / 12}
+                />
+
                 <div className="rounded-sm bg-onyx p-8">
-                  <p className="mb-2 text-xs uppercase tracking-wide text-nebel/60">
-                    Monatlich netto in der Tasche
-                  </p>
-                  <ResultRow
-                    label="Altersvorsorgedepot"
-                    value={formatEUR(vergleich.nettoAvdJahr / 12)}
-                    emphasis
-                  />
-                  <ResultRow
-                    label="ETF-Depot"
-                    value={formatEUR(vergleich.nettoEtfJahr1 / 12)}
-                  />
                   <ResultRow
                     label="Netto-Mehrbetrag des AVD pro Monat"
                     value={formatEUR(vergleich.nettoDifferenzJahr1 / 12)}
+                    emphasis
                   />
                   <p className="mt-4 text-xs leading-relaxed text-nebel">
                     Effektive Steuerbelastung der AVD-Auszahlung:{" "}
@@ -568,7 +741,7 @@ export default function Altersvorsorgedepot() {
               </p>
               <p className="mt-2 text-sm text-nebel">
                 {vergleich.breakEvenJahr === null
-                  ? `Jahre – auch am Ende des Auszahlplans (Alter ${AUSZAHLPLAN_ENDALTER}) liegt das AVD unter diesen Annahmen noch mit ${formatEUR(
+                  ? `Jahre – auch am Ende des Auszahlplans (Alter ${vergleich.endalter}) liegt das AVD unter diesen Annahmen noch mit ${formatEUR(
                       vergleich.kumVorteilEnde,
                     )} kumuliert netto vorn (inklusive der zusätzlichen Steuererstattung aus der Ansparphase).`
                   : `${

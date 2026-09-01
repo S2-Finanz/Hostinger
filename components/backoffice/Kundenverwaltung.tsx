@@ -87,6 +87,9 @@ function KundeAnlegenFormular({ onAngelegt }: { onAngelegt: () => void }) {
   const [geburtsdatum, setGeburtsdatum] = useState("");
   const [email, setEmail] = useState("");
   const [telefon, setTelefon] = useState("");
+  const [strasse, setStrasse] = useState("");
+  const [plz, setPlz] = useState("");
+  const [ort, setOrt] = useState("");
   const [wirdGespeichert, setWirdGespeichert] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
 
@@ -95,12 +98,15 @@ function KundeAnlegenFormular({ onAngelegt }: { onAngelegt: () => void }) {
     setFehler(null);
     setWirdGespeichert(true);
     try {
-      await legeKundeAn({ vorname, nachname, geburtsdatum, email, telefon });
+      await legeKundeAn({ vorname, nachname, geburtsdatum, email, telefon, strasse, plz, ort });
       setVorname("");
       setNachname("");
       setGeburtsdatum("");
       setEmail("");
       setTelefon("");
+      setStrasse("");
+      setPlz("");
+      setOrt("");
       setOffen(false);
       onAngelegt();
     } catch (e) {
@@ -173,6 +179,33 @@ function KundeAnlegenFormular({ onAngelegt }: { onAngelegt: () => void }) {
           <input
             value={telefon}
             onChange={(e) => setTelefon(e.target.value)}
+            className={eingabeKlasse}
+          />
+        </label>
+        <label className="block sm:col-span-2">
+          <span className="text-sm text-nebel">Straße, Hausnummer (optional)</span>
+          <input
+            value={strasse}
+            onChange={(e) => setStrasse(e.target.value)}
+            placeholder="z. B. Furtstr. 41/5"
+            className={eingabeKlasse}
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm text-nebel">Postleitzahl (optional)</span>
+          <input
+            value={plz}
+            onChange={(e) => setPlz(e.target.value)}
+            placeholder="z. B. 73770"
+            className={eingabeKlasse}
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm text-nebel">Ort (optional)</span>
+          <input
+            value={ort}
+            onChange={(e) => setOrt(e.target.value)}
+            placeholder="z. B. Denkendorf"
             className={eingabeKlasse}
           />
         </label>
@@ -266,6 +299,13 @@ function KundeZeile({ kunde }: { kunde: Kunde }) {
             {kunde.email}
             {kunde.telefon ? ` · ${kunde.telefon}` : ""}
           </p>
+          {(kunde.strasse || kunde.plz || kunde.ort) && (
+            <p className="mt-0.5 text-sm text-nebel">
+              {[kunde.strasse, [kunde.plz, kunde.ort].filter(Boolean).join(" ")]
+                .filter(Boolean)
+                .join(", ")}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-3">
           {kunde.quelle === "funnel" && (

@@ -55,7 +55,6 @@ export default function HistorischeRendite() {
           onChange={setGeburtsjahr}
           min={GEBURTSJAHR_MIN}
           max={LETZTES_VOLLSTAENDIGES_JAHR}
-          formatValue={(v) => `${v}`}
         />
 
         <label className="block">
