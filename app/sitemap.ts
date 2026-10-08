@@ -11,6 +11,7 @@ const ROUTES = [
   "/kennenlernen/",
   "/wissen/",
   "/rechner/",
+  "/rechner/nettolohnrechner/",
   "/rechner/pensionsrechner/",
   "/rechner/besoldungstabellen/",
   "/rechner/altersvorsorgedepot/",

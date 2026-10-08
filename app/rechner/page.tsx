@@ -21,7 +21,7 @@ export default function RechnerOverviewPage() {
               Rechner
             </h1>
             <p className="mt-4 max-w-xl text-nebel">
-              Elf Schnellrechner für eine erste Einordnung. Für belastbare
+              19 Schnellrechner für eine erste Einordnung. Für belastbare
               Zahlen rechnen wir im persönlichen Gespräch mit Ihren echten
               Daten.
             </p>

@@ -11,6 +11,16 @@ export type CalculatorGroup = {
 
 export const CALCULATOR_GROUPS: CalculatorGroup[] = [
   {
+    title: "Einkommen & Steuern",
+    items: [
+      {
+        title: "Nettolohnrechner",
+        text: "Brutto-Netto-Rechner für Angestellte: Steuern und Sozialabgaben auf einen Blick.",
+        href: "/rechner/nettolohnrechner/",
+      },
+    ],
+  },
+  {
     title: "Vorsorge & Absicherung",
     items: [
       {
